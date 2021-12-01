@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_library(tiny_stl_interface INTERFACE)
 target_include_directories(tiny_stl_interface INTERFACE include)
 
+# debug mode
+add_compile_options(-g)
+
 # project files
 set(PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/src)
 set(PROJECT_TESTS ${PROJECT_SOURCE_DIR}/test)
