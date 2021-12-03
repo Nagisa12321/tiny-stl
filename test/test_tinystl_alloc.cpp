@@ -8,16 +8,19 @@
 #include <vector> 
 #include <iostream>
 #include "tinystl_alloc.h"
+#include "tinystl_types.h"
 
 void test_alloc();
 void test_malloc_alloc_template();
 void test_refill();
+void test_chunk_alloc();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test alloc", test_alloc },
         { "test __malloc_alloc_template", test_malloc_alloc_template },
         { "test the refill of chunk", test_refill },
+        { "test alloc, dealloc and memory leak", test_chunk_alloc },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -73,4 +76,36 @@ void test_refill() {
         std::cout << ((long *)__mem + __i) << " 0x" << std::hex << *((long *)__mem + __i) << std::endl;
     }
     free(__mem);
+}
+
+
+void test_chunk_alloc() {
+    typedef typename tinystd::__default_alloc_template<0> __allocator;
+    tinystd::size_t __free_list, __memory_pool;
+    tinystd::size_t __handle_memory = 0;
+    void *__alloc1 = __allocator::__debug_chunk_alloc(32, 20);
+    for (int __i = 1; __i < 20; ++__i)
+        __allocator::_S_deallocate((char *)__alloc1 + __i * 32, 32);
+    __handle_memory += 32;
+    __allocator::__debug_count_free(&__free_list, &__memory_pool);
+    printf("__free_list=%ld, __memory_pool=%ld, __handle_memory=%ld\n", __free_list, __memory_pool, __handle_memory);
+
+    void *__alloc2 = __allocator::__debug_chunk_alloc(64, 20);
+    for (int __i = 1; __i < 10; ++__i)
+        __allocator::_S_deallocate((char *)__alloc2 + __i * 64, 64);
+    __allocator::__debug_count_free(&__free_list, &__memory_pool);
+    __handle_memory += 64;
+    printf("__free_list=%ld, __memory_pool=%ld, __handle_memory=%ld\n", __free_list, __memory_pool, __handle_memory);
+    
+    void *__alloc3 = __allocator::__debug_chunk_alloc(96, 20);
+    for (int __i = 1; __i < 20; ++__i)
+        __allocator::_S_deallocate((char *)__alloc3 + __i * 96, 96);
+    __allocator::__debug_count_free(&__free_list, &__memory_pool);
+    __handle_memory += 96;
+    printf("__free_list=%ld, __memory_pool=%ld, __handle_memory=%ld\n", __free_list, __memory_pool, __handle_memory);
+    
+    // give back the memory
+    __allocator::_S_deallocate(__alloc1, 32);
+    __allocator::_S_deallocate(__alloc2, 64);
+    __allocator::_S_deallocate(__alloc3, 92);
 }
