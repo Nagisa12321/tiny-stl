@@ -1,5 +1,6 @@
 #ifndef __TINYSTL_UNINITIALIZED_H
 #define __TINYSTL_UNINITIALIZED_H
+#include "tinystd_iterator_base.h"
 #include "tinystl_algo.h"
 #include "tinystl_constructor.h"
 #include "type_traits.h"
@@ -36,7 +37,7 @@ inline _ForwardIter __uninitialized_fill_n_aux(_ForwardIter __lhs, _Size __sz, c
 
 template <typename _InputIter, typename _ForwardIter>
 inline _ForwardIter uninitialized_copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
-    return __uninitialized_copy(__lhs, __rhs, __res, &(*__res));    /* TODO: use the value_type here */
+    return __uninitialized_copy(__lhs, __rhs, __res, __value_type(__res));  
 }
 
 template <typename _InputIter, typename _ForwardIter, typename _Tp>
@@ -68,7 +69,7 @@ inline char* uninitialized_copy(const char *__lhs, const char *__rhs, char *__re
 
 template <typename _ForwardIter, typename _Tp>
 inline void uninitialized_fill(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val) {
-    __uninitialized_fill(__lhs, __rhs, __val, &(*__lhs));   /* TODO: use value_type */
+    __uninitialized_fill(__lhs, __rhs, __val, __value_type(__lhs)); 
 }
 
 template <typename _ForwardIter, typename _Tp, typename _Tp1>
@@ -89,7 +90,7 @@ inline void __uninitialized_fill_aux(_ForwardIter __lhs, _ForwardIter __rhs, con
 
 template <typename _ForwardIter, typename _Size, typename _Tp>
 inline _ForwardIter uninitialized_fill_n(_ForwardIter __lhs, _Size __sz, const _Tp &__val) {
-    return __uninitialized_fill_n(__lhs, __sz, __val, &(*__lhs)); /* TODO: use the value_type here. */
+    return __uninitialized_fill_n(__lhs, __sz, __val, __value_type(__lhs));
 }
 
 template <typename _ForwardIter, typename _Size, typename _Tp, typename _Tp1>

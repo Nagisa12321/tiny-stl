@@ -1,11 +1,9 @@
 #ifndef __TYPE_TRAITS_H
 #define __TYPE_TRAITS_H
 
-struct __true_type {
-};
+struct __true_type {};
 
-struct __false_type {
-};
+struct __false_type {};
 
 template <class _Tp>
 struct __type_traits { 
@@ -34,14 +32,6 @@ struct __type_traits {
    typedef __false_type    is_POD_type;
 };
 
-
-
-// Provide some specializations.  This is harmless for compilers that
-//  have built-in __types_traits support, and essential for compilers
-//  that don't.
-
-#ifndef __STL_NO_BOOL
-
 template <> struct __type_traits<bool> {
    typedef __true_type    has_trivial_default_constructor;
    typedef __true_type    has_trivial_copy_constructor;
@@ -49,8 +39,6 @@ template <> struct __type_traits<bool> {
    typedef __true_type    has_trivial_destructor;
    typedef __true_type    is_POD_type;
 };
-
-#endif /* __STL_NO_BOOL */
 
 template <> struct __type_traits<char> {
    typedef __true_type    has_trivial_default_constructor;
@@ -76,7 +64,6 @@ template <> struct __type_traits<unsigned char> {
    typedef __true_type    is_POD_type;
 };
 
-#ifdef __STL_HAS_WCHAR_T
 
 template <> struct __type_traits<wchar_t> {
    typedef __true_type    has_trivial_default_constructor;
@@ -85,8 +72,6 @@ template <> struct __type_traits<wchar_t> {
    typedef __true_type    has_trivial_destructor;
    typedef __true_type    is_POD_type;
 };
-
-#endif /* __STL_HAS_WCHAR_T */
 
 template <> struct __type_traits<short> {
    typedef __true_type    has_trivial_default_constructor;
@@ -136,8 +121,6 @@ template <> struct __type_traits<unsigned long> {
    typedef __true_type    is_POD_type;
 };
 
-#ifdef __STL_LONG_LONG
-
 template <> struct __type_traits<long long> {
    typedef __true_type    has_trivial_default_constructor;
    typedef __true_type    has_trivial_copy_constructor;
@@ -153,8 +136,6 @@ template <> struct __type_traits<unsigned long long> {
    typedef __true_type    has_trivial_destructor;
    typedef __true_type    is_POD_type;
 };
-
-#endif /* __STL_LONG_LONG */
 
 template <> struct __type_traits<float> {
    typedef __true_type    has_trivial_default_constructor;
@@ -180,7 +161,6 @@ template <> struct __type_traits<long double> {
    typedef __true_type    is_POD_type;
 };
 
-#ifdef __STL_CLASS_PARTIAL_SPECIALIZATION
 
 template <class _Tp>
 struct __type_traits<_Tp*> {
@@ -190,59 +170,6 @@ struct __type_traits<_Tp*> {
    typedef __true_type    has_trivial_destructor;
    typedef __true_type    is_POD_type;
 };
-
-#else /* __STL_CLASS_PARTIAL_SPECIALIZATION */
-
-template <> struct __type_traits<char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template <> struct __type_traits<signed char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template <> struct __type_traits<unsigned char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template <> struct __type_traits<const char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template <> struct __type_traits<const signed char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template <> struct __type_traits<const unsigned char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-#endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
-
 
 // The following could be written in terms of numeric_limits.  
 // We're doing it separately to reduce the number of dependencies.

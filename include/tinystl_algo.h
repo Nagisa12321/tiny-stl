@@ -1,6 +1,8 @@
 #ifndef __TINYSTL_ALGO_H
 #define __TINYSTL_ALGO_H
 
+#include "tinystd_iterator_base.h"
+#include "stdio.h" // for debug
 namespace tinystd {
 
 template <typename _InputIter, typename _Tp>
@@ -25,7 +27,7 @@ _ForwardIter fill_n(_ForwardIter __lhs, _Size __sz, const _Tp &__val) {
 
 template <typename _InputIter, typename _ForwardIter>
 _ForwardIter copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
-    // TODO: fix code here
+    // TODO: fix code here (chapter 6)
     for (; __lhs != __rhs; ++__lhs, ++__res) { *__res = *__lhs; } 
     return __res;
 }
@@ -35,6 +37,80 @@ void fill(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val) {
     // TODO: fix code here
     for (; __lhs != __rhs; ++__lhs) 
         { *__lhs = __val; }
+}
+
+/////////////////////
+////// advance //////
+/////////////////////
+template <typename _InputIter, typename _Distance>
+void advance(_InputIter &__in, _Distance __d);
+template <typename _RandomAccessIter, typename _Distance>
+void __advance(_RandomAccessIter &__in, _Distance __d, __random_access_iter);
+template <typename _BidirectionalIter, typename _Distance>
+void __advance(_BidirectionalIter &__in, _Distance __d, __bidirectional_iter);
+template <typename _InputIter, typename _Distance>
+void __advance(_InputIter &__in, _Distance __d, __input_iter);
+
+template <typename _InputIter, typename _Distance>
+void advance(_InputIter &__in, _Distance __d) {
+    // TODO: fix, why g++ will chose the c++ library here?
+    __advance(__in, __d, __iterator_category(__in));
+}
+
+template <typename _RandomAccessIter, typename _Distance>
+void __advance(_RandomAccessIter &__in, _Distance __d, __random_access_iter) {
+    printf("__advance(..., __random_access_iter)\n");
+    __in += __d;
+}
+
+template <typename _BidirectionalIter, typename _Distance>
+void __advance(_BidirectionalIter &__in, _Distance __d, __bidirectional_iter) {
+    printf("__advance(..., __bidirectional_iter)\n");
+    if (__d > 0) { while (__d--) ++__in; }
+    else { while (__d++) --__in; }
+}
+
+template <typename _InputIter, typename _Distance>
+void __advance(_InputIter &__in, _Distance __d, __input_iter) {
+    printf("__advance(..., __input_iter)\n");
+    while (__d--) ++__in;
+}
+
+
+//////////////////////
+////// distance //////
+//////////////////////
+template <typename _InputIter>
+typename __iterator_traits<_InputIter>::difference_type 
+    distance(_InputIter __lhs, _InputIter __rhs);
+template <typename _InputIter>
+typename __iterator_traits<_InputIter>::difference_type 
+    __distance(_InputIter __lhs, _InputIter __rhs, __input_iter);
+template <typename _RandomAccessIter>
+typename __iterator_traits<_RandomAccessIter>::difference_type 
+    __distance(_RandomAccessIter __lhs, _RandomAccessIter __rhs, __random_access_iter);
+
+template <typename _InputIter>
+typename __iterator_traits<_InputIter>::difference_type 
+            distance(_InputIter __lhs, _InputIter __rhs) {
+    return __distance(__lhs, __rhs, __iterator_category(__lhs));
+}
+
+template <typename _InputIter>
+typename __iterator_traits<_InputIter>::difference_type 
+            __distance(_InputIter __lhs, _InputIter __rhs, __input_iter) {
+    typedef typename __iterator_traits<_InputIter>::difference_type __distance;
+    printf("__distance(..., __input_iter)\n");
+    __distance __res = 0;
+    while (__lhs != __rhs) { ++__res; ++__lhs; }
+    return __res;
+}
+
+template <typename _RandomAccessIter>
+typename __iterator_traits<_RandomAccessIter>::difference_type 
+            __distance(_RandomAccessIter __lhs, _RandomAccessIter __rhs, __random_access_iter) {
+    printf("__distance(..., __random_access_iter)\n");
+    return __rhs - __lhs;
 }
 
 } // namespace tinystd

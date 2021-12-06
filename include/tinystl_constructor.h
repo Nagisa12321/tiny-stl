@@ -1,5 +1,6 @@
 #ifndef TINYSTL_CONSTRUCTOR_H
 #define TINYSTL_CONSTRUCTOR_H
+#include "tinystd_iterator_base.h"
 #include "type_traits.h"
 
 namespace tinystd {
@@ -19,7 +20,7 @@ inline void destory(_Tp *__p) { __p->~_Tp();  }
 
 template <typename _ForwardIter>
 inline void destory(_ForwardIter __lhs, _ForwardIter __rhs) {
-    __destory(__lhs, __rhs, &(*__lhs)); // TODO: make with value type
+    __destory(__lhs, __rhs, __value_type(__lhs)); 
 }
 
 template <typename _ForwardIter, typename _Tp>
