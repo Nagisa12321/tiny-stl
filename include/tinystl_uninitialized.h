@@ -1,9 +1,9 @@
 #ifndef __TINYSTL_UNINITIALIZED_H
 #define __TINYSTL_UNINITIALIZED_H
-#include "tinystd_iterator_base.h"
+#include "tinystl_iterator_base.h"
 #include "tinystl_algo.h"
 #include "tinystl_constructor.h"
-#include "type_traits.h"
+#include "tinystl_type_traits.h"
 #include <string.h> // for memmove
 
 namespace tinystd {
@@ -96,7 +96,7 @@ inline _ForwardIter uninitialized_fill_n(_ForwardIter __lhs, _Size __sz, const _
 template <typename _ForwardIter, typename _Size, typename _Tp, typename _Tp1>
 inline _ForwardIter __uninitialized_fill_n(_ForwardIter __lhs, _Size __sz, const _Tp &__val, _Tp1 *) {
     typedef typename __type_traits<_Tp1>::is_POD_type __is_pod_type;
-    __uninitialized_fill_n_aux(__lhs, __sz, __val, __is_pod_type());
+    return __uninitialized_fill_n_aux(__lhs, __sz, __val, __is_pod_type());
 }
 
 template <typename _ForwardIter, typename _Size, typename _Tp>

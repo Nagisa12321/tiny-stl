@@ -7,13 +7,14 @@
 #include <iostream>
 #include <string>
 #include "tinystl_algo.h"
+#include "tinystl_constructor.h"
 #include "tinystl_uninitialized.h"
 
 void test_uninitialized_copy();
 void test_uninitialized_fill();
 
 int main() {
-    std::vector<std::pair<std::string, void (*)()>> __test_cases{
+    std::vector<std::pair<std::string, void (*)()>> __test_cases {
         {"test uninitialized copy", test_uninitialized_copy},
         {"test uninitialized fill", test_uninitialized_fill},
     };
@@ -26,19 +27,22 @@ int main() {
 
 class __A {
 public:
-    __A() {
+    __A() : __pval(new int) {
         printf("__A()\n");
     }
-    __A(const __A &__a) {
+    __A(const __A &__a) : __pval(new int) {
         printf("__A(const __A &__a)\n");
     }
     ~__A() {
+        delete __pval;
         printf("~__A()\n");
     }
     __A &operator=(const __A &__a) {
         printf("__A &operator=(const __A &__a)\n");
         return *this;
     }
+
+    int *__pval;
 };
 
 void test_uninitialized_copy() {
@@ -73,6 +77,19 @@ void test_uninitialized_copy() {
         int __arr[5];
         int *__pa = (int *)malloc(5 * sizeof(int));
         tinystd::uninitialized_copy(__arr, __arr + 5, __pa);
+        free(__pa);
+    }
+    {
+        std::cout << "test4: " << std::endl;
+        __A *__pa = (__A *) malloc(8 * sizeof(__A));
+        for (int __offset = 0; __offset < 6; ++__offset)
+            tinystd::construct(__pa, __A());
+
+        std::cout << "start. " << std::endl;
+        __A *__finish = __pa + 6;
+        __A *__pos = __pa;
+        tinystd::uninitialized_copy(__pos, __pos + 2, __finish);
+
         free(__pa);
     }
 }

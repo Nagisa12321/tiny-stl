@@ -1,7 +1,7 @@
 #ifndef __TINYSTL_ALGO_H
 #define __TINYSTL_ALGO_H
 
-#include "tinystd_iterator_base.h"
+#include "tinystl_iterator_base.h"
 #include "stdio.h" // for debug
 namespace tinystd {
 
@@ -30,6 +30,18 @@ _ForwardIter copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
     // TODO: fix code here (chapter 6)
     for (; __lhs != __rhs; ++__lhs, ++__res) { *__res = *__lhs; } 
     return __res;
+}
+
+template <typename _InputIter, typename _ForwardIter>
+_ForwardIter copy_backward(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
+    // TODO: fix code here
+    for (; __lhs != __rhs; ) { *(--__res) = *(--__rhs); }
+    return __res;
+}
+
+template <typename _Tp>
+_Tp max(const _Tp &__lhs, const _Tp &__rhs) {
+    return __lhs >= __rhs ? __lhs : __rhs;
 }
 
 template <typename _ForwardIter, typename _Tp>
@@ -93,14 +105,13 @@ typename __iterator_traits<_RandomAccessIter>::difference_type
 template <typename _InputIter>
 typename __iterator_traits<_InputIter>::difference_type 
             distance(_InputIter __lhs, _InputIter __rhs) {
-    return __distance(__lhs, __rhs, __iterator_category(__lhs));
+    return __distance(__lhs, __rhs, tinystd::__iterator_category(__lhs));
 }
 
 template <typename _InputIter>
 typename __iterator_traits<_InputIter>::difference_type 
             __distance(_InputIter __lhs, _InputIter __rhs, __input_iter) {
     typedef typename __iterator_traits<_InputIter>::difference_type __distance;
-    printf("__distance(..., __input_iter)\n");
     __distance __res = 0;
     while (__lhs != __rhs) { ++__res; ++__lhs; }
     return __res;
@@ -109,7 +120,6 @@ typename __iterator_traits<_InputIter>::difference_type
 template <typename _RandomAccessIter>
 typename __iterator_traits<_RandomAccessIter>::difference_type 
             __distance(_RandomAccessIter __lhs, _RandomAccessIter __rhs, __random_access_iter) {
-    printf("__distance(..., __random_access_iter)\n");
     return __rhs - __lhs;
 }
 

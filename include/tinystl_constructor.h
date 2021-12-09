@@ -1,7 +1,7 @@
 #ifndef TINYSTL_CONSTRUCTOR_H
 #define TINYSTL_CONSTRUCTOR_H
-#include "tinystd_iterator_base.h"
-#include "type_traits.h"
+#include "tinystl_iterator_base.h"
+#include "tinystl_type_traits.h"
 
 namespace tinystd {
 

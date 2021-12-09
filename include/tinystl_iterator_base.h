@@ -53,18 +53,18 @@ struct __iterator_base {
 };
 
 template <typename _Iterator>
-typename __iterator_traits<_Iterator>::iterator_category __iterator_category(const _Iterator &) {
+inline constexpr typename __iterator_traits<_Iterator>::iterator_category __iterator_category(const _Iterator &) {
     typedef typename __iterator_traits<_Iterator>::iterator_category __category;
     return __category();
 }
 
 template <typename _Iterator>
-typename __iterator_traits<_Iterator>::difference_type *__distance_type(const _Iterator &) {
+inline constexpr typename __iterator_traits<_Iterator>::difference_type *__distance_type(const _Iterator &) {
     return static_cast<typename __iterator_traits<_Iterator>::difference_type *>(0);
 }
 
 template <typename _Iterator>
-typename __iterator_traits<_Iterator>::value_type *__value_type(const _Iterator &) {
+inline constexpr typename __iterator_traits<_Iterator>::value_type *__value_type(const _Iterator &) {
     return static_cast<typename __iterator_traits<_Iterator>::value_type *>(0);
 }
 

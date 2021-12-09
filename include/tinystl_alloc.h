@@ -107,7 +107,7 @@ public:
         }
         __my_free_list = _S_free_list + _S_freelist_index(__sz);
         __res = __my_free_list->__free_list_link; 
-        if (!__res) { return _S_refill(__sz); }
+        if (!__res) { return _S_refill(_S_round_up(__sz)); }
         __my_free_list->__free_list_link = __res->__free_list_link;
         return __res;
     }
@@ -142,6 +142,20 @@ public:
             }
         }
         return __new_alloc;
+    }
+
+    static void __debug_print_mem_pool() {
+        printf("Memory Pool: \n");
+        for (int __offset = 0; __offset < __NFREELISTS; ++__offset) {
+            printf("%d bytes: ", (__offset + 1) * 8);
+            __obj *__cur = _S_free_list + __offset;
+            if (!__cur) continue;
+            while (__cur->__free_list_link) {
+                printf("%p, ", __cur->__free_list_link);
+                __cur = __cur->__free_list_link;
+            }
+            printf("\n");
+        }
     }
 
     static void __debug_count_free(size_t *__free_list, size_t *__memory_pool) {
@@ -210,10 +224,12 @@ private:
             _S_start_free += __nobjs * __sz;
             return __result;
         } else {
+            printf("_S_start_free=%p, _S_end_free=%p, __sz=%ld, __bytes_left=%ld\n", _S_start_free, _S_end_free, __sz, __bytes_left);
             if (__bytes_left > 0) {         /* also a crazy opteration! */
                 __obj *__my_free_list = _S_free_list + _S_freelist_index(__bytes_left);
-                ((__obj *) _S_start_free)->__free_list_link = __my_free_list->__free_list_link;
+                __obj *__tmp = __my_free_list->__free_list_link;
                 __my_free_list->__free_list_link = (__obj *) _S_start_free;
+                ((__obj *) _S_start_free)->__free_list_link = __tmp;
             }
             size_t __bytes_to_get = 2 * __total_bytes + _S_round_up(_S_heap_size >> 4);
             _S_start_free = (char *) malloc(__bytes_to_get);
