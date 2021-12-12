@@ -4,12 +4,13 @@
 #include "tinystl_algo.h"
 #include "tinystl_alloc.h"
 #include "tinystl_constructor.h"
+#include "tinystl_move.h"
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"
 
 // use c++ init list. 
 #include <initializer_list>
-#define __DEFAULT_ALLOCATOR __default_alloc_template<0>
+#define __DEFAULT_ALLOCATOR __malloc_alloc_template<0>
 namespace tinystd {
 
 template <typename _Tp, typename _Alloc = __DEFAULT_ALLOCATOR>
@@ -88,6 +89,7 @@ protected:
             _M_end_of_storage = _M_start + __new_sz;
         }
     }
+
 
 public:
     vector() 
@@ -168,6 +170,20 @@ public:
         } else {
             _M_insert_aux(end(), __val);
         }
+    }
+
+    void push_back(_Tp &&__val) {
+        emplace_back(tinystd::move(__val));
+    }
+
+    template <typename... _Args>  
+    reference &emplace_back(_Args &&...__args) {
+        if (_M_finish != _M_end_of_storage) {
+            construct(_M_finish++, _Tp(tinystd::forward(__args))...);
+        } else {
+            _M_insert_aux(end(), _Tp(tinystd::forward(__args))...);
+        }
+        return back();
     }
     /**
      * @return return the same pos,  

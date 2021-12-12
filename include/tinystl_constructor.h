@@ -1,19 +1,19 @@
 #ifndef TINYSTL_CONSTRUCTOR_H
 #define TINYSTL_CONSTRUCTOR_H
 #include "tinystl_iterator_base.h"
+#include "tinystl_move.h"
 #include "tinystl_type_traits.h"
-
 namespace tinystd {
 
-template <typename _Tp1, typename _Tp2> inline void construct(_Tp1 *__p, const _Tp2 &__rhs);
+template <typename _Tp, typename... _Args> inline void construct(_Tp *__p, _Args &&...__args);
 template <typename _Tp> inline void destory(_Tp *__p);
 template <typename _ForwardIter> inline void destory(_ForwardIter __lhs, _ForwardIter __rhs);
 template <typename _ForwardIter, typename _Tp> inline void __destory(_ForwardIter __lhs, _ForwardIter __rhs, _Tp *);
 template <typename _ForwardIter> inline void __destory_aux(_ForwardIter __lhs, _ForwardIter __rhs, __false_type);
 template <typename _ForwardIter> inline void __destory_aux(_ForwardIter __lhs, _ForwardIter __rhs, __true_type);
 
-template <typename _Tp1, typename _Tp2>
-inline void construct(_Tp1 *__p, const _Tp2 &__rhs) { new (__p) _Tp1(__rhs); }
+template <typename _Tp, typename... _Args>
+inline void construct(_Tp *__p, _Args &&...__args) { new (__p) _Tp(tinystd::forward(__args)...); }
 
 template <typename _Tp>
 inline void destory(_Tp *__p) { __p->~_Tp();  }

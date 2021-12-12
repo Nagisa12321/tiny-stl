@@ -4,8 +4,7 @@ project(Tiny-STL)
 message(STATUS "Start Cmake...")
 
 # specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 17)
 
 # the .h files
 add_library(tiny_stl_interface INTERFACE)

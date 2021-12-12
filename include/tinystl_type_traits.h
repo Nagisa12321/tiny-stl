@@ -1,6 +1,23 @@
 #ifndef __TYPE_TRAITS_H
 #define __TYPE_TRAITS_H
 
+namespace tinystd {
+
+template <typename _Tp>
+struct remove_reference {
+   typedef _Tp type;
+};
+
+template <typename _Tp>
+struct remove_reference<_Tp&> {
+   typedef _Tp type;
+};
+
+template <typename _Tp>
+struct remove_reference<_Tp&&> {
+   typedef _Tp type;
+};
+
 struct __true_type {};
 
 struct __false_type {};
@@ -242,8 +259,5 @@ template <> struct _Is_integer<unsigned long long> {
 
 #endif /* __STL_LONG_LONG */
 
+}
 #endif /* __TYPE_TRAITS_H */
-
-// Local Variables:
-// mode:C++
-// End:

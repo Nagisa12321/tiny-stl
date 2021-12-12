@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <cassert>
 #include "tinystl_alloc.h"
 #include "tinystl_initializer_list.h"
 #include "tinystl_vector.h"
@@ -10,14 +11,16 @@ void __test_constructor();
 void __test_operator_equal();
 void __test_memory_leak();
 void __test_push_back();
+void __test_emplace_back();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test vector", __test_vector },
         { "test constructor", __test_constructor },
         { "test operator equal", __test_operator_equal },
-        { "test memory leak", __test_memory_leak },
+        // { "test memory leak", __test_memory_leak },
         { "test push back", __test_push_back },
+        { "test emplace back", __test_emplace_back },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -134,13 +137,68 @@ void __test_memory_leak() {
 }
 
 void __test_push_back() {
-    std::vector<std::string> letters;
+
+    tinystd::vector<int> myvector{ 1, 2, 3, 4, 5 };
+    myvector.push_back(6);
  
-    letters.push_back("abc");
-    std::string s = "def";
-    letters.push_back(std::move(s));
+    // Vector becomes 1, 2, 3, 4, 5, 6
  
-    std::cout << "vector holds: ";
-    for (auto&& i : letters) std::cout << std::quoted(i) << ' ';
-    std::cout << "\nMoved-from string holds " << std::quoted(s) << '\n';
+    for (auto it = myvector.begin(); it != myvector.end(); ++it)
+        std::cout << ' ' << *it;
+    std::cout << std::endl;
+}
+
+struct President
+{
+    std::string name;
+    std::string country;
+    int year;
+ 
+    President(std::string p_name, std::string p_country, int p_year)
+        : name(std::move(p_name)), country(std::move(p_country)), year(p_year)
+    {
+        std::cout << "I am being constructed.\n";
+    }
+    // President(President&& other)
+    //         : name(std::move(other.name)), country(std::move(other.country)), year(other.year)
+    //     {
+    //     std::cout << "I am being moved.\n";
+    // }
+    President& operator=(const President& other) = default;
+};
+/*
+>> test emplace back ========================
+emplace_back:
+I am being constructed.
+I am being constructed.
+I am being moved.
+
+push_back:
+I am being constructed.
+I am being moved.
+
+Contents:
+Nelson Mandela was elected president of South Africa in 1994.
+Nelson Mandela was elected president of South Africa in 1994.
+Franklin Delano Roosevelt was re-elected president of the USA in 1936.
+*/
+void __test_emplace_back() {
+    tinystd::vector<President> elections;
+    std::cout << "emplace_back:\n";
+    auto &ref = elections.emplace_back("Nelson Mandela", "South Africa", 1994);
+    assert(ref.year == 1994);
+ 
+    tinystd::vector<President> reElections;
+    std::cout << "\npush_back:\n";
+    reElections.push_back(President("Franklin Delano Roosevelt", "the USA", 1936));
+ 
+    std::cout << "\nContents:\n";
+    for (President const& president: elections) {
+        std::cout << president.name << " was elected president of "
+                  << president.country << " in " << president.year << ".\n";
+    }
+    for (President const& president: reElections) {
+        std::cout << president.name << " was re-elected president of "
+                  << president.country << " in " << president.year << ".\n";
+    }
 }
