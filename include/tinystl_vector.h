@@ -62,19 +62,28 @@ protected:
      * @param __pos 
      * @param __val 
      */
-    void _M_insert_aux(iterator __pos, const _Tp &__val) {
+    template <typename... _Args>
+    void _M_insert_aux(iterator __pos, _Args &&...__args) {
+        // 
+        // TODO: 
+        // fix bug here 
+        // error: use of deleted function ‘President::President(const President&)’
+        // support the copy-constructor-deleted class. 
+        // 
         if (_M_finish != _M_end_of_storage) {
             construct(_M_finish, *(_M_finish - 1));
             ++_M_finish;
             tinystd::copy_backward(__pos, _M_finish - 2, _M_finish - 1);
-            *__pos = __val;
+            destory(__pos, __pos + 1);
+            construct(__pos, tinystd::forward(__args)...);
         } else {
             size_type __old_sz = size();
             size_type __new_sz = __old_sz ? (__old_sz << 1) : 1;
             iterator __new_start = __data_allocator::_S_allocate(__new_sz), __new_finish;
             try {
+                // here too... 
                 __new_finish = tinystd::uninitialized_copy(_M_start, _M_finish, __new_start);
-                construct(__new_finish++, __val);
+                construct(__new_finish++, tinystd::forward(__args)...);
                 __new_finish = tinystd::uninitialized_copy(__pos, _M_finish, __new_finish);
             } catch(...) {
                 // roll back... 
@@ -162,8 +171,8 @@ public:
     bool empty() const { return begin() == end(); }
     reference front() { return *begin(); }
     const_reference front() const { return *begin(); }
-    reference back() { return *end(); }
-    const_reference back() const { return *end(); }
+    reference back() { return *(end() - 1); }
+    const_reference back() const { return *(end() - 1); }
     void push_back(const _Tp &__val) {
         if (_M_finish != _M_end_of_storage) {
             construct(_M_finish++, __val);
@@ -179,9 +188,9 @@ public:
     template <typename... _Args>  
     reference &emplace_back(_Args &&...__args) {
         if (_M_finish != _M_end_of_storage) {
-            construct(_M_finish++, _Tp(tinystd::forward(__args))...);
+            construct(_M_finish++, tinystd::forward(__args)...);
         } else {
-            _M_insert_aux(end(), _Tp(tinystd::forward(__args))...);
+            _M_insert_aux(end(), tinystd::forward(__args)...);
         }
         return back();
     }

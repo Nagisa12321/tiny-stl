@@ -1,9 +1,13 @@
+#include <cstdio>
 #include <iostream>
+#include <ostream>
 #include <vector>
 #include <iomanip>
 #include <cassert>
 #include "tinystl_alloc.h"
+#include "tinystl_constructor.h"
 #include "tinystl_initializer_list.h"
+#include "tinystl_move.h"
 #include "tinystl_vector.h"
 
 void __test_vector();
@@ -11,7 +15,9 @@ void __test_constructor();
 void __test_operator_equal();
 void __test_memory_leak();
 void __test_push_back();
+void __test_construct_with_args();
 void __test_emplace_back();
+void __test_push_back_much();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -20,7 +26,9 @@ int main() {
         { "test operator equal", __test_operator_equal },
         // { "test memory leak", __test_memory_leak },
         { "test push back", __test_push_back },
+        { "test construct with args", __test_construct_with_args }, 
         { "test emplace back", __test_emplace_back },
+        { "test push back much", __test_push_back_much },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -90,7 +98,7 @@ void __display_sizes(char const *comment,
 
 void __display(char const *comment, const tinystd::vector<int> &v) {
     std::cout << comment << "{ ";
-    for (int e : v) {
+    for (int e : v) {https://leetcode-cn.com/
         std::cout << e << ' ';
     }
     std::cout << "}\n";
@@ -154,16 +162,21 @@ struct President
     std::string country;
     int year;
  
-    President(std::string p_name, std::string p_country, int p_year)
+    explicit President(std::string p_name, std::string p_country, int p_year)
         : name(std::move(p_name)), country(std::move(p_country)), year(p_year)
     {
         std::cout << "I am being constructed.\n";
     }
-    // President(President&& other)
-    //         : name(std::move(other.name)), country(std::move(other.country)), year(other.year)
-    //     {
-    //     std::cout << "I am being moved.\n";
-    // }
+    President(const President& other)
+        : name(other.name), country(other.country), year(other.year)
+    {
+        std::cout << "I am being copyed.\n";
+    }
+    explicit President(President&& other)
+            : name(std::move(other.name)), country(std::move(other.country)), year(other.year)
+        {
+        std::cout << "I am being moved.\n";
+    }
     President& operator=(const President& other) = default;
 };
 /*
@@ -197,8 +210,60 @@ void __test_emplace_back() {
         std::cout << president.name << " was elected president of "
                   << president.country << " in " << president.year << ".\n";
     }
-    for (President const& president: reElections) {
-        std::cout << president.name << " was re-elected president of "
-                  << president.country << " in " << president.year << ".\n";
+}
+
+template <typename... _Args>
+President *__make_president(_Args &&...__args) {
+    President *__p = tinystd::allocate<President>(1);
+    tinystd::construct(__p, tinystd::forward(__args)...);
+    return __p;
+}
+
+template <typename _Tp, typename... _Args>
+President *__emplace_back(_Tp *__p, _Args &&...__args) {
+    tinystd::construct(__p, tinystd::forward(__args)...);
+    return __p;
+}
+
+template <typename _Tp>
+class __vec {
+public:
+    template <typename... _Args> 
+    President *__emplace_back(_Args &&...__args) {
+        President *__p = tinystd::allocate<President>(1);
+        tinystd::construct(__p, tinystd::forward(__args)...);
+        return __p;
     }
+};
+
+void __test_construct_with_args() {
+    std::cout << "test1: " << std::endl;
+    President *__p1 = tinystd::allocate<President>(1);
+    tinystd::construct(__p1, "name", "country", 2000);
+
+    std::cout << "test2: " << std::endl;
+    President *__p2 = __make_president("name2", "country2", 2002);
+
+    std::cout << "test3: " << std::endl;
+    President *__p3 = tinystd::allocate<President>(1);
+    __emplace_back(__p3, "name3", "country3", 2003);
+
+    std::cout << "test4: " << std::endl;
+    __vec<President> __v;
+    President *__p4 = __v.__emplace_back("name4", "country4", 2004);
+
+
+    tinystd::destory(__p1);
+    tinystd::destory(__p2);
+    tinystd::destory(__p3);
+    tinystd::destory(__p4);
+    tinystd::deallocate(__p1, 1);
+    tinystd::deallocate(__p2, 1);
+    tinystd::deallocate(__p3, 1);
+    tinystd::deallocate(__p4, 1);
+}
+
+void __test_push_back_much() {
+    tinystd::vector<President> elections;
+    // elections.push_back()
 }
