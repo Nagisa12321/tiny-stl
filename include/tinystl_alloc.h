@@ -7,6 +7,7 @@
 #include "tinystl_constructor.h"
 #include "tinystl_types.h"
 #define __THROW_BAD_ALLOC   fprintf(stderr, "out of memory"); exit(1)
+#define __DEFAULT_ALLOCATOR __malloc_alloc_template<0>
 
 namespace tinystd {
 

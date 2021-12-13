@@ -10,7 +10,6 @@
 
 // use c++ init list. 
 #include <initializer_list>
-#define __DEFAULT_ALLOCATOR __malloc_alloc_template<0>
 namespace tinystd {
 
 template <typename _Tp, typename _Alloc = __DEFAULT_ALLOCATOR>
