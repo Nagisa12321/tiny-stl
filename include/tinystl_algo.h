@@ -2,7 +2,6 @@
 #define __TINYSTL_ALGO_H
 
 #include "tinystl_iterator_base.h"
-#include "stdio.h" // for debug
 namespace tinystd {
 
 template <typename _InputIter, typename _Tp>
@@ -71,20 +70,17 @@ void advance(_InputIter &__in, _Distance __d) {
 
 template <typename _RandomAccessIter, typename _Distance>
 void __advance(_RandomAccessIter &__in, _Distance __d, __random_access_iter) {
-    printf("__advance(..., __random_access_iter)\n");
     __in += __d;
 }
 
 template <typename _BidirectionalIter, typename _Distance>
 void __advance(_BidirectionalIter &__in, _Distance __d, __bidirectional_iter) {
-    printf("__advance(..., __bidirectional_iter)\n");
     if (__d > 0) { while (__d--) ++__in; }
     else { while (__d++) --__in; }
 }
 
 template <typename _InputIter, typename _Distance>
 void __advance(_InputIter &__in, _Distance __d, __input_iter) {
-    printf("__advance(..., __input_iter)\n");
     while (__d--) ++__in;
 }
 

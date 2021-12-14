@@ -13,3 +13,6 @@ My small implementation of stl
 2. 容器内部使用的alloc: `__default_alloc_template` 和 `__malloc_alloc_template`. 并且使用`simple_alloc` 作为接口使用
 	- `__malloc_alloc_template` 行为类似于allocator. 
 	- `__default_alloc_template` 采用了free list + memory pool 技术, 详见代码. 
+### ➡ iterator traits and type traits
+### ➡ tinystd::vector
+### ➡ tinystd::list
