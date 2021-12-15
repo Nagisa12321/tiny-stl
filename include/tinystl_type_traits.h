@@ -3,6 +3,12 @@
 
 namespace tinystd {
 
+/// A metafunction that always yields void, used for detecting valid types.
+template<typename...> using void_t = void;
+
+template <typename _Tp, typename _Up = _Tp&&>
+_Up __declval();
+
 template <typename _Tp>
 struct remove_reference {
    typedef _Tp type;

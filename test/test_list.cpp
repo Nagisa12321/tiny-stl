@@ -17,6 +17,7 @@ void __test_reverse();
 void __test_sort();
 void __test_erase();
 void __test_insert();
+void __test_insert_v2();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -32,6 +33,7 @@ int main() {
         { "test sort", __test_sort },
         { "test erase", __test_erase },
         { "test insert", __test_insert },
+        { "test insert", __test_insert_v2 },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -291,6 +293,19 @@ void __test_insert() {
     mylist.insert(it, myvector.begin(), myvector.end());
     // 1 10 20 30 30 20 2 3 4 5
     //               ^
+    std::cout << "mylist contains:";
+    for (it = mylist.begin(); it != mylist.end(); ++it)
+        std::cout << ' ' << *it;
+    std::cout << '\n';
+}
+
+void __test_insert_v2() {
+    tinystd::list<int> mylist{42, 42};
+    tinystd::list<int> mylist2{1, 2, 3};
+    tinystd::list<int>::iterator it;
+
+    mylist.insert(mylist.begin(), mylist2.begin(), mylist2.end());
+
     std::cout << "mylist contains:";
     for (it = mylist.begin(); it != mylist.end(); ++it)
         std::cout << ' ' << *it;

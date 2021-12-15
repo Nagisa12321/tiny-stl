@@ -3,12 +3,13 @@
 #include "tinystl_algo.h"
 #include "tinystl_constructor.h"
 #include "tinystl_iterator_base.h"
+#include "tinystl_type_traits.h"
 #include "tinystl_types.h"
 #include "tinystl_alloc.h"
 
 // use c++ init list. 
-#include <cstddef>
 #include <initializer_list>
+// #include <type_traits>
 namespace tinystd {
 template <typename _Tp>
 struct _List_node {
@@ -77,6 +78,8 @@ public:
         _M_node->_M_next = _M_node;
         _M_node->_M_prev = _M_node;
     }
+    template <typename _InputIter> 
+    list(_InputIter __begin, _InputIter __end) { _M_copy_init(__begin, __end); }
     list(std::initializer_list<_Tp> __li) : list() { _M_copy_init(__li.begin(), __li.end()); }
     ~list() { clear(); _M_destory_node(_M_node); }
 
@@ -112,8 +115,10 @@ public:
         __lhs->_M_next = __new_node;
         __rhs->_M_prev = __new_node;
         return iterator(__new_node);
-    }
-    template <typename _InputIter>
+    }       
+                                    /* means that the _InputIter must be useable with operator* */
+                                    /* TODO: understand here ...  */
+    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
     iterator insert(iterator __pos, _InputIter __begin, _InputIter __end) {
         if (__begin == __end) return __pos; 
         iterator __ret = insert(__pos, *__begin);
