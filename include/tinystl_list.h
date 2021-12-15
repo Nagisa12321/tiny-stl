@@ -9,7 +9,6 @@
 
 // use c++ init list. 
 #include <initializer_list>
-// #include <type_traits>
 namespace tinystd {
 template <typename _Tp>
 struct _List_node {

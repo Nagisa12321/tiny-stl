@@ -45,7 +45,6 @@ int main() {
 void __test_std_list() {
     // Create a list containing integers
     std::list<int> l = { 7, 5, 16, 8 };
- 
     // Add an integer to the front of the list
     l.push_front(25);
     // Add an integer to the back of the list
