@@ -15,6 +15,8 @@ void __test_splice();
 void __test_merge();
 void __test_reverse();
 void __test_sort();
+void __test_erase();
+void __test_insert();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -28,6 +30,8 @@ int main() {
         { "test merge", __test_merge },
         { "test reverse", __test_reverse },
         { "test sort", __test_sort },
+        { "test erase", __test_erase },
+        { "test insert", __test_insert },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -224,4 +228,71 @@ void __test_sort() {
     std::cout << "ascending:  " << list << "\n";
     list.sort(std::greater<int>());
     std::cout << "descending: " << list << "\n";
+}
+
+void print_container(const tinystd::list<int>& c) 
+{
+    for (auto &i : c) {
+        std::cout << i << " ";
+    }
+    std::cout << '\n';
+}
+/**
+ * @brief 
+ * 0 1 2 3 4 5 6 7 8 9
+ * 1 2 3 4 5 6 7 8 9
+ * 1 2 6 7 8 9
+ * 1 7 9
+ */
+void __test_erase() {
+    tinystd::list<int> c{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    print_container(c);
+
+    c.erase(c.begin());
+    print_container(c);
+
+    tinystd::list<int>::iterator range_begin = c.begin();
+    tinystd::list<int>::iterator range_end = c.begin();
+    tinystd::advance(range_begin, 2);
+    tinystd::advance(range_end, 5);
+
+    c.erase(range_begin, range_end);
+    print_container(c);
+
+    // Erase all even numbers (C++11 and later)
+    for (auto it = c.begin(); it != c.end();) {
+        if (*it % 2 == 0) {
+            it = c.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    print_container(c);
+}
+
+void __test_insert() {
+    tinystd::list<int> mylist;
+    tinystd::list<int>::iterator it;
+
+    // set some initial values:
+    for (int i = 1; i <= 5; ++i) mylist.push_back(i); // 1 2 3 4 5
+
+    it = mylist.begin();
+    ++it; // it points now to number 2           ^
+
+    mylist.insert(it, 10); // 1 10 2 3 4 5
+
+    // "it" still points to number 2                      ^
+    mylist.insert(it, 2, 20); // 1 10 20 20 2 3 4 5
+
+    --it; // it points now to the second 20            ^
+
+    tinystd::vector<int> myvector(2, 30);
+    mylist.insert(it, myvector.begin(), myvector.end());
+    // 1 10 20 30 30 20 2 3 4 5
+    //               ^
+    std::cout << "mylist contains:";
+    for (it = mylist.begin(); it != mylist.end(); ++it)
+        std::cout << ' ' << *it;
+    std::cout << '\n';
 }

@@ -113,6 +113,19 @@ public:
         __rhs->_M_prev = __new_node;
         return iterator(__new_node);
     }
+    template <typename _InputIter>
+    iterator insert(iterator __pos, _InputIter __begin, _InputIter __end) {
+        if (__begin == __end) return __pos; 
+        iterator __ret = insert(__pos, *__begin);
+        while (++__begin != __end) insert(__pos, *__begin);
+        return __ret;
+    }
+    iterator insert(iterator __pos, size_t __cnt, const _Tp &__val) {
+        if (!__cnt) return __pos; 
+        iterator __ret = insert(__pos, __val);
+        while (--__cnt) insert(__pos, __val);
+        return __ret;
+    }
 
     /**
      * @brief Removes the element at pos.
@@ -128,6 +141,16 @@ public:
         __delete->_M_prev->_M_next = __rhs;
         _M_destory_node(__delete);
         return iterator(__rhs);
+    }
+    iterator erase(iterator __first, iterator __last) {
+        if (__first == __last) return __last;
+        __first._M_node->_M_prev->_M_next = __last._M_node;
+        __last._M_node->_M_prev = __first._M_node->_M_prev;
+        while (__first != __last) {
+            __list_node *__tmp = __first++._M_node;
+            _M_destory_node(__tmp);
+        }
+        return __last;
     }
     /**
      * @brief Erases all elements from the container. After this call, size() returns zero.
