@@ -2,10 +2,14 @@
 #define __TINYSTL_DEQUE_H
 #include "tinystl_algo.h"
 #include "tinystl_alloc.h"
+#include "tinystl_constructor.h"
 #include "tinystl_iterator_base.h"
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"
+
+// use c++ init list. 
 #include <cstdio>
+#include <initializer_list>
 
 namespace tinystd {
 
@@ -37,10 +41,21 @@ struct __deque_iterator {
     _Tp *_M_last;    // the pointer to the end of the buffer
     __map_pointer _M_map;
 
+    __deque_iterator() = default;
+    __deque_iterator(_Tp *__cur, _Tp *__first, _Tp *__last, __map_pointer __map)
+        : _M_cur(__cur), _M_first(__first), _M_last(__last), _M_map(__map) 
+            { }
 
 // 
 // Overloaded operators
 // 
+    // operator __deque_iterator<_Tp, const _Ref, const _Ptr, _BufSize>() { 
+    //     __deque_iterator<_Tp, const _Ref, const _Ptr, _BufSize> __res;
+    //     __res._M_cur = _M_cur;
+    //     __res._M_first = _M_first;
+    //     __res._M_last = _M_last;
+    //     __res._M_map = _M_map;
+    // }
     reference operator*() const { return *_M_cur; }
     pointer operator->() const { return _M_cur; }
     difference_type operator-(const __self &__x) {
@@ -121,19 +136,66 @@ public:
     typedef size_t size_type;
     typedef ptrdiff_t different_type;
 
+    deque() 
+        { _M_create_map_and_nodes(0); }
     deque(size_type __n, const _Tp &__value)
-        : _M_start(), _M_finish(), _M_map(0), _M_map_size(0)
-    { _M_fill_initialize(__n, __value); }
+        { _M_fill_initialize(__n, __value); }
+    deque(std::initializer_list<_Tp> __li)
+        { _M_copy_initialize(__li.begin(), __li.end()); }
+
+    ~deque()
+    { 
+        // destroy every _Tp    
+        tinystd::destory(_M_start, _M_finish);
+
+        // free every buffer
+        __map_pointer __begin = _M_start._M_map;
+        __map_pointer __end = _M_finish._M_map + 1;
+        while (__begin != __end) 
+            { _M_free_buffer(*__begin++); }
+
+        // free the map itself
+        __map_allocator::_S_deallocate(_M_map, _M_map_size);
+    }
 
     reference operator[](size_type __idx) { return _M_start[__idx]; }
 
     iterator begin() { return _M_start; }
+    const_iterator begin() const { return _M_to_const_iterator(_M_start); }
     iterator end() { return _M_finish; }
+    const_iterator end() const { return _M_to_const_iterator(_M_finish); }
     reference front() { return *_M_start; }
     reference back() { return *(_M_finish - 1); }
     size_type size() const { return tinystd::distance(_M_start, _M_finish); }
     size_type max_size() const { return size_type(-1); }
     bool empty() const { return _M_start == _M_finish; }
+    void push_back(const _Tp &__val) {
+        if (_M_finish._M_cur != _M_finish._M_last - 1) 
+            { tinystd::construct(_M_finish._M_cur++, __val); }
+        else 
+            { _M_push_back_aux(__val); }
+    }
+
+    void push_front(const _Tp &__val) {
+        if (_M_start._M_cur != _M_start._M_first) 
+            {  tinystd::construct(--_M_start._M_cur, __val); }
+        else 
+            { _M_push_front_aux(__val); }
+    }
+
+    void pop_back() {
+        if (_M_finish._M_cur != _M_finish._M_first) 
+            { tinystd::destory(--_M_finish._M_cur); }
+        else
+            { _M_pop_back_aux(); }
+    }
+
+    void pop_front() {
+        if (_M_start._M_cur != _M_start._M_last - 1) 
+            { tinystd::destory(_M_start._M_cur++); }
+        else
+            { _M_pop_front_aux(); }
+    }
 
 protected:
     typedef pointer *__map_pointer;
@@ -152,7 +214,22 @@ protected:
 
     void _M_fill_initialize(size_type __n, const _Tp &__value) {
         _M_create_map_and_nodes(__n);
-        tinystd::uninitialized_fill(_M_start, _M_finish, __value);
+        try {
+            tinystd::uninitialized_fill(_M_start, _M_finish, __value);
+        } catch (...) {
+            // TODO: add code here (roll back ... ^^)
+        }
+    }
+
+    template <typename _InputIter>
+    void _M_copy_initialize(_InputIter __start, _InputIter __finish) {
+        size_type __n = tinystd::distance(__start, __finish);
+        _M_create_map_and_nodes(__n);
+        try {
+            tinystd::uninitialized_copy(__start, __finish, _M_start);
+        } catch (...) {
+            // TODO: add code here (roll back ... ^^)
+        }
     }
 
     /**
@@ -168,16 +245,17 @@ protected:
         _M_map_size = tinystd::max(size_type(8), __num_nodes + 2);
 
         // allocate the map 
+        // TODO: checkme: the other space is undefined. 
         _M_map = __map_allocator::_S_allocate(_M_map_size);
 
         __map_pointer __new_start = _M_map + ((_M_map_size - __num_nodes) >> 1);
         __map_pointer __new_finish = __new_start + __num_nodes - 1;
 
+
         __map_pointer __cur;
         try {
             for (__cur = __new_start; __cur <= __new_finish; ++__cur) 
-                                // FIXME: add to a function ? (allocate_node())
-                *__cur = __data_allocator::_S_allocate(__buffer_sz);
+                *__cur = _M_allocate_buffer();
         } catch (...) {
             // roll back. 
             // If not everyone is successfully create. 
@@ -189,6 +267,112 @@ protected:
         _M_finish._M_set_node(__new_finish);
         _M_start._M_cur = _M_start._M_first;
         _M_finish._M_cur = _M_finish._M_first + __num_elements % __buffer_sz;
+
+    }
+
+    void _M_push_back_aux(const _Tp &__val) {
+        // make a new map. 
+        _M_reserve_map_at_back();
+        *(_M_finish._M_map + 1) = _M_allocate_buffer(); 
+        try {
+            // construct the last val;
+            tinystd::construct(_M_finish._M_cur, __val);
+            _M_finish._M_set_node(_M_finish._M_map + 1);
+            _M_finish._M_cur = _M_finish._M_first;
+        } catch (...) {
+            // roll back. 
+            // If not everyone is successfully create. 
+            // then clear every one. 
+            // TODO: add code here. 
+        }
+    }
+    void _M_push_front_aux(const _Tp &__val) {
+        // make a new map. 
+        _M_reserve_map_at_front();
+        *(_M_start._M_map - 1) = _M_allocate_buffer();
+        try {
+            // construct the last val;
+            _M_start._M_set_node(_M_start._M_map - 1);
+            _M_start._M_cur = _M_start._M_last - 1;
+            tinystd::construct(_M_start._M_cur, __val);
+        } catch (...) {
+            // roll back. 
+            // If not everyone is successfully create. 
+            // then clear every one. 
+            // TODO: add code here. 
+        }
+    }
+
+    void _M_pop_back_aux() {
+        _M_finish._M_set_node(_M_finish._M_map - 1);
+        _M_finish._M_cur = _M_finish._M_last - 1;
+        // _M_free_buffer(_M_finish._M_cur);
+        // FIXME: memory leak!
+    }
+
+    void _M_pop_front_aux() {
+        // _M_free_buffer(_M_start._M_cur);
+        _M_start._M_set_node(_M_start._M_map + 1);
+        _M_start._M_cur = _M_start._M_first;
+    }
+
+
+    /**
+     * @brief 
+     * +---+---+---+---+
+     * |   |   |   |   |
+     * +---+---+---+---+
+     *             ^
+     *             |
+     *           finish.map 
+     */
+    void _M_reserve_map_at_back() {
+        if (_M_finish._M_map == _M_map + _M_map_size - 1) {
+            _M_reallocate_map();
+        }
+    }
+
+    void _M_reserve_map_at_front() {
+        if (_M_start._M_map == _M_map) {
+            _M_reallocate_map();
+        }
+    }
+
+    void _M_reallocate_map() {
+        // TODO: add roll back
+
+        size_type __new_map_size = _M_map_size << 1;
+        size_type __num_nodes = _M_finish._M_map - _M_start._M_map;
+        __map_pointer __new_map = __map_allocator::_S_allocate(__new_map_size);
+        __map_pointer __node_start = __new_map + ((__new_map_size - __num_nodes) >> 1);
+        
+        // _M_map is just stored pointers of (Tp *) so just use [copy];
+        // TODO: checkme: the other space is undefined. 
+        tinystd::copy(_M_start._M_map, _M_finish._M_map + 1, __node_start);
+
+        // free the old _M_map
+        __map_allocator::_S_deallocate(_M_map, _M_map_size);
+
+        // setup member
+        _M_map = __new_map;
+        _M_map_size = __new_map_size;
+
+        // !!!There is no need to set _M_start._M_cur and _M_finish._M_cur
+        // because they are point to the correct place!
+        _M_start._M_set_node(__node_start);
+        _M_finish._M_set_node(__node_start + __num_nodes);
+    }
+
+    _Tp *_M_allocate_buffer() {
+        return __data_allocator::_S_allocate(_S_buffer_size());
+    }
+
+    void _M_free_buffer(_Tp *__buffer) {
+        return __data_allocator::_S_deallocate(__buffer, _S_buffer_size());
+    }
+
+    const_iterator _M_to_const_iterator(iterator __it) const {
+        return const_iterator(__it._M_cur, __it._M_first, __it._M_last, __it._M_map);
     }
 };
 
