@@ -18,9 +18,9 @@ void __test_pop();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        // { "test std::deque", __test_std_deque },
-        // { "test init", __test_init }, 
-        // { "test push_back and push_front", __test_push }, 
+        { "test std::deque", __test_std_deque },
+        { "test init", __test_init }, 
+        { "test push_back and push_front", __test_push }, 
         { "test pop_back and pop_front", __test_pop }, 
     };
 
@@ -144,41 +144,41 @@ void __test_push() {
  * 0
  */
 void __test_pop() {
-    // std::cout << "test1: pop_front: " << std::endl;
-    // {
-    //     auto print = [](const auto &con) {
-    //         for (auto const &item : con)
-    //             std::cout << item;
-    //         std::cout << '\n';
-    //     };
+    std::cout << "test1: pop_front: " << std::endl;
+    {
+        auto print = [](const auto &con) {
+            for (auto const &item : con)
+                std::cout << item;
+            std::cout << '\n';
+        };
 
-    //     tinystd::deque<char> letters{'A', 'B', 'C', 'D'};
+        tinystd::deque<char> letters{'A', 'B', 'C', 'D'};
 
-    //     for (char c{letters.back()}; c != 'H';) {
-    //         letters.push_back(++c);
-    //         print(letters);
-    //         letters.pop_front();
-    //     }
-    // }
-    // std::cout << "test2: pop_back: " << std::endl;
-    // {
-    //     tinystd::deque<int> numbers;
+        for (char c{letters.back()}; c != 'H';) {
+            letters.push_back(++c);
+            print(letters);
+            letters.pop_front();
+        }
+    }
+    std::cout << "test2: pop_back: " << std::endl;
+    {
+        tinystd::deque<int> numbers;
     
-    //     __print_container(numbers.begin(), numbers.end()); 
+        __print_container(numbers.begin(), numbers.end()); 
     
-    //     numbers.push_back(5);
-    //     numbers.push_back(3);
-    //     numbers.push_back(4);
+        numbers.push_back(5);
+        numbers.push_back(3);
+        numbers.push_back(4);
     
-    //     __print_container(numbers.begin(), numbers.end()); 
+        __print_container(numbers.begin(), numbers.end()); 
     
-    //     numbers.pop_back();
+        numbers.pop_back();
     
-    //     __print_container(numbers.begin(), numbers.end()); 
-    // }
+        __print_container(numbers.begin(), numbers.end()); 
+    }
     std::cout << "test3: pop too many" << std::endl;
     {
-        int __k = 1024;
+        int __k = 0xffff;
         tinystd::deque<int> numbers;
         for (int i = 0; i < __k; ++i)
             numbers.push_back(i);

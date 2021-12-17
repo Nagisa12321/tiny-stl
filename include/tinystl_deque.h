@@ -304,14 +304,15 @@ protected:
     }
 
     void _M_pop_back_aux() {
+        tinystd::destory(_M_finish._M_cur);
+        _M_free_buffer(*_M_finish._M_map);
         _M_finish._M_set_node(_M_finish._M_map - 1);
         _M_finish._M_cur = _M_finish._M_last - 1;
-        // _M_free_buffer(_M_finish._M_cur);
-        // FIXME: memory leak!
     }
 
     void _M_pop_front_aux() {
-        // _M_free_buffer(_M_start._M_cur);
+        tinystd::destory(_M_start._M_cur);
+        _M_free_buffer(*_M_start._M_map);
         _M_start._M_set_node(_M_start._M_map + 1);
         _M_start._M_cur = _M_start._M_first;
     }
