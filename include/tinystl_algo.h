@@ -13,7 +13,7 @@ _InputIter find(_InputIter __lhs, _InputIter __rhs, const _Tp &__val) {
 template <typename _InputIter, typename _Function>
 void for_each(_InputIter __lhs, _InputIter __rhs, _Function __func) {
     while (__lhs != __rhs)
-        __func(__lhs++);
+        __func(*__lhs++);
 }
 
 template <typename _ForwardIter, typename _Size, typename _Tp>

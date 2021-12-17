@@ -1,3 +1,4 @@
+#include "__tinystl_speed.h"
 #include "tinystl_deque.h"
 #include "tinystl_list.h"
 #include "tinystl_vector.h"
@@ -11,17 +12,21 @@
 #include <vector>
 #include <algorithm>
 
+void __test_time();
 void __test_std_deque();
 void __test_init();
 void __test_push();
 void __test_pop();
+void __test_clear();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        { "test std::deque", __test_std_deque },
-        { "test init", __test_init }, 
-        { "test push_back and push_front", __test_push }, 
-        { "test pop_back and pop_front", __test_pop }, 
+        // { "test the time against std::deque", __test_time },
+        // { "test std::deque", __test_std_deque },
+        // { "test init", __test_init }, 
+        // { "test push_back and push_front", __test_push }, 
+        // { "test pop_back and pop_front", __test_pop }, 
+        { "test clear.", __test_clear },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -86,10 +91,15 @@ void __test_std_deque() {
 void __test_init() {
     {
         std::cout << "test1: deque(size_type __n, const _Tp &__value)" << std::endl;
-        tinystd::deque<int> __ideq(256, 2048);
+        tinystd::deque<int> __ideq(100, 2048);
         for (int i : __ideq)
             std::cout << i << ' ';
         std::cout << std::endl;
+    }
+    {
+        std::cout << "test1: init the deque of string" << std::endl;
+
+        // tinystd::deque<std::string> __sdeq(100, "hello world");
     }
 }
 
@@ -190,4 +200,133 @@ void __test_pop() {
             numbers.pop_front();
         std::cout << numbers.size() << std::endl;
     }
+}
+
+void __test_clear() {
+    // std::cout << "test1: " << std::endl;
+    // {
+    //     tinystd::deque<int> container{1, 2, 3};
+    
+    //     auto print = [](const int& n) { std::cout << " " << n; };
+    
+    //     std::cout << "Before clear:";
+    //     tinystd::for_each(container.begin(), container.end(), print);
+    //     std::cout << "\nSize=" << container.size() << '\n';
+    
+    //     std::cout << "Clear\n";
+    //     container.clear();
+    
+    //     std::cout << "After clear:";
+    //     tinystd::for_each(container.begin(), container.end(), print);
+    //     std::cout << "\nSize=" << container.size() << '\n';
+
+    // }
+    std::cout << "test2: " << std::endl;
+    {
+        tinystd::deque<int> __ideq;
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 1000; ++j)
+                __ideq.push_back(j);
+            __ideq.clear();
+        }
+    }
+
+}
+
+void __test_time() {
+    std::cout << "\ntest1: push operation" << std::endl;
+    {
+        std::cout << " >> push 100000000 string" << std::endl;
+        tinystd::deque<std::string> __my_deque;
+        std::deque<std::string> __std_deque; 
+
+        __timer::__start();
+        for (int i = 0; i < 50000000; ++i) {
+            __my_deque.push_back(std::to_string(i));
+        }
+        for (int i = 0; i < 50000000; ++i) {
+            __my_deque.push_front(std::to_string(i));
+        }
+        __timer::__end();
+        __timer::__time_type __my = __timer::__get_ms();
+
+        __timer::__start();
+        for (int i = 0; i < 50000000; ++i) {
+            __std_deque.push_back(std::to_string(i));
+        }
+        for (int i = 0; i < 50000000; ++i) {
+            __std_deque.push_front(std::to_string(i));
+        }
+        __timer::__end();
+        __timer::__time_type __std = __timer::__get_ms();
+
+        std::cout << "my deque's size: " << __my_deque.size() << std::endl;
+        std::cout << "stl deque's size: " << __std_deque.size() << std::endl;
+
+        std::cout << "tinystd::deque: " << __my << " ms" << std::endl;
+        std::cout << "std::deque: " << __std << " ms" << std::endl;
+    }
+    std::cout << "\ntest2: pop operation" << std::endl;
+    {
+        std::cout << " >> init with 100000000 int, and call 50000000 pop_back \n"
+                  << "\tand 50000000 pop_front." << std::endl;
+        std::deque<int> __std_deque(100000000); 
+        tinystd::deque<int> __my_deque(100000000);
+        __timer::__start();
+        for (int i = 0; i < 50000000; ++i) {
+            __std_deque.pop_back();
+            __std_deque.pop_front();
+        }
+        __timer::__end();
+        __timer::__time_type __std = __timer::__get_ms();
+
+        __timer::__start();
+        for (int i = 0; i < 50000000; ++i) {
+            __my_deque.pop_back();
+            __my_deque.pop_front();
+        }
+        __timer::__end();
+        __timer::__time_type __my = __timer::__get_ms();
+
+        std::cout << "my deque's size: " << __my_deque.size() << std::endl;
+        std::cout << "stl deque's size: " << __std_deque.size() << std::endl;
+
+        std::cout << "tinystd::deque: " << __my << " ms" << std::endl;
+        std::cout << "std::deque: " << __std << " ms" << std::endl;
+    }
+    std::cout << "\ntest2: test clear and re-push" << std::endl;
+    {
+        std::cout << " >> use 1000000 push (back and front) operation and then clear, "
+                  << "\n\tdo this 1000 times" << std::endl;
+        std::deque<int> __std_deque; 
+        tinystd::deque<int> __my_deque;
+        __timer::__start();
+        for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < 500000; ++i) {
+                __std_deque.pop_back();
+                __std_deque.pop_front();
+            }
+            __std_deque.clear();
+        }
+        __timer::__end();
+        __timer::__time_type __std = __timer::__get_ms();
+
+        __timer::__start();
+        for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < 500000; ++i) {
+                __my_deque.pop_back();
+                __my_deque.pop_front();
+            }
+            __my_deque.clear();
+        }
+        __timer::__end();
+        __timer::__time_type __my = __timer::__get_ms();
+
+        std::cout << "my deque's size: " << __my_deque.size() << std::endl;
+        std::cout << "stl deque's size: " << __std_deque.size() << std::endl;
+
+        std::cout << "tinystd::deque: " << __my << " ms" << std::endl;
+        std::cout << "std::deque: " << __std << " ms" << std::endl;
+    }
+
 }

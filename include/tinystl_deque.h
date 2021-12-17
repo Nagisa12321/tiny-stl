@@ -138,6 +138,7 @@ public:
 
     deque() 
         { _M_create_map_and_nodes(0); }
+    deque(size_type __n) : deque(__n, _Tp()) {} 
     deque(size_type __n, const _Tp &__value)
         { _M_fill_initialize(__n, __value); }
     deque(std::initializer_list<_Tp> __li)
@@ -145,14 +146,8 @@ public:
 
     ~deque()
     { 
-        // destroy every _Tp    
-        tinystd::destory(_M_start, _M_finish);
-
-        // free every buffer
-        __map_pointer __begin = _M_start._M_map;
-        __map_pointer __end = _M_finish._M_map + 1;
-        while (__begin != __end) 
-            { _M_free_buffer(*__begin++); }
+        // clear the data that the map maintain... 
+        _M_clear_data(true);
 
         // free the map itself
         __map_allocator::_S_deallocate(_M_map, _M_map_size);
@@ -175,28 +170,32 @@ public:
         else 
             { _M_push_back_aux(__val); }
     }
-
     void push_front(const _Tp &__val) {
         if (_M_start._M_cur != _M_start._M_first) 
             {  tinystd::construct(--_M_start._M_cur, __val); }
         else 
             { _M_push_front_aux(__val); }
     }
-
     void pop_back() {
         if (_M_finish._M_cur != _M_finish._M_first) 
             { tinystd::destory(--_M_finish._M_cur); }
         else
             { _M_pop_back_aux(); }
     }
-
     void pop_front() {
         if (_M_start._M_cur != _M_start._M_last - 1) 
             { tinystd::destory(_M_start._M_cur++); }
         else
             { _M_pop_front_aux(); }
     }
-
+    void clear() {
+        // just clear all data
+        // But not clear the buffer... ^^
+        // This operation is a little waste memory 
+        // but it is good for speed. 
+        _M_clear_data(false);
+        _M_finish = _M_start;
+    }
 protected:
     typedef pointer *__map_pointer;
 //
@@ -366,6 +365,19 @@ protected:
 
     _Tp *_M_allocate_buffer() {
         return __data_allocator::_S_allocate(_S_buffer_size());
+    }
+
+    void _M_clear_data(bool __free_buffer) {
+        // destroy every _Tp    (_Tp::~_Tp())
+        tinystd::destory(_M_start, _M_finish);
+
+        // free every buffer
+        if (__free_buffer) {
+            __map_pointer __begin = _M_start._M_map;
+            __map_pointer __end = _M_finish._M_map + 1;
+            while (__begin != __end) 
+                { _M_free_buffer(*__begin++); }
+        }
     }
 
     void _M_free_buffer(_Tp *__buffer) {
