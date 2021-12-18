@@ -31,11 +31,17 @@ _ForwardIter copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
     return __res;
 }
 
+/**
+ * @brief Copies the elements from the range, 
+ * defined by [first, last), to another range ending at d_last. 
+ * The elements are copied in reverse order (the last element is copied first), 
+ * but their relative order is preserved.
+ */
 template <typename _InputIter, typename _ForwardIter>
 _ForwardIter copy_backward(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
     // TODO: fix code here
     for (; __lhs != __rhs; ) { *(--__res) = *(--__rhs); }
-    return __res;
+    return __rhs;
 }
 
 template <typename _Tp>

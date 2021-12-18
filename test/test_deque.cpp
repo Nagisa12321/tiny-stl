@@ -395,14 +395,18 @@ void __test_erase() {
     std::cout << "test2: " << std::endl;
     {
         tinystd::deque<int> __ideq;
-        for (int i = 0; i < 200; ++i)
+        for (int i = 0; i < 400; ++i)
             __ideq.push_back(i);
-        __print_container(__ideq.begin(), __ideq.end());
-        for (int i = 0; i < 50; ++i) {
+        
+        // 0...14 385
+        //
+        for (int i = 0; i < 200; ++i) {
             __ideq.erase(__ideq.begin());
             __ideq.erase(__ideq.end() - 1);
+            // __ideq.pop_front();
+            // __ideq.pop_back();
+            __print_container(__ideq.begin(), __ideq.end());
+            // std::cout << __ideq.back() << std::endl;
         }
-        __print_container(__ideq.begin(), __ideq.end());
-        std::cout << __ideq.size() << std::endl;
     }
 }

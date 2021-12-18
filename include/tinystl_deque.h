@@ -213,12 +213,14 @@ public:
      * If last==end() prior to removal, then the updated end() iterator is returned.
      * If [first, last) is an empty range, then last is returned.
      * 
-     */
+     */    
     iterator erase(iterator __pos) {
         size_type __distance = tinystd::distance(_M_start, __pos);
-        tinystd::destory(&(*__pos));
-        if (__distance > (size() >> 1)) {
-            tinystd::copy_backward(_M_start, __pos - 1, __pos);
+        iterator __next = __pos;
+        // !!!Don't do destory because copy will do it!
+        // tinystd::destory(__pos._M_cur);
+        if (__distance < (size() >> 1)) {
+            tinystd::copy_backward(_M_start, __pos, __pos + 1);
             pop_front();
         } else {
             tinystd::copy(__pos + 1, _M_finish, __pos);
