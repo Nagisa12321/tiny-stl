@@ -203,11 +203,28 @@ public:
         _M_finish = _M_start;
     }
     /**
-     * @brief 
+     * @brief Removes the element at pos.
+     * All iterators and references are invalidated, 
+     * unless the erased elements are at the end or the beginning of the container, 
+     * in which case only the iterators and references to the erased elements are invalidated.
+     * @return iterator 
+     * Iterator following the last removed element.
+     * If pos refers to the last element, then the end() iterator is returned.
+     * If last==end() prior to removal, then the updated end() iterator is returned.
+     * If [first, last) is an empty range, then last is returned.
      * 
      */
-    void erase() {
-
+    iterator erase(iterator __pos) {
+        size_type __distance = tinystd::distance(_M_start, __pos);
+        tinystd::destory(&(*__pos));
+        if (__distance > (size() >> 1)) {
+            tinystd::copy_backward(_M_start, __pos - 1, __pos);
+            pop_front();
+        } else {
+            tinystd::copy(__pos + 1, _M_finish, __pos);
+            pop_back();
+        }
+        return _M_start + __distance;
     }
 protected:
     typedef pointer *__map_pointer;

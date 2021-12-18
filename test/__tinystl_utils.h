@@ -1,5 +1,6 @@
 #ifndef __TINYSTL_SPEED_H
 #define __TINYSTL_SPEED_H
+#include <iostream>
 #include <sys/time.h>
 
 struct __timer {
@@ -14,5 +15,13 @@ struct __timer {
 };
 struct timeval __timer::__ts;
 struct timeval __timer::__te;
+
+template <typename _InputIter>
+void __print_container(_InputIter __lhs, _InputIter __rhs) {
+    std::cout << "[";
+    while (__lhs != __rhs) 
+        { std::cout << *__lhs++ << ", "; }
+    std::cout << "]" << std::endl;
+}
 
 #endif // __TINYSTL_SPEED_H
