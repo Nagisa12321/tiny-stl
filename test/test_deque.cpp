@@ -21,11 +21,11 @@ void __test_clear();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        // { "test the time against std::deque", __test_time },
-        // { "test std::deque", __test_std_deque },
-        // { "test init", __test_init }, 
-        // { "test push_back and push_front", __test_push }, 
-        // { "test pop_back and pop_front", __test_pop }, 
+        { "test the time against std::deque", __test_time },
+        { "test std::deque", __test_std_deque },
+        { "test init", __test_init }, 
+        { "test push_back and push_front", __test_push }, 
+        { "test pop_back and pop_front", __test_pop }, 
         { "test clear.", __test_clear },
     };
 
@@ -203,28 +203,28 @@ void __test_pop() {
 }
 
 void __test_clear() {
-    // std::cout << "test1: " << std::endl;
-    // {
-    //     tinystd::deque<int> container{1, 2, 3};
+    std::cout << "test1: " << std::endl;
+    {
+        tinystd::deque<int> container{1, 2, 3};
     
-    //     auto print = [](const int& n) { std::cout << " " << n; };
+        auto print = [](const int& n) { std::cout << " " << n; };
     
-    //     std::cout << "Before clear:";
-    //     tinystd::for_each(container.begin(), container.end(), print);
-    //     std::cout << "\nSize=" << container.size() << '\n';
+        std::cout << "Before clear:";
+        tinystd::for_each(container.begin(), container.end(), print);
+        std::cout << "\nSize=" << container.size() << '\n';
     
-    //     std::cout << "Clear\n";
-    //     container.clear();
+        std::cout << "Clear\n";
+        container.clear();
     
-    //     std::cout << "After clear:";
-    //     tinystd::for_each(container.begin(), container.end(), print);
-    //     std::cout << "\nSize=" << container.size() << '\n';
+        std::cout << "After clear:";
+        tinystd::for_each(container.begin(), container.end(), print);
+        std::cout << "\nSize=" << container.size() << '\n';
 
-    // }
+    }
     std::cout << "test2: " << std::endl;
     {
         tinystd::deque<int> __ideq;
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             for (int j = 0; j < 1000; ++j)
                 __ideq.push_back(j);
             __ideq.clear();
@@ -294,7 +294,7 @@ void __test_time() {
         std::cout << "tinystd::deque: " << __my << " ms" << std::endl;
         std::cout << "std::deque: " << __std << " ms" << std::endl;
     }
-    std::cout << "\ntest2: test clear and re-push" << std::endl;
+    std::cout << "\ntest3: test clear and re-push" << std::endl;
     {
         std::cout << " >> use 1000000 push (back and front) operation and then clear, "
                   << "\n\tdo this 1000 times" << std::endl;
@@ -303,8 +303,8 @@ void __test_time() {
         __timer::__start();
         for (int i = 0; i < 1000; ++i) {
             for (int i = 0; i < 500000; ++i) {
-                __std_deque.pop_back();
-                __std_deque.pop_front();
+                __std_deque.push_back(i);
+                __std_deque.push_front(i);
             }
             __std_deque.clear();
         }
@@ -314,8 +314,8 @@ void __test_time() {
         __timer::__start();
         for (int i = 0; i < 1000; ++i) {
             for (int i = 0; i < 500000; ++i) {
-                __my_deque.pop_back();
-                __my_deque.pop_front();
+                __my_deque.push_back(i);
+                __my_deque.push_front(i);
             }
             __my_deque.clear();
         }

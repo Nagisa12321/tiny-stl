@@ -7,8 +7,10 @@
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"
 
+// for debug
+#include <stdio.h>
+
 // use c++ init list. 
-#include <cstdio>
 #include <initializer_list>
 
 namespace tinystd {
@@ -147,7 +149,7 @@ public:
     ~deque()
     { 
         // clear the data that the map maintain... 
-        _M_clear_data(true);
+        _M_clear_data();
 
         // free the map itself
         __map_allocator::_S_deallocate(_M_map, _M_map_size);
@@ -189,12 +191,23 @@ public:
             { _M_pop_front_aux(); }
     }
     void clear() {
-        // just clear all data
-        // But not clear the buffer... ^^
-        // This operation is a little waste memory 
-        // but it is good for speed. 
-        _M_clear_data(false);
+        _M_clear_data();
+        // TODO: try not to free the maps!
+
+        // make a new _M_start
+        *_M_start._M_map = _M_allocate_buffer();
+        _M_start._M_set_node(_M_start._M_map);
+        _M_start._M_cur = _M_start._M_first;
+
+        // finish = start so the size is zero
         _M_finish = _M_start;
+    }
+    /**
+     * @brief 
+     * 
+     */
+    void erase() {
+
     }
 protected:
     typedef pointer *__map_pointer;
@@ -367,17 +380,15 @@ protected:
         return __data_allocator::_S_allocate(_S_buffer_size());
     }
 
-    void _M_clear_data(bool __free_buffer) {
+    void _M_clear_data() {
         // destroy every _Tp    (_Tp::~_Tp())
         tinystd::destory(_M_start, _M_finish);
 
         // free every buffer
-        if (__free_buffer) {
-            __map_pointer __begin = _M_start._M_map;
-            __map_pointer __end = _M_finish._M_map + 1;
-            while (__begin != __end) 
-                { _M_free_buffer(*__begin++); }
-        }
+        __map_pointer __begin = _M_start._M_map;
+        __map_pointer __end = _M_finish._M_map + 1;
+        while (__begin != __end) 
+            { _M_free_buffer(*__begin++); }
     }
 
     void _M_free_buffer(_Tp *__buffer) {
