@@ -7,9 +7,6 @@
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"
 
-// for debug
-#include <stdio.h>
-
 // use c++ init list. 
 #include <initializer_list>
 
@@ -107,7 +104,18 @@ struct __deque_iterator {
         __self __tmp = *this;
         return __tmp += __n;
     }
-    __self &operator-=(difference_type __n) { return *this += -__n; }
+    __self &operator-=(difference_type __n) {
+        if (__n <= _M_cur - _M_first) {
+            _M_cur -= __n;
+        } else {
+            __n -= _M_cur - _M_first;
+            size_t __div = (__n - 1) / _S_buffer_size();
+            size_t __mod = (__n - 1) / _S_buffer_size();
+            _M_set_node(_M_map - __div - 1);
+            _M_cur = _M_last - __mod - 1;
+        }
+        return *this;
+    }
     __self operator-(difference_type __n) { __self __tmp = *this; return __tmp -= __n; }
     reference operator[](size_t __idx) { return *(*this + __idx); }
     bool operator==(const __self &__it) { return _M_cur == __it._M_cur; }
@@ -180,7 +188,9 @@ public:
     }
     void pop_back() {
         if (_M_finish._M_cur != _M_finish._M_first) 
-            { tinystd::destory(--_M_finish._M_cur); }
+            { 
+                tinystd::destory(--_M_finish._M_cur); 
+            }
         else
             { _M_pop_back_aux(); }
     }
@@ -335,15 +345,15 @@ protected:
     }
 
     void _M_pop_back_aux() {
-        tinystd::destory(_M_finish._M_cur);
-        _M_free_buffer(*_M_finish._M_map);
+        _M_free_buffer(_M_finish._M_first);
         _M_finish._M_set_node(_M_finish._M_map - 1);
         _M_finish._M_cur = _M_finish._M_last - 1;
+        tinystd::destory(_M_finish._M_cur);
     }
 
     void _M_pop_front_aux() {
         tinystd::destory(_M_start._M_cur);
-        _M_free_buffer(*_M_start._M_map);
+        _M_free_buffer(_M_start._M_first);
         _M_start._M_set_node(_M_start._M_map + 1);
         _M_start._M_cur = _M_start._M_first;
     }
