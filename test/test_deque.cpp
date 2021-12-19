@@ -20,16 +20,18 @@ void __test_push();
 void __test_pop();
 void __test_clear();
 void __test_erase();
+void __test_operator_sub();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        { "test the time against std::deque", __test_time },
+        // { "test the time against std::deque", __test_time },
         { "test std::deque", __test_std_deque },
         { "test init", __test_init }, 
         { "test push_back and push_front", __test_push }, 
         { "test pop_back and pop_front", __test_pop }, 
         { "test clear.", __test_clear },
         { "test erase.", __test_erase },
+        { "test operator sub.", __test_operator_sub },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -401,24 +403,24 @@ void __test_time() {
 void __test_erase() {
     std::cout << "test1: " << std::endl;
     {
-        // tinystd::deque<int> c{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        // __print_container(c.begin(), c.end());
+        tinystd::deque<int> c{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        __print_container(c.begin(), c.end());
 
-        // c.erase(c.begin());
-        // __print_container(c.begin(), c.end());
+        c.erase(c.begin());
+        __print_container(c.begin(), c.end());
 
-        // c.erase(c.begin() + 2, c.begin() + 5);
-        // __print_container(c.begin(), c.end());
+        c.erase(c.begin() + 2, c.begin() + 5);
+        __print_container(c.begin(), c.end());
 
-        // // Erase all even numbers (C++11 and later)
-        // for (auto it = c.begin(); it != c.end();) {
-        //     if (*it % 2 == 0) {
-        //         it = c.erase(it);
-        //     } else {
-        //         ++it;
-        //     }
-        // }
-        // __print_container(c.begin(), c.end());
+        // Erase all even numbers (C++11 and later)
+        for (auto it = c.begin(); it != c.end();) {
+            if (*it % 2 == 0) {
+                it = c.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        __print_container(c.begin(), c.end());
     }
     std::cout << "test2: " << std::endl;
     {
@@ -433,4 +435,33 @@ void __test_erase() {
             __ideq.pop_front();
         }
     }
+    std::cout << "test3: " << std::endl;
+    {
+        tinystd::deque<int> __ideq;
+        for (int i = 0; i < 50; ++i)
+            __ideq.push_back(i);
+        for (int i = 0; i < 5; ++i) {
+            __ideq.erase(__ideq.begin(), __ideq.begin() + 10);
+            __print_container(__ideq.begin(), __ideq.end());
+        }
+    }
+    std::cout << "test4: " << std::endl;
+    {
+        tinystd::deque<int> __ideq;
+        for (int i = 0; i < 200; ++i) 
+            { __ideq.push_back(i); }
+        for (int i = 0; i < 20; ++i) {
+            __ideq.erase(__ideq.end() - 5, __ideq.end());
+            __ideq.erase(__ideq.begin(), __ideq.begin() + 5);
+            __print_container(__ideq.begin(), __ideq.end());
+        }
+    }
+}
+
+void __test_operator_sub() {
+    tinystd::deque<int> __ideq;
+    for (int i = 0; i < 300; ++i) 
+        __ideq.push_back(i);
+    std::cout << *(__ideq.end() - 1) << std::endl;
+    std::cout << *(__ideq.end() - 101) << std::endl;
 }

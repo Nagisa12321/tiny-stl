@@ -110,7 +110,7 @@ struct __deque_iterator {
         } else {
             __n -= _M_cur - _M_first;
             size_t __div = (__n - 1) / _S_buffer_size();
-            size_t __mod = (__n - 1) / _S_buffer_size();
+            size_t __mod = (__n - 1) % _S_buffer_size();
             _M_set_node(_M_map - __div - 1);
             _M_cur = _M_last - __mod - 1;
         }
@@ -237,6 +237,21 @@ public:
             pop_back();
         }
         return _M_start + __distance;
+    }
+    iterator erase(iterator __lhs, iterator __rhs) {
+        size_type __left = tinystd::distance(_M_start, __lhs);
+        size_type __right = tinystd::distance(__rhs, _M_finish);
+        size_type __width = tinystd::distance(__lhs, __rhs);
+        if (__left < __right) {
+            tinystd::copy_backward(_M_start, __lhs, __rhs);
+            for (int __w = 0; __w < __width; ++__w)
+                { pop_front(); }
+        } else {
+            tinystd::copy(__rhs, _M_finish, __lhs);
+            for (int __w = 0; __w < __width; ++__w)
+                { pop_back(); }
+        }
+        return _M_start + __left;
     }
 protected:
     typedef pointer *__map_pointer;
