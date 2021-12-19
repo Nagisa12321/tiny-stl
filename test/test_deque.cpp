@@ -21,17 +21,19 @@ void __test_pop();
 void __test_clear();
 void __test_erase();
 void __test_operator_sub();
+void __test_insert();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
+        // { "test std::deque", __test_std_deque },
+        // { "test init", __test_init }, 
+        // { "test push_back and push_front", __test_push }, 
+        // { "test pop_back and pop_front", __test_pop }, 
+        // { "test clear.", __test_clear },
+        // { "test erase.", __test_erase },
+        // { "test operator sub.", __test_operator_sub },
+        { "test insert", __test_insert }, 
         // { "test the time against std::deque", __test_time },
-        { "test std::deque", __test_std_deque },
-        { "test init", __test_init }, 
-        { "test push_back and push_front", __test_push }, 
-        { "test pop_back and pop_front", __test_pop }, 
-        { "test clear.", __test_clear },
-        { "test erase.", __test_erase },
-        { "test operator sub.", __test_operator_sub },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -464,4 +466,40 @@ void __test_operator_sub() {
         __ideq.push_back(i);
     std::cout << *(__ideq.end() - 1) << std::endl;
     std::cout << *(__ideq.end() - 101) << std::endl;
+}
+
+struct __obj {
+    __obj() : _M_pi(new int) {}
+    __obj(int i) : _M_pi(new int(i)) {}
+    __obj(const __obj &__o) : _M_pi(new int(*__o._M_pi)) {}
+    ~__obj() { delete _M_pi; }
+    __obj &operator=(const __obj &__o) {
+        if (&__o == this) return *this;
+        delete _M_pi;
+        _M_pi = new int(*__o._M_pi);
+        return *this;
+    }
+
+    int *_M_pi;
+};
+
+std::ostream &operator<<(std::ostream &__o, const __obj &__obj) {
+    return __o << *__obj._M_pi;
+}
+
+void __test_insert() {
+    std::cout << "test1: test insert front. " << std::endl;
+    {
+        tinystd::deque<__obj> __ideq;
+        for (int i = 0; i < 10; ++i)
+            __ideq.insert(__ideq.begin(), i);
+        __print_container(__ideq.begin(), __ideq.end());
+    }
+    std::cout << "test2: test insert back. " << std::endl;
+    {
+        tinystd::deque<__obj> __ideq;
+        for (int i = 0; i < 10; ++i)
+            __ideq.insert(__ideq.end(), i);
+        __print_container(__ideq.begin(), __ideq.end());
+    }
 }

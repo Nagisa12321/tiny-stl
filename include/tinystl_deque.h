@@ -253,6 +253,27 @@ public:
         }
         return _M_start + __left;
     }
+
+    /**
+     * @brief inserts value before pos
+     * 
+     * @return Iterator pointing to the inserted value 
+     */
+    iterator insert(iterator __pos, const _Tp &__data) {
+        size_type __d = tinystd::distance(_M_start, __pos);
+        if (__d <= (size() >> 1)) {
+            // Push a random shit at the front... 
+            // Just for the convenience of applying for space :)
+            push_front(__data);
+            tinystd::copy(_M_start + 1, __pos, _M_start);
+        } else {
+            push_back(__data);
+            tinystd::copy_backward(__pos, _M_finish, _M_finish + 1);
+        }
+        // the real insert. :)
+        *(_M_start + __d) = __data;
+        return _M_start + __d;
+    }
 protected:
     typedef pointer *__map_pointer;
 //
