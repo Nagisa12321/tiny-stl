@@ -488,18 +488,59 @@ std::ostream &operator<<(std::ostream &__o, const __obj &__obj) {
 }
 
 void __test_insert() {
-    std::cout << "test1: test insert front. " << std::endl;
+    // std::cout << "test1: test insert front. " << std::endl;
+    // {
+    //     tinystd::deque<__obj> __ideq;
+    //     for (int i = 0; i < 10; ++i)
+    //         __ideq.insert(__ideq.begin(), i);
+    //     __print_container(__ideq.begin(), __ideq.end());
+    // }
+    // std::cout << "test2: test insert back. " << std::endl;
+    // {
+    //     tinystd::deque<__obj> __ideq;
+    //     for (int i = 0; i < 10; ++i)
+    //         __ideq.insert(__ideq.end(), i);
+    //     __print_container(__ideq.begin(), __ideq.end());
+    // }
+    // std::cout << "test3: " << std::endl;
+    // {
+    //     // 0 1 2 3 4 5 6 7 8 9 10
+    //     tinystd::deque<__obj> __ideq;
+    //     for (int i = 0; i < 10; ++i)
+    //         { __ideq.push_back(i); }
+    //     __print_container(__ideq.begin(), __ideq.end());
+        
+    //     // 0 1 2 3 4 1024 5 6 7 8 9 10
+    //     __ideq.insert(__ideq.begin() + 5, 1024);
+    //     __print_container(__ideq.begin(), __ideq.end());
+    // }
+    // std::cout << "test4: " << std::endl;
+    // {
+    //     // 0 1 2 3 4 5 6 7 8 9 10
+    //     tinystd::deque<__obj> __ideq;
+    //     for (int i = 0; i < 10; ++i)
+    //         { __ideq.push_back(i); }
+    //     __print_container(__ideq.begin(), __ideq.end());
+        
+    //     // 0 1 2 3 4 1024 1024 1024 1024 1024 5 6 7 8 9 10
+    //     __ideq.insert(__ideq.begin() + 5, 5, 1024);
+    //     __print_container(__ideq.begin(), __ideq.end());
+    // }
+    // std::cout << "test5: " << std::endl;
+    // {
+    //     tinystd::deque<__obj> __ideq{0, 1, 2, 3, 4}, __ideq2 = __ideq;
+
+    //     __ideq2.insert(__ideq2.begin() + 1, 200, 10086);
+    //     __ideq.insert(__ideq.end() - 2, 200, 10086);
+
+    //     __print_container(__ideq.begin(), __ideq.end());
+    //     __print_container(__ideq2.begin(), __ideq2.end());
+    // }
+    std::cout << "test6: " << std::endl;
     {
-        tinystd::deque<__obj> __ideq;
-        for (int i = 0; i < 10; ++i)
-            __ideq.insert(__ideq.begin(), i);
-        __print_container(__ideq.begin(), __ideq.end());
-    }
-    std::cout << "test2: test insert back. " << std::endl;
-    {
-        tinystd::deque<__obj> __ideq;
-        for (int i = 0; i < 10; ++i)
-            __ideq.insert(__ideq.end(), i);
-        __print_container(__ideq.begin(), __ideq.end());
+        tinystd::deque<__obj> __ideq{0, 1, 2, 3, 4}, __ideq2(5);
+        // __print_container(__ideq.begin(), __ideq.end());
+        // __ideq.insert(__ideq.begin() + 1, __ideq2.begin(), __ideq2.end());
+        // __print_container(__ideq.begin(), __ideq.end());
     }
 }

@@ -148,11 +148,15 @@ public:
 
     deque() 
         { _M_create_map_and_nodes(0); }
+    deque(const deque &__d) : deque(__d.begin(), __d.end()) {}
     deque(size_type __n) : deque(__n, _Tp()) {} 
     deque(size_type __n, const _Tp &__value)
         { _M_fill_initialize(__n, __value); }
     deque(std::initializer_list<_Tp> __li)
         { _M_copy_initialize(__li.begin(), __li.end()); }
+    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
+    deque(_InputIter __begin, _InputIter __end) 
+        { _M_copy_initialize(__begin, __end); }
 
     ~deque()
     { 
@@ -272,6 +276,48 @@ public:
         }
         // the real insert. :)
         *(_M_start + __d) = __data;
+        return _M_start + __d;
+    }
+    iterator insert(iterator __pos, size_type __n, const _Tp &__data) {
+        if (!__n)
+            { return __pos; }
+        size_type __d = tinystd::distance(_M_start, __pos);
+        if (__d <= (size() >> 1)) {
+            // push some random shit in the front place 
+            // and then copy
+            for (size_type __i = 0; __i < __n; ++__i) 
+                { push_front(__data); }
+            copy(_M_start + __n, __pos, _M_start);
+        } else { 
+            iterator __tmp = _M_finish;
+            for (size_type __i = 0; __i < __n; ++__i)
+                { push_back(__data); }
+            copy_backward(__pos, __tmp, _M_finish);
+        }
+        // the real insert. :)
+        tinystd::fill_n(_M_start + __d, __n, __data);
+        return _M_start + __d;
+    }
+    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
+    iterator insert(iterator __pos, _InputIter __start, _InputIter __finish) {
+        if (__start == __finish)
+            { return __pos; }
+        size_type __d = tinystd::distance(_M_start, __pos);
+        size_type __n = tinystd::distance(__start, __finish);
+        if (__d <= (size() >> 1)) {
+            // push some random shit in the front place 
+            // and then copy
+            for (size_type __i = 0; __i < __n; ++__i) 
+                { push_front(*__start); }
+            copy(_M_start + __n, __pos, _M_start);
+        } else { 
+            iterator __tmp = _M_finish;
+            for (size_type __i = 0; __i < __n; ++__i)
+                { push_back(*__start); }
+            copy_backward(__pos, __tmp, _M_finish);
+        }
+        // the real insert. :)
+        tinystd::copy(__start, __finish, _M_start + __d);
         return _M_start + __d;
     }
 protected:
