@@ -78,7 +78,8 @@ public:
         _M_node->_M_prev = _M_node;
     }
     template <typename _InputIter> 
-    list(_InputIter __begin, _InputIter __end) { _M_copy_init(__begin, __end); }
+    list(_InputIter __begin, _InputIter __end) : list() { _M_copy_init(__begin, __end); }
+    list(const list &__li) : list() { _M_copy_init(__li.begin(), __li.end()); }
     list(std::initializer_list<_Tp> __li) : list() { _M_copy_init(__li.begin(), __li.end()); }
     ~list() { clear(); _M_destory_node(_M_node); }
 
@@ -91,6 +92,7 @@ public:
     const_iterator end() const { return const_iterator(_M_node); }
     reference front() { return _M_node->_M_next->_M_data; }
     reference back() { return _M_node->_M_prev->_M_data; }
+    const_reference back() const { return _M_node->_M_prev->_M_data; }
     size_type size() const { return tinystd::distance(begin(), end()); }
     size_type empty() const { return _M_node->_M_next == _M_node; }
     void push_back(const _Tp &__data) { insert(_M_node, __data); }

@@ -100,7 +100,7 @@ struct __deque_iterator {
         }
         return *this;
     }
-    __self operator+(difference_type __n) {
+    __self operator+(difference_type __n) const {
         __self __tmp = *this;
         return __tmp += __n;
     }
@@ -116,9 +116,9 @@ struct __deque_iterator {
         }
         return *this;
     }
-    __self operator-(difference_type __n) { __self __tmp = *this; return __tmp -= __n; }
+    __self operator-(difference_type __n) const { __self __tmp = *this; return __tmp -= __n; }
     reference operator[](size_t __idx) { return *(*this + __idx); }
-    bool operator==(const __self &__it) { return _M_cur == __it._M_cur; }
+    bool operator==(const __self &__it) const { return _M_cur == __it._M_cur; }
     bool operator!=(const __self &__it) { return !(*this == __it); }
     bool operator<(const __self &__it) { return _M_map == __it._M_map ? _M_cur < __it._M_cur : _M_map < __it._M_map; }
     
@@ -175,6 +175,8 @@ public:
     const_iterator end() const { return _M_to_const_iterator(_M_finish); }
     reference front() { return *_M_start; }
     reference back() { return *(_M_finish - 1); }
+    const_reference back() const { return *(_M_finish - 1); }
+    // const_reference back() const { return *(_M_finish - 1); }
     size_type size() const { return tinystd::distance(_M_start, _M_finish); }
     size_type max_size() const { return size_type(-1); }
     bool empty() const { return _M_start == _M_finish; }
@@ -510,6 +512,19 @@ protected:
         return const_iterator(__it._M_cur, __it._M_first, __it._M_last, __it._M_map);
     }
 };
+
+template <typename _Tp, typename _Alloc>
+bool operator==(const deque<_Tp, _Alloc> &__lhs, const deque<_Tp, _Alloc> &__rhs) {
+    return __lhs.size() == __rhs.size() && 
+            tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
+}
+
+template <typename _Tp, typename _Alloc>
+bool operator<(const deque<_Tp, _Alloc> &__lhs, const deque<_Tp, _Alloc> &__rhs) {
+    return tinystd::lexicographical_compare(__lhs.begin(), __lhs.end(), 
+                                            __rhs.begin(), __rhs.end());
+}
+
 
 }
 

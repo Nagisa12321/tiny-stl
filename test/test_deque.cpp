@@ -23,6 +23,9 @@ void __test_erase();
 void __test_operator_sub();
 void __test_insert();
 
+// template definition.
+template class tinystd::deque<int>;
+
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test std::deque", __test_std_deque },

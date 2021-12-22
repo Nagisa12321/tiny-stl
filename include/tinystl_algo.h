@@ -125,6 +125,29 @@ typename __iterator_traits<_RandomAccessIter>::difference_type
     return __rhs - __lhs;
 }
 
+//
+// equal operations .
+// TODO: add more situations here
+//
+template <class _InputIt1, class _InputIt2>
+bool equal(_InputIt1 __first1, _InputIt1 __last1, _InputIt2 __first2) {
+    while (__first1 != __last1) {
+        if (*__first1++ == *__first2++)
+            return false;
+    }
+    return true;
+}
+
+template <class _InputIt1, class _InputIt2>
+bool lexicographical_compare(_InputIt1 __first1, _InputIt1 __last1,
+                             _InputIt2 __first2, _InputIt2 __last2) {
+    for (; __first1 != __last1 && __first2 != __last2; ++__first1, ++__first2) {
+        if (*__first1 < *__first2) return true;
+        else if (*__first2 < *__first1) return false;
+    } 
+    return (__first1 != __last1) && (__first2 != __last2);
+}
+
 } // namespace tinystd
 
 #endif // __TINYSTL_ALGO_H
