@@ -272,7 +272,7 @@ public:
             tinystd::copy(_M_start + 1, __pos, _M_start);
         } else {
             push_back(__data);
-            tinystd::copy_backward(__pos, _M_finish, _M_finish + 1);
+            tinystd::copy_backward(__pos, _M_finish - 1, _M_finish);
         }
         // the real insert. :)
         *(_M_start + __d) = __data;

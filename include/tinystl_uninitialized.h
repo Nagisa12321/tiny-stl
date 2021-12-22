@@ -79,12 +79,12 @@ inline void __uninitialized_fill(_ForwardIter __lhs, _ForwardIter __rhs, const _
 }
 
 template <typename _ForwardIter, typename _Tp>
-inline void __uninitialized_fill_aux(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val, __true_type) {
+inline void __uninitialized_fill_aux(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val, __false_type) {
     while (__lhs != __rhs) { construct(&(*__lhs++), __val); }
 }
 
 template <typename _ForwardIter, typename _Tp>
-inline void __uninitialized_fill_aux(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val, __false_type) {
+inline void __uninitialized_fill_aux(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val, __true_type) {
     tinystd::fill(__lhs, __rhs, __val);
 }
 
