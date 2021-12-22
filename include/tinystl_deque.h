@@ -174,6 +174,7 @@ public:
     iterator end() { return _M_finish; }
     const_iterator end() const { return _M_to_const_iterator(_M_finish); }
     reference front() { return *_M_start; }
+    const_reference front() const { return *_M_start; }
     reference back() { return *(_M_finish - 1); }
     const_reference back() const { return *(_M_finish - 1); }
     // const_reference back() const { return *(_M_finish - 1); }

@@ -91,6 +91,7 @@ public:
     iterator end() { return iterator(_M_node); }
     const_iterator end() const { return const_iterator(_M_node); }
     reference front() { return _M_node->_M_next->_M_data; }
+    const_reference front() const { return _M_node->_M_next->_M_data; }
     reference back() { return _M_node->_M_prev->_M_data; }
     const_reference back() const { return _M_node->_M_prev->_M_data; }
     size_type size() const { return tinystd::distance(begin(), end()); }

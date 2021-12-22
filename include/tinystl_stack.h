@@ -23,6 +23,13 @@ public:
     typedef typename _Sequence::size_type size_type;
     typedef typename _Sequence::different_type different_type;
 
+
+    stack() : _M_c() {}
+    stack(const _Sequence &__seq) : _M_c(__seq) {}
+    stack(const stack &__q) : stack(__q._M_c) {}
+    template <typename _InputIter>
+    stack(_InputIter __lhs, _InputIter __rhs) : _M_c(__lhs, __rhs) {}
+
     bool empty() const { return _M_c.empty(); }
     size_type size() const { return _M_c.size(); }
     reference top() { return _M_c.back(); }
