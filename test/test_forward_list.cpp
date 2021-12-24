@@ -1,5 +1,6 @@
 #include "tinystl_algo.h"
 #include "tinystl_forward_list.h"
+#include "tinystl_iterator.h"
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -22,6 +23,12 @@ void __test_maxsize();
 void __test_clear();
 void __test_insert_after();
 void __test_erase_after();
+void __test_pop_front();
+void __test_resize();
+void __test_swap();
+void __test_merge();
+void __test_sort();
+void __test_remove();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -37,6 +44,12 @@ int main() {
         { "test clear. ", __test_clear },
         { "test insert_after. ", __test_insert_after },
         { "test erase_after. ", __test_erase_after },
+        { "test pop_front. ", __test_pop_front },
+        { "test resize. ", __test_resize },
+        { "test swap. ", __test_swap },
+        { "test merge. ", __test_merge },
+        { "test sort. ", __test_sort },
+        { "test remove and remove_if. ", __test_remove },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -358,11 +371,116 @@ void __test_erase_after() {
     for (auto n : l) std::cout << n << " ";
     std::cout << '\n';
 
-    auto fi = std::next(l.begin());
-    auto la = std::next(fi, 3);
+    auto fi = tinystd::next(l.begin());
+    auto la = tinystd::next(fi, 3);
 
     l.erase_after(fi, la);
 
     for (auto n : l) std::cout << n << " ";
+    std::cout << '\n';
+}
+
+/**
+ * @brief 
+ * front(): 'f'
+ * front(): 'r'
+ * front(): 'o'
+ * front(): 'n'
+ * front(): 't'
+ */
+void __test_pop_front() {
+    tinystd::forward_list<char> chars{'f','r','o','n','t'};
+ 
+    for (; !chars.empty(); chars.pop_front()) {
+        std::cout << "front(): '" << chars.front() << "'\n";
+    }
+}
+
+/**
+ * @brief 
+ * The forward_list holds: 1 2 3
+ * After resize up to 5: 1 2 3 0 0
+ * After resize down to 2: 1 2
+ * After resize up to 6 (initializer = 4): 1 2 4 4 4 4
+ */
+void __test_resize() {
+    tinystd::forward_list<int> c = {1, 2, 3};
+    std::cout << "The forward_list holds: ";
+    for(const auto& el: c) std::cout << el << ' ';
+    std::cout << '\n';
+    c.resize(5);
+    std::cout << "After resize up to 5: ";
+    for(const auto& el: c) std::cout << el << ' ';
+    std::cout << '\n';
+    c.resize(2);
+    std::cout << "After resize down to 2: ";
+    for(const auto& el: c) std::cout << el << ' ';
+    std::cout << '\n';
+    c.resize(6, 4);
+    std::cout << "After resize up to 6 (initializer = 4): ";
+    for(const auto& el: c) std::cout << el << ' ';
+    std::cout << '\n';
+}
+
+/**
+ * @brief 
+ * { 1 2 3 } { 4 5 } 2 5 1 4
+ * { 4 5 } { 1 2 3 } 2 5 1 4
+ */
+void __test_swap() {
+    tinystd::forward_list<int> a1{1, 2, 3}, a2{4, 5};
+ 
+    auto it1 = tinystd::next(a1.begin());
+    auto it2 = tinystd::next(a2.begin());
+ 
+    int& ref1 = a1.front();
+    int& ref2 = a2.front();
+ 
+    std::cout << a1 << a2 << *it1 << " " << *it2 << " " << ref1 << " " << ref2 << '\n';
+    a1.swap(a2);
+    std::cout << a1 << a2 << *it1 << " " << *it2 << " " << ref1 << " " << ref2 << '\n';
+ 
+    // Note that after swap the iterators and references stay associated with their
+    // original elements, e.g. it1 that pointed to an element in 'a1' with value 2
+    // still points to the same element, though this element was moved into 'a2'.
+}
+
+/**
+ * @brief 
+ * list1:   1 3 3 5 9
+ * list2:   2 3 4 4 7 8
+ * merged:  1 2 3 3 3 4 4 5 7 8 9
+ */
+void __test_merge() {
+    tinystd::forward_list<int> list1 = { 1, 3, 3, 5, 9 };
+    tinystd::forward_list<int> list2 = { 2, 3, 4, 4, 7, 8 };
+
+    std::cout << "list1:  " << list1 << '\n';
+    std::cout << "list2:  " << list2 << '\n';
+    list1.merge(list2);
+    std::cout << "merged: " << list1 << '\n';
+}
+
+void __test_sort() {
+    tinystd::forward_list<int> list = {8, 7, 5, 9, 0, 1, 3, 2, 6, 4};
+    std::cout << "before:     " << list << "\n";
+    list.sort();
+    std::cout << "ascending:  " << list << "\n";
+    list.sort(tinystd::greater<int>());
+    std::cout << "descending: " << list << "\n";
+}
+
+//
+// 2 3 10 -1
+//
+void __test_remove() {
+    tinystd::forward_list<int> l = {1, 100, 2, 3, 10, 1, 11, -1, 12};
+
+    l.remove(1);                               // remove both elements equal to 1
+    l.remove_if([](int n) { return n > 10; }); // remove all elements greater than 10
+
+    for (int n : l) {
+        std::cout << n << ' ';
+    }
     std::cout << '\n';
 }

@@ -2,6 +2,7 @@
 #define __TINYSTL_FORWARD_LIST_H
 
 #include "tinystl_constructor.h"
+#include "tinystl_functional.h"
 #include "tinystl_iterator_base.h"
 #include "tinystl_types.h"
 #include "tinystl_alloc.h"
@@ -108,8 +109,8 @@ public:
         return *this;
     }
 
-    iterator before_begin() { return iterator((__list_node *)_M_head); }
-    const_iterator before_begin() const { return const_iterator((__list_node *)_M_head); }
+    iterator before_begin() { return iterator((__list_node *) &_M_head); }
+    const_iterator before_begin() const { return const_iterator((__list_node *) &   _M_head); }
     iterator begin() { return iterator((__list_node *)_M_head._M_next); }
     const_iterator begin() const { return const_iterator((__list_node *)_M_head._M_next); }
     iterator end() { return iterator(nullptr); }
@@ -199,12 +200,139 @@ public:
         __list_node *__tmp = (__list_node *) __pos._M_node->_M_next;
         __pos._M_node->_M_next = __pos._M_node->_M_next->_M_next;
         _M_destory_node(__tmp);
+        return iterator((__list_node *) __pos._M_node->_M_next);
     }
 
     iterator erase_after(iterator __lhs, iterator __rhs) {
-        
+        while (__lhs._M_node->_M_next != __rhs._M_node)
+            erase_after(__lhs);
+        return __rhs;
+    }
+    /**
+     * @brief Resizes the container to contain count elements.
+     * If the current size is greater than count, the container is reduced to its first count elements.
+     * If the current size is less than count,
+     * 1) additional default-inserted elements are appended
+     * 2) additional copies of value are appended.
+     * @param __cnt 
+     */
+    void resize(size_type __cnt, const value_type &__data = _Tp()) {
+        __list_node *__cur = (__list_node *) &_M_head;
+        for (; __cnt > 0; --__cnt) {
+            if (!__cur->_M_next) break;
+            __cur = (__list_node *) __cur->_M_next;
+        }  
+
+        if (__cnt) {
+            forward_list __tmp(__cnt, __data);
+            __cur->_M_next = __tmp._M_head._M_next;
+            __tmp._M_head._M_next = nullptr;
+        } else {
+            __list_node_base *__free_lst = __cur->_M_next;
+            __cur->_M_next = nullptr;
+            while (__free_lst) {
+                __list_node_base *__tmp = __free_lst;
+                __free_lst = __free_lst->_M_next;
+                _M_destory_node((__list_node *) __tmp);
+            }
+        }
     }
 
+    /**
+     * @brief Merges two sorted lists into one. The lists should be sorted into ascending order.
+     * 
+     * @param __other 
+     */
+    void merge(forward_list &__other) { merge(__other, tinystd::less<_Tp>()); }
+
+    template <typename _Comp>
+    void merge(forward_list &__other, _Comp __comp) {
+        __list_node_base *__head = &_M_head;
+        __list_node_base *__li1 = _M_head._M_next;
+        __list_node_base *__li2 = __other._M_head._M_next;
+        __other._M_head._M_next = nullptr;
+
+        while (__li1 && __li2) {
+            if (__comp(((__list_node *)__li1)->_M_data, 
+                    ((__list_node *)__li2)->_M_data)) {
+                __head->_M_next = __li1;
+                __li1 = __li1->_M_next;
+            } else {
+                __head->_M_next = __li2;
+                __li2 = __li2->_M_next;
+            }
+            __head = __head->_M_next;
+        }
+        if (!__li1) __head->_M_next = __li2;
+        else __head->_M_next = __li1;
+    }
+
+    /**
+     * @brief Sorts the elements in ascending order. The order of equal elements is preserved. 
+     * The first version uses operator< to compare the elements,
+     * the second version uses the given comparison function comp.
+     * 
+     */
+    void sort() { sort(tinystd::less<_Tp>()); }
+
+    template <typename _Comp>
+    void sort(_Comp __comp) {
+        //
+        // Don't call size() here, it's too slow!
+        //
+        if (empty() || !_M_head._M_next->_M_next) return;
+        //
+        // cut this list to 2 lists. 
+        // 
+        __list_node_base *__fast = _M_head._M_next;
+        __list_node_base *__slow = __fast;
+        while (__fast->_M_next && __fast->_M_next->_M_next) {
+            __fast = __fast->_M_next->_M_next;
+            __slow = __slow->_M_next;
+        }
+        forward_list __tmp;
+        __tmp._M_head._M_next = __slow->_M_next;
+        __slow->_M_next = nullptr;
+        //
+        // sort this two list
+        // 
+        sort(__comp);
+        __tmp.sort(__comp);
+        //
+        // and then merge myself. 
+        // 
+        merge(__tmp, __comp);
+    }
+
+    /**
+     * @brief Removes all elements satisfying specific criteria. 
+     * The first version removes all elements that are equal to value, 
+     * the second version removes all elements for which predicate p returns true.
+     * 
+     * @param __data 
+     */
+    void remove(const _Tp &__data) {
+        __list_node *__cur = (__list_node *) &_M_head;
+        while (__cur->_M_next) {
+            if (((__list_node *)__cur->_M_next)->_M_data == __data) {
+                __list_node *__tmp = (__list_node *) __cur->_M_next;
+                __cur->_M_next = __cur->_M_next->_M_next;
+                _M_destory_node(__tmp);
+            } else __cur = (__list_node *) __cur->_M_next;
+        }
+    }
+
+    template <class _UnaryPredicate>
+    void remove_if(_UnaryPredicate __p) {
+        __list_node *__cur = (__list_node *) &_M_head;
+        while (__cur->_M_next) {
+            if (__p(((__list_node *)__cur->_M_next)->_M_data)) {
+                __list_node *__tmp = (__list_node *) __cur->_M_next;
+                __cur->_M_next = __cur->_M_next->_M_next;
+                _M_destory_node(__tmp);
+            } else __cur = (__list_node *) __cur->_M_next;
+        }
+    }
 
 protected:
     typedef __slist_node_base __list_node_base;
