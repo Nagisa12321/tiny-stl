@@ -7,7 +7,7 @@
 #include <vector>
 #include <forward_list>
 #include <numeric>
-
+#include <cassert>
 // template init
 template class tinystd::forward_list<int>;
 
@@ -29,6 +29,7 @@ void __test_swap();
 void __test_merge();
 void __test_sort();
 void __test_remove();
+void __test_splice_after();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -50,6 +51,7 @@ int main() {
         { "test merge. ", __test_merge },
         { "test sort. ", __test_sort },
         { "test remove and remove_if. ", __test_remove },
+        { "test splice_after. ", __test_splice_after },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -483,4 +485,53 @@ void __test_remove() {
         std::cout << n << ' ';
     }
     std::cout << '\n';
+}
+
+/**
+ * @brief 
+ * l1: 1
+ * l2: 10 2 3 4 5 11 12
+ */
+void __test_splice_after() {
+    {
+        tinystd::forward_list<int> l1 = {1, 2, 3, 4, 5};
+        tinystd::forward_list<int> l2 = {10, 11, 12};
+        l2.splice_after(l2.cbegin(), l1, l1.cbegin(), l1.cend());
+        // not equivalent to l2.splice_after(l2.cbegin(), l1);
+        // which is equivalent to
+        // l2.splice_after(l2.cbegin(), l1, l1.cbefore_begin(), l1.end());
+
+        std::cout << "l1: " << l1 << "\n" "l2: "
+                  << l2 << '\n';
+    }
+    // Compare two given lists and abort the program if they are not equal.
+    auto equ = [](tinystd::forward_list<int> const &p, std::initializer_list<int> const &q) {
+        assert(tinystd::equal(p.begin(), p.end(), q.begin()));
+    };
+
+    // The following code demonstrates all three overloads (1),..(3).
+
+    {
+        tinystd::forward_list<int> x = {1, 2, 3, 4, 5};
+        tinystd::forward_list<int> y = {10, 11, 12};
+        x.splice_after(x.cbegin(), y); // (1)
+        equ(x, {1, 10, 11, 12, 2, 3, 4, 5});
+        equ(y, {});
+    }
+
+    {
+        tinystd::forward_list<int> x = {1, 2, 3, 4, 5};
+        tinystd::forward_list<int> y = {10, 11, 12};
+        x.splice_after(x.cbegin(), y, y.cbegin()); // (2)
+        equ(x, {1, 11, 2, 3, 4, 5});
+        equ(y, {10, 12});
+    }
+
+    {
+        tinystd::forward_list<int> x = {1, 2, 3, 4, 5};
+        tinystd::forward_list<int> y = {10, 11, 12};
+        x.splice_after(x.cbegin(), y, y.cbegin(), y.cend()); // (3)
+        equ(x, {1, 11, 12, 2, 3, 4, 5});
+        equ(y, {10});
+    }
 }

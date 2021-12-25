@@ -113,8 +113,10 @@ public:
     const_iterator before_begin() const { return const_iterator((__list_node *) &   _M_head); }
     iterator begin() { return iterator((__list_node *)_M_head._M_next); }
     const_iterator begin() const { return const_iterator((__list_node *)_M_head._M_next); }
+    const_iterator cbegin() const { return const_iterator((__list_node *)_M_head._M_next); }
     iterator end() { return iterator(nullptr); }
     const_iterator end() const { return const_iterator(nullptr); }
+    const_iterator cend() const { return const_iterator(nullptr); }
     size_type size() const { return __slist_size(_M_head._M_next); }
     bool empty() const { return !_M_head._M_next; }
     size_type max_size() const { return size_type(-1); }
@@ -332,6 +334,37 @@ public:
                 _M_destory_node(__tmp);
             } else __cur = (__list_node *) __cur->_M_next;
         }
+    }
+    
+    /**
+     * @brief Moves elements from another forward_list to *this.
+     */
+    void splice_after(const_iterator __pos, forward_list &__other) {
+        if (__other.empty()) return;
+        __list_node_base *__next = __pos._M_node->_M_next;
+        __list_node_base *__cur = &__other._M_head;
+        while (__cur->_M_next)
+            { __cur = __cur->_M_next; }
+        __pos._M_node->_M_next = __other._M_head._M_next;
+        __cur->_M_next = __next;
+        __other._M_head._M_next = nullptr;
+    }
+
+    void splice_after(const_iterator __pos, forward_list &__other, const_iterator __f) {
+        __list_node_base *__next = __f._M_node->_M_next;
+        __f._M_node->_M_next = __f._M_node->_M_next->_M_next;
+        __slist_make_link(__pos._M_node, __next);
+    }
+
+    void splice_after(const_iterator __pos, forward_list &__other, const_iterator __f, const_iterator __l) {
+        __list_node_base *__next = __pos._M_node->_M_next;
+        __list_node_base *__cur = __f._M_node;
+        while (__cur->_M_next != __l._M_node) 
+            { __cur = __cur->_M_next; }
+        __pos._M_node->_M_next = __f._M_node->_M_next;
+        __cur->_M_next = __next;
+        
+        __f._M_node->_M_next = __l._M_node;
     }
 
 protected:
