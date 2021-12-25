@@ -104,6 +104,7 @@ public:
     }
 
     forward_list &operator=(forward_list &&__li) {
+        clear();
         _M_head._M_next = __li._M_head._M_next;
         __li._M_head._M_next = nullptr;
         return *this;
@@ -367,6 +368,21 @@ public:
         __f._M_node->_M_next = __l._M_node;
     }
 
+    void reverse() { _M_head._M_next = _M_reverse(_M_head._M_next); }
+    
+    void unique() { unique(tinystd::equal_to<_Tp>()); }
+    template <typename _BinaryPredicate>
+    void unique(_BinaryPredicate __comm) {
+        if (empty()) return;
+        __list_node *__cur = (__list_node *) _M_head._M_next;
+        while (__cur->_M_next) {
+            if (__comm(__cur->_M_data, ((__list_node *)__cur->_M_next)->_M_data)) {
+                erase_after(iterator(__cur));
+            } else {
+                __cur = (__list_node *) __cur->_M_next;
+            }
+        }
+    }
 protected:
     typedef __slist_node_base __list_node_base;
     typedef __slist_node<_Tp> __list_node;
@@ -400,6 +416,15 @@ protected:
         for (; __n > 0; --__n) {
             push_front(__data);
         }
+    }
+
+    __list_node_base *_M_reverse(__list_node_base *__node) {
+        if (!__node->_M_next) return __node;
+
+        __list_node_base *__next = _M_reverse(__node->_M_next);
+        __node->_M_next->_M_next = __node;
+        __node->_M_next = nullptr;
+        return __next;
     }
 };
 

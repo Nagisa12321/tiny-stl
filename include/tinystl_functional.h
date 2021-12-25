@@ -13,6 +13,10 @@ struct greater {
     bool operator()(const _Tp &__lhs, const _Tp &__rhs) { return __lhs > __rhs; }
 };
 
+template <typename _Tp>
+struct equal_to {
+    bool operator()(const _Tp &__lhs, const _Tp &__rhs) { return __lhs == __rhs; }
+};
 
 }
 

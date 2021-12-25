@@ -30,6 +30,8 @@ void __test_merge();
 void __test_sort();
 void __test_remove();
 void __test_splice_after();
+void __test_reverse();
+void __test_unique();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -52,6 +54,9 @@ int main() {
         { "test sort. ", __test_sort },
         { "test remove and remove_if. ", __test_remove },
         { "test splice_after. ", __test_splice_after },
+        { "test reverse. ", __test_reverse },
+        { "test unique. ", __test_unique },
+
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -534,4 +539,46 @@ void __test_splice_after() {
         equ(x, {1, 11, 12, 2, 3, 4, 5});
         equ(y, {10});
     }
+}
+
+/**
+ * @brief 
+ * before:      8 7 5 9 0 1 3 2 6 4
+ * ascending:   0 1 2 3 4 5 6 7 8 9
+ * descending:  9 8 7 6 5 4 3 2 1 0
+ */
+void __test_reverse() {
+    tinystd::forward_list<int> list = {8, 7, 5, 9, 0, 1, 3, 2, 6, 4};
+
+    std::cout << "before:     " << list << "\n";
+    list.sort();
+    std::cout << "ascending:  " << list << "\n";
+    list.reverse();
+    std::cout << "descending: " << list << "\n";
+}
+
+auto print = [](auto remark, auto const& container) {
+  std::cout << remark;
+  for (auto const& val : container)
+    std::cout << ' ' << val;
+  std::cout << '\n';
+};
+
+/**
+ * @brief 
+ * Before unique(): 1 2 2 3 3 2 1 1 2
+ * After  unique(): 1 2 3 2 1 2
+ * Before unique(pred): 1 2 12 23 3 2 51 1 2
+ * After  unique(pred): 1 2 23 2 51 2
+ */
+void __test_unique() {
+    tinystd::forward_list<int> c = {1, 2, 2, 3, 3, 2, 1, 1, 2};
+    print("Before unique():", c);
+    c.unique();
+    print("After  unique():", c);
+
+    c = {1, 2, 12, 23, 3, 2, 51, 1, 2};
+    print("Before unique(pred):", c);
+    c.unique([mod = 10](int x, int y) { return (x % mod) == (y % mod); });
+    print("After  unique(pred):", c);
 }
