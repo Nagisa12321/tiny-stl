@@ -63,9 +63,18 @@ public:
         int __len = strlen(__cstr);
         _M_copy_initialize(__cstr, __cstr + __len, __len);
     }
+    basic_string(const char *__cstr, size_type __count) : basic_string() {
+        _M_copy_initialize(__cstr, __cstr + __count, __count);
+    }
     template <typename _InputIter>
     basic_string(_InputIter __lhs, _InputIter __rhs) : basic_string() {
         _M_copy_initialize(__lhs, __rhs);
+    }
+    basic_string(const basic_string& __other, size_type __pos, size_type __count) : basic_string() {
+        _M_copy_initialize(__other.begin() + __pos, __other.begin() + __pos + __count);
+    }
+    basic_string(const basic_string& __other, size_type __pos) : basic_string() {
+        _M_copy_initialize(__other.begin() + __pos, __other.end());
     }
     ~basic_string() {
         if (_M_long_mode()) {
@@ -73,11 +82,25 @@ public:
         }
     }
 
-    iterator begin() {
+    basic_string &operator+(const basic_string &__other) {
+        _M_transform_shape(__other.size());
+        
+        if (_M_long_mode()) {
+            tinystd::uninitialized_copy(__other.begin(), __other.end(), _M_data._M_l._M_data);
+        } else {
+            tinystd::uninitialized_copy(__other.begin(), __other.end(), _M_data._M_s._M_data);
+        }
+
+        return *this;   
+    }
+
+    iterator begin() { return const_cast<iterator>(static_cast<const basic_string *>(this)->begin()); }
+    iterator end() { return const_cast<iterator>(static_cast<const basic_string *>(this)->end()); }
+    const_iterator begin() const {
         if (_M_long_mode()) return _M_data._M_l._M_data;
         else return _M_data._M_s._M_data;
     }
-    iterator end() { 
+    const_iterator end() const {
         if (_M_long_mode()) return _M_data._M_l._M_data + _M_data._M_l._M_size;
         else return _M_data._M_s._M_data + (_M_data._M_s._M_size >> 1);
     }
