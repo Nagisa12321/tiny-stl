@@ -104,8 +104,9 @@ public:
         if (_M_long_mode()) {
             _M_data._M_l._M_data[__idx++] = __c;
         } else {
-            _M_data._M_l._M_data[__idx++] = __c;
+            _M_data._M_s._M_data[__idx++] = __c;
         }
+        _M_set_size(__idx);
     }
 
     void clear() {
@@ -132,6 +133,11 @@ protected:
             if (!(__cap & 1)) ++__cap;
             _M_data._M_l._M_cap = __cap;
             _M_data._M_l._M_data = __char_allocator::_S_allocate(__cap);
+
+            // 
+            // Set the memory to zero!
+            //
+            memset(_M_data._M_l._M_data, 0, __cap);
         }
     }
 
@@ -166,6 +172,10 @@ protected:
                          /* \0 */
         if (__sz + __n >= __cap - 1) {
             size_type __new_sz = tinystd::max(__sz + __n, __cap << 1);
+
+            // the new mode is long mode 
+            // so the new capa is a Odd number
+            if (__new_sz % 2 == 0) ++__new_sz; 
             char *__new_space = __char_allocator::_S_allocate(__new_sz);
             // set the memory to zero. 
             memset(__new_space, 0, __cap << 1);
