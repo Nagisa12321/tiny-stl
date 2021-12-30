@@ -25,13 +25,14 @@ void __test_front_and_back();
 void __test_data();
 void __test_c_str();
 void __test_iterators();
+void __test_empty();
+void __test_reverve();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test the std::string. ", __test_std_string },
         { "test init. ", __test_init },
         { "test constructor, ", __test_constructor },
-        { "test size and length, ", __test_size_length },
         { "test push_back, ", __test_push_back },
         { "test operator+(), ", __test_add_operator },
         { "test operator=(), ", __test_assignment_operator },
@@ -42,6 +43,9 @@ int main() {
         { "test data(), ", __test_data },
         { "test c_str(), ", __test_c_str },
         { "test iterators, ", __test_iterators, },
+        { "test empty(). ", __test_empty },
+        { "test size and length, ", __test_size_length },
+        { "test reserve(). ", __test_reverve },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -164,11 +168,10 @@ void __test_constructor() {
 }
 
 void __test_size_length() {
-    // tinystd::string s("Exemplar");
-    // assert(8 == s.size());
-    // assert(s.size() == s.length());
-    // assert(s.size() == static_cast<tinystd::string::size_type>(
-    //     std::distance(s.begin(), s.end())));
+    tinystd::string s("Exemplar");
+    assert(8 == s.size());
+    assert(s.size() == s.length());
+    assert(s.size() == static_cast<tinystd::string::size_type>(std::distance(s.begin(), s.end())));
 }
 
 void __test_push_back() {
@@ -365,4 +368,27 @@ void __test_iterators() {
     tinystd::string c;
     std::copy(s1.cbegin(), s1.cend(), std::back_inserter(c));
     std::cout << c << '\n'; // "Exemplar"
+}
+
+void __test_empty() {
+    tinystd::string s;
+    std::boolalpha(std::cout);
+    std::cout << "s.empty():" << s.empty() << "\t s:'" << s << "'\n";
+ 
+    s = "Exemplar";
+    std::cout << "s.empty():" << s.empty() << "\t s:'" << s << "'\n";
+ 
+    s = "";
+    std::cout << "s.empty():" << s.empty() << "\t s:'" << s << "'\n";
+}
+
+void __test_reverve() {
+    tinystd::string s("hello world!");
+    std::cout << s << std::endl;
+    tinystd::string::size_type new_capacity{100u};
+    assert(new_capacity > s.capacity());
+
+    s.reserve(new_capacity);
+    assert(new_capacity <= s.capacity());
+    std::cout << s << std::endl;
 }

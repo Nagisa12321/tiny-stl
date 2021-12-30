@@ -209,6 +209,36 @@ public:
     const char *c_str() const
         { return begin(); } 
 
+    void reserve(size_type __new_cap) {
+        size_type __cap = capacity();
+        if (__new_cap <= __cap)
+            return; 
+
+        if (__new_cap <= __max_short_cap) 
+            return;
+
+        if (__new_cap % 2 == 0)        
+            ++__new_cap;
+        
+        size_type __sz = size();
+        char *__old_space = 0;
+        if (_M_long_mode())
+            __old_space = _M_data._M_l._M_data;
+        char *__new_space = __char_allocator::_S_allocate(__new_cap);
+        //
+        // Set to zero
+        //
+        memset(__new_space, 0, __new_cap);
+        tinystd::uninitialized_copy(begin(), end(), __new_space);
+
+        _M_data._M_l._M_cap = __new_cap;
+        _M_data._M_l._M_size = __sz;
+        _M_data._M_l._M_data = __new_space;
+
+        if (__old_space)
+            __char_allocator::_S_deallocate(__old_space, __cap);
+    }
+
 protected:
     typedef simple_alloc<char, _Alloc> __char_allocator;
     __string_data _M_data;
