@@ -13,7 +13,7 @@
 void __test_std_string();
 void __test_init();
 void __test_constructor();
-void __test_size_length(); 
+void __test_size_length();
 void __test_push_back();
 void __test_add_operator();
 void __test_assignment_operator();
@@ -21,20 +21,24 @@ void __test_assign();
 void __test_at();
 void __test_brackets_operator();
 void __test_front_and_back();
+void __test_data();
+void __test_c_str();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        { "test the std::string. ", __test_std_string },
-        { "test init. ", __test_init },
-        { "test constructor, ", __test_constructor },
-        { "test size and length, ", __test_size_length },
-        { "test push_back, ", __test_push_back },
-        { "test operator+(), ", __test_add_operator },
-        { "test operator=(), ", __test_assignment_operator },
-        { "test assign() ", __test_assign },
-        { "test at(), ", __test_at },
-        { "test operator[]. ", __test_brackets_operator },
-        { "test front() and back(). ", __test_front_and_back },
+        {"test the std::string. ", __test_std_string},
+        {"test init. ", __test_init},
+        {"test constructor, ", __test_constructor},
+        {"test size and length, ", __test_size_length},
+        {"test push_back, ", __test_push_back},
+        {"test operator+(), ", __test_add_operator},
+        {"test operator=(), ", __test_assignment_operator},
+        {"test assign() ", __test_assign},
+        {"test at(), ", __test_at},
+        {"test operator[]. ", __test_brackets_operator},
+        {"test front() and back(). ", __test_front_and_back},
+        {"test data(), ", __test_data},
+        {"test c_str(), ", __test_c_str},
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -105,7 +109,7 @@ void __test_constructor() {
         std::cout << "4) string(const string& other, size_type pos): ";
         tinystd::string const other("Mutatis Mutandis");
         tinystd::string s(other, 8);
-        std::cout << "\"" << s << "\"\n";  // "Mutandis", i.e. [8, 16)`
+        std::cout << "\"" << s << "\"\n"; // "Mutandis", i.e. [8, 16)`
     }
 
     {
@@ -116,7 +120,7 @@ void __test_constructor() {
 
     {
         std::cout << "6) string(charT const* s): ";
-        tinystd::string s("C-style\0string");   
+        tinystd::string s("C-style\0string");
         std::cout << "\"" << s << "\"\n"; // "C-style"
     }
 
@@ -184,14 +188,14 @@ void __test_add_operator() {
 }
 
 /**
- * @brief 
+ * @brief
  * "alpha" "alpha"
  * "alpha" ""
  * "beta"
  * "!"
  * "gamma"
  * "#"
- *  
+ *
  */
 void __test_assignment_operator() {
     tinystd::string str1;
@@ -207,7 +211,6 @@ void __test_assignment_operator() {
     std::cout << "\"" << str1 << "\"" << ' '   // "alpha"
               << "\"" << str2 << "\"" << '\n'; // "alpha"
 
-
     // (3) operator=( const CharT* );
     str1 = "beta";
     std::cout << "\"" << str1 << "\"" << '\n'; // "beta"
@@ -221,7 +224,7 @@ void __test_assignment_operator() {
     std::cout << "\"" << str1 << "\"" << '\n'; // "gamma"
 
     // (6) operator=( const T& );
-    str1 = 35U;                             // equivalent to str1 = static_cast<char>(35U);
+    str1 = 35U;                                // equivalent to str1 = static_cast<char>(35U);
     std::cout << "\"" << str1 << "\"" << '\n'; // "#" (ASCII = 35)
 }
 
@@ -264,19 +267,18 @@ void __test_assign() {
 
 void __test_at() {
     tinystd::string s("message"); // for capacity
- 
+
     s = "abc";
     s.at(2) = 'x'; // ok
     std::cout << s << '\n';
- 
+
     std::cout << "string size = " << s.size() << '\n';
     std::cout << "string capacity = " << s.capacity() << '\n';
- 
+
     try {
         // This will throw since the requested offset is greater than the current size.
         s.at(3) = 'x';
-    }
-    catch (std::out_of_range const& exc) {
+    } catch (std::out_of_range const &exc) {
         std::cout << exc.what() << '\n';
     }
 }
@@ -297,28 +299,45 @@ void __test_brackets_operator() {
 }
 
 void __test_front_and_back() {
-  {
-    tinystd::string s("Exemplary");
-    char& f = s.front();
-    f = 'e';
-    std::cout << s << '\n'; // "exemplary"
-  }
- 
-  {
-    tinystd::string const c("Exemplary");
-    char const& f = c.front();
-    std::cout << &f << '\n'; // "Exemplary"
-  }
     {
-    tinystd::string s("Exemplary");
-    char& back = s.back();
-    back = 's';
-    std::cout << s << '\n'; // "Exemplars"
-  }
- 
-  {
-    tinystd::string const c("Exemplary");
-    char const& back = c.back();
-    std::cout << back << '\n'; // 'y'
-  }
+        tinystd::string s("Exemplary");
+        char &f = s.front();
+        f = 'e';
+        std::cout << s << '\n'; // "exemplary"
+    }
+
+    {
+        tinystd::string const c("Exemplary");
+        char const &f = c.front();
+        std::cout << &f << '\n'; // "Exemplary"
+    }
+    {
+        tinystd::string s("Exemplary");
+        char &back = s.back();
+        back = 's';
+        std::cout << s << '\n'; // "Exemplars"
+    }
+
+    {
+        tinystd::string const c("Exemplary");
+        char const &back = c.back();
+        std::cout << back << '\n'; // 'y'
+    }
+}
+
+void __test_data() {
+    std::string const s("Emplary");
+    assert(s.size() == std::strlen(s.data()));
+    assert(std::equal(s.begin(), s.end(), s.data()));
+    assert(std::equal(s.data(), s.data() + s.size(), s.begin()));
+    assert(0 == *(s.data() + s.size()));
+}
+
+void __test_c_str() {
+    std::string const s("Emplary");
+    const char *p = s.c_str();
+    assert(s.size() == std::strlen(p));
+    assert(std::equal(s.begin(), s.end(), p));
+    assert(std::equal(p, p + s.size(), s.begin()));
+    assert(0 == *(p + s.size()));
 }

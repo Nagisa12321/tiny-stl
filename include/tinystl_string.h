@@ -194,6 +194,19 @@ public:
                                            (long) _M_data._M_l._M_cap);
     }
 
+    //
+    // Difference between data and c_str
+    // c_str should return a char * that end of \0
+    // data is to return the begin().... 
+    // 
+    // in c++11 they are same 
+    //
+    const char *data() const
+        { return begin(); }
+    
+    const char *c_str() const
+        { return begin(); } 
+
 protected:
     typedef simple_alloc<char, _Alloc> __char_allocator;
     __string_data _M_data;
