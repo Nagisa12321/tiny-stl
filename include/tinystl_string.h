@@ -141,9 +141,24 @@ public:
         }
     }
 
-    void clear() {
-        memset(begin(), 0, size());
-    }
+    void clear() 
+        { memset(begin(), 0, size()); }
+
+    void assign(size_type __cnt, char __c) 
+        { _M_fill_assign(__cnt, __c); }
+
+    void assign(const basic_string &__other) 
+        { _M_copy_assign(__other.begin(), __other.end(), __other.size()); }    
+    
+    void assign(const basic_string &__other, size_type __pos, size_type __cnt) 
+        { _M_copy_assign(__other.begin() + __pos, __other.begin() + __pos + __cnt, __other.size()); }
+
+    void assign(const char *__cstr, size_type __pos) 
+        { _M_copy_assign(__cstr, __cstr + __pos, __pos); }
+
+    template <typename _InputIter>
+    void assign(_InputIter __lhs, _InputIter __rhs)
+        { _M_copy_assign(__lhs, __rhs); }
 
     void __debug_message() const {
         printf("string: 0x%lx, 0x%lx, 0x%lx\n", (long) _M_data._M_l._M_data, 
@@ -176,11 +191,7 @@ protected:
 
     void _M_fill_initialize(size_type __n, char __c) {
         _M_size_init(__n);
-        if (__n < __max_short_cap) {
-            tinystd::uninitialized_fill_n(_M_data._M_s._M_data, __n, __c);
-        } else {
-            tinystd::uninitialized_fill_n(_M_data._M_l._M_data, __n, __c);
-        }
+        tinystd::uninitialized_fill_n(begin(), __n, __c);
     }
 
     template <typename _InputIter>
@@ -190,13 +201,35 @@ protected:
     }
 
     template <typename _InputIter>
-    void _M_copy_initialize(_InputIter __lhs, _InputIter __rhs, int __len) {
+    void _M_copy_initialize(_InputIter __lhs, _InputIter __rhs, size_type __len) {
         _M_size_init(__len);
-        if (__len < __max_short_cap) {
-            tinystd::uninitialized_copy(__lhs, __rhs, _M_data._M_s._M_data);
-        } else {
-            tinystd::uninitialized_copy(__lhs, __rhs, _M_data._M_l._M_data);
+        tinystd::uninitialized_copy(__lhs, __rhs, begin());
+    }
+
+    void _M_fill_assign(size_type __n, char __c) {
+        memset(begin(), 0, size());
+        size_type __sz = size();
+        if (__n > __sz) {
+            _M_transform_shape(__n - __sz);
         }
+        
+        tinystd::uninitialized_fill_n(begin(), __n, __c);
+    } 
+
+    template <typename _InputIter>
+    void _M_copy_assign(_InputIter __lhs, _InputIter __rhs, size_type __len) {
+        memset(begin(), 0, size());
+        size_type __sz = size();
+        if (__len > __sz) {
+            _M_transform_shape(__len - __sz);
+        }
+        tinystd::uninitialized_copy(__lhs, __rhs, begin());
+    }
+
+    template <typename _InputIter>
+    void _M_copy_assign(_InputIter __lhs, _InputIter __rhs) {
+        size_type __len = tinystd::distance(__lhs, __rhs);
+        _M_copy_initialize(__lhs, __rhs, __len);
     }
 
     void _M_transform_shape(size_type __n) {
