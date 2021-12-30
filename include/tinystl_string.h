@@ -176,6 +176,18 @@ public:
     reference at(size_type __idx) 
         { return const_cast<reference>((static_cast<const basic_string *>(this))->at(__idx)); }
 
+    reference front() 
+        { return *begin(); }
+
+    const_reference front() const
+        { return *begin(); }
+
+    reference back() 
+        { return *(end() - 1); }
+
+    const_reference back() const
+        { return *(end() - 1); }
+
     void __debug_message() const {
         printf("string: 0x%lx, 0x%lx, 0x%lx\n", (long) _M_data._M_l._M_data, 
                                            (long) _M_data._M_l._M_size, 

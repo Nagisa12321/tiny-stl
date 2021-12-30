@@ -20,6 +20,7 @@ void __test_assignment_operator();
 void __test_assign();
 void __test_at();
 void __test_brackets_operator();
+void __test_front_and_back();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -32,7 +33,8 @@ int main() {
         { "test operator=(), ", __test_assignment_operator },
         { "test assign() ", __test_assign },
         { "test at(), ", __test_at },
-        { "test operator[]. ", __test_brackets_operator }
+        { "test operator[]. ", __test_brackets_operator },
+        { "test front() and back(). ", __test_front_and_back },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -292,4 +294,31 @@ void __test_brackets_operator() {
     std::string s("Exemplar ");
     s[s.size() - 1] = 'y'; // equivalent to s.back() = 'y';
     std::cout << s << '\n';
+}
+
+void __test_front_and_back() {
+  {
+    tinystd::string s("Exemplary");
+    char& f = s.front();
+    f = 'e';
+    std::cout << s << '\n'; // "exemplary"
+  }
+ 
+  {
+    tinystd::string const c("Exemplary");
+    char const& f = c.front();
+    std::cout << &f << '\n'; // "Exemplary"
+  }
+    {
+    tinystd::string s("Exemplary");
+    char& back = s.back();
+    back = 's';
+    std::cout << s << '\n'; // "Exemplars"
+  }
+ 
+  {
+    tinystd::string const c("Exemplary");
+    char const& back = c.back();
+    std::cout << back << '\n'; // 'y'
+  }
 }
