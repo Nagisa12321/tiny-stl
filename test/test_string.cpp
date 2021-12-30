@@ -19,6 +19,7 @@ void __test_add_operator();
 void __test_assignment_operator();
 void __test_assign();
 void __test_at();
+void __test_brackets_operator();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -31,6 +32,7 @@ int main() {
         { "test operator=(), ", __test_assignment_operator },
         { "test assign() ", __test_assign },
         { "test at(), ", __test_at },
+        { "test operator[]. ", __test_brackets_operator }
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -275,4 +277,19 @@ void __test_at() {
     catch (std::out_of_range const& exc) {
         std::cout << exc.what() << '\n';
     }
+}
+
+void __test_brackets_operator() {
+    tinystd::string const e("Exemplar");
+    for (unsigned i = e.length() - 1; i != 0; i /= 2)
+        std::cout << e[i];
+    std::cout << '\n';
+
+    const char *c = &e[0];
+    std::cout << c << '\n'; // print as a C string
+
+    // Change the last character of s into a 'y'
+    std::string s("Exemplar ");
+    s[s.size() - 1] = 'y'; // equivalent to s.back() = 'y';
+    std::cout << s << '\n';
 }

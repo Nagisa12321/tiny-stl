@@ -85,6 +85,12 @@ public:
             __char_allocator::_S_deallocate(_M_data._M_l._M_data, _M_data._M_l._M_cap);
         }
     }
+    
+    reference operator[](size_type __idx) 
+        { return begin()[__idx]; }
+
+    const_reference operator[](size_type __idx) const
+        { return begin()[__idx]; }
 
     basic_string &operator+(const basic_string &__other) {
         size_type __sz = size();
