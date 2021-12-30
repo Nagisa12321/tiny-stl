@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <algorithm>
 
 void __test_std_string();
 void __test_init();
@@ -23,22 +24,24 @@ void __test_brackets_operator();
 void __test_front_and_back();
 void __test_data();
 void __test_c_str();
+void __test_iterators();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        {"test the std::string. ", __test_std_string},
-        {"test init. ", __test_init},
-        {"test constructor, ", __test_constructor},
-        {"test size and length, ", __test_size_length},
-        {"test push_back, ", __test_push_back},
-        {"test operator+(), ", __test_add_operator},
-        {"test operator=(), ", __test_assignment_operator},
-        {"test assign() ", __test_assign},
-        {"test at(), ", __test_at},
-        {"test operator[]. ", __test_brackets_operator},
-        {"test front() and back(). ", __test_front_and_back},
-        {"test data(), ", __test_data},
-        {"test c_str(), ", __test_c_str},
+        { "test the std::string. ", __test_std_string },
+        { "test init. ", __test_init },
+        { "test constructor, ", __test_constructor },
+        { "test size and length, ", __test_size_length },
+        { "test push_back, ", __test_push_back },
+        { "test operator+(), ", __test_add_operator },
+        { "test operator=(), ", __test_assignment_operator },
+        { "test assign() ", __test_assign },
+        { "test at(), ", __test_at },
+        { "test operator[]. ", __test_brackets_operator },
+        { "test front() and back(). ", __test_front_and_back },
+        { "test data(), ", __test_data },
+        { "test c_str(), ", __test_c_str },
+        { "test iterators, ", __test_iterators, },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -340,4 +343,26 @@ void __test_c_str() {
     assert(std::equal(s.begin(), s.end(), p));
     assert(std::equal(p, p + s.size(), s.begin()));
     assert(0 == *(p + s.size()));
+}
+
+//
+// exemplar
+// e
+// Exemplar
+//
+void __test_iterators() {
+    tinystd::string s("Exemplar");
+    *s.begin() = 'e';
+    std::cout << s << '\n';
+
+    auto i = s.cbegin();
+    std::cout << *i << '\n';
+    //  *i = 'E'; // error: i is a constant iterator()
+
+    tinystd::string s1("Exemparl");
+    std::next_permutation(s1.begin(), s1.end());
+
+    tinystd::string c;
+    std::copy(s1.cbegin(), s1.cend(), std::back_inserter(c));
+    std::cout << c << '\n'; // "Exemplar"
 }

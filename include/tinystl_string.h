@@ -110,6 +110,8 @@ public:
 
     basic_string &operator=(char __c) { *this = basic_string{__c}; return *this; }
 
+    const_iterator cbegin() { return static_cast<const basic_string *>(this)->begin(); }
+    const_iterator cend() { return static_cast<const basic_string *>(this)->end(); }
     iterator begin() { return const_cast<iterator>(static_cast<const basic_string *>(this)->begin()); }
     iterator end() { return const_cast<iterator>(static_cast<const basic_string *>(this)->end()); }
     const_iterator begin() const {
