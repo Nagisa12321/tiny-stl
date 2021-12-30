@@ -19,11 +19,11 @@ void __test_add_operator();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        { "test the std::string. ", __test_std_string },
-        { "test init. ", __test_init },
-        { "test constructor, ", __test_constructor },
-        { "test size and length, ", __test_size_length },
-        { "test push_back, ", __test_push_back },
+        // { "test the std::string. ", __test_std_string },
+        // { "test init. ", __test_init },
+        // { "test constructor, ", __test_constructor },
+        // { "test size and length, ", __test_size_length },
+        // { "test push_back, ", __test_push_back },
         { "test operator+(), ", __test_add_operator },
     };
 
@@ -170,5 +170,5 @@ void __test_push_back() {
 void __test_add_operator() {
     tinystd::string s1 = "Hello";
     tinystd::string s2 = "world";
-    std::cout << s1 + " " + s2 + "!\n";
+    std::cout << s1 + ' ' + s2 + "!\n";
 }

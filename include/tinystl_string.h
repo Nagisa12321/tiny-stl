@@ -83,16 +83,13 @@ public:
     }
 
     basic_string &operator+(const basic_string &__other) {
+        size_type __sz = size();
         _M_transform_shape(__other.size());
-        
-        if (_M_long_mode()) {
-            tinystd::uninitialized_copy(__other.begin(), __other.end(), _M_data._M_l._M_data);
-        } else {
-            tinystd::uninitialized_copy(__other.begin(), __other.end(), _M_data._M_s._M_data);
-        }
-
+        tinystd::uninitialized_copy(__other.begin(), __other.end(), begin() + __sz);
         return *this;   
     }
+
+    basic_string &operator+(char __c) { push_back(__c); return *this; }
 
     iterator begin() { return const_cast<iterator>(static_cast<const basic_string *>(this)->begin()); }
     iterator end() { return const_cast<iterator>(static_cast<const basic_string *>(this)->end()); }
@@ -122,14 +119,13 @@ public:
     bool empty() const { return size() == 0; }
 
     void push_back(char __c) {
-        _M_transform_shape(1);
         int __idx = size();
+        _M_transform_shape(1);
         if (_M_long_mode()) {
             _M_data._M_l._M_data[__idx++] = __c;
         } else {
             _M_data._M_s._M_data[__idx++] = __c;
         }
-        _M_set_size(__idx);
     }
 
     void clear() {
@@ -211,9 +207,9 @@ protected:
 
             // setup the _M_data. 
             _M_data._M_l._M_cap = __new_sz;
-            _M_data._M_l._M_size = __sz;
             _M_data._M_l._M_data = __new_space;
-        }
+        } 
+        _M_set_size(__sz + __n);
     }
 
     void _M_set_size(size_type __sz) {
