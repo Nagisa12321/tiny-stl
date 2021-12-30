@@ -19,11 +19,11 @@ void __test_add_operator();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        // { "test the std::string. ", __test_std_string },
-        // { "test init. ", __test_init },
-        // { "test constructor, ", __test_constructor },
-        // { "test size and length, ", __test_size_length },
-        // { "test push_back, ", __test_push_back },
+        { "test the std::string. ", __test_std_string },
+        { "test init. ", __test_init },
+        { "test constructor, ", __test_constructor },
+        { "test size and length, ", __test_size_length },
+        { "test push_back, ", __test_push_back },
         { "test operator+(), ", __test_add_operator },
     };
 
@@ -124,15 +124,15 @@ void __test_constructor() {
         std::cout << "\"" << s << "\"\n"; // "Exemplar"
     }
 
-    // {
-    //     std::cout << "9) string(string&&): ";
-    //     tinystd::string s(tinystd::string("C++ by ") + tinystd::string("example"));
-    //     std::cout << "\"" << s << "\"\n"; // "C++ by example"
-    // }
+    {
+        std::cout << "9) string(string&&): ";
+        tinystd::string s(tinystd::string("C++ by ") + tinystd::string("example"));
+        std::cout << "\"" << s << "\"\n"; // "C++ by example"
+    }
 
     {
         std::cout << "α) string(std::initializer_list<charT>): ";
-        std::string s({'C', '-', 's', 't', 'y', 'l', 'e'});
+        tinystd::string s({'C', '-', 's', 't', 'y', 'l', 'e'});
         std::cout << "\"" << s << "\"\n"; // "C-style"
     }
 
@@ -141,7 +141,7 @@ void __test_constructor() {
         // [with InputIt = int] which behaves *as if* string(size_type count, charT ch)
         // after C++11 the InputIt constructor is disabled for integral types and calls:
         std::cout << "β) string(size_type count, charT ch) is called: ";
-        std::string s(3, std::toupper('a'));
+        tinystd::string s(3, std::toupper('a'));
         std::cout << "\"" << s << "\"\n"; // "AAA"
     }
 }

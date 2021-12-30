@@ -12,7 +12,8 @@
 
 // for strcmp, strlen 
 #include <string.h>
-
+// for the list init
+#include <initializer_list>
 namespace tinystd {
 
 struct __long_mode {
@@ -66,7 +67,7 @@ public:
     basic_string(const char *__cstr, size_type __count) : basic_string() {
         _M_copy_initialize(__cstr, __cstr + __count, __count);
     }
-    template <typename _InputIter>
+    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
     basic_string(_InputIter __lhs, _InputIter __rhs) : basic_string() {
         _M_copy_initialize(__lhs, __rhs);
     }
@@ -75,6 +76,9 @@ public:
     }
     basic_string(const basic_string& __other, size_type __pos) : basic_string() {
         _M_copy_initialize(__other.begin() + __pos, __other.end());
+    }
+    basic_string(std::initializer_list<char> __li) : basic_string() { 
+        _M_copy_initialize(__li.begin(), __li.end());
     }
     ~basic_string() {
         if (_M_long_mode()) {
