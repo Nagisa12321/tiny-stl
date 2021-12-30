@@ -162,7 +162,7 @@ public:
     }
 
     void clear() 
-        { memset(begin(), 0, size()); }
+        { memset(begin(), 0, size()); _M_set_size(0); }
 
     void assign(size_type __cnt, char __c) 
         { _M_fill_assign(__cnt, __c); }
@@ -250,6 +250,56 @@ public:
         if (__old_space)
             __char_allocator::_S_deallocate(__old_space, __cap);
     }
+
+    void shrink_to_fit() {
+        if (_M_long_mode()) {
+            size_type __sz = size();
+            if (__sz < __max_short_cap) {
+                //
+                // Copy bcak to the short mode. 
+                // 
+                char *__old_data = _M_data._M_l._M_data;
+                size_type __cap = capacity();
+
+                // Set the memory to zero. 
+                memset(_M_data._M_s._M_data, 0, __max_short_cap);
+                tinystd::uninitialized_copy(__old_data, __old_data + __sz, _M_data._M_s._M_data);
+                
+                // Don't use _M_set_size
+                // because the size now is a long mode flag
+                _M_data._M_s._M_size = __sz << 1;
+
+                // free the old data... 
+                __char_allocator::_S_deallocate(__old_data, __cap);
+            } else {
+                //
+                // make a short capa... 
+                // but it is still long mode... 
+                // 
+                char *__old_data = _M_data._M_l._M_data;
+                size_type __cap = capacity();
+                size_type __new_cap = __sz + 1;
+                if (__new_cap % 2 == 0) ++__new_cap;
+
+                // Allocate a new space, it's size is __sz + 1... 
+                char *__new_space = __char_allocator::_S_allocate(__new_cap);
+                memset(__new_space, 0, __new_cap);
+
+                // copy to the new space
+                tinystd::uninitialized_copy(__old_data, __old_data + __sz, __new_space);
+                
+                _M_data._M_l._M_cap = __new_cap;
+                _M_data._M_l._M_data = __new_space;
+
+                // free the old data... 
+                __char_allocator::_S_deallocate(__old_data, __cap);
+               
+            }
+        }
+    }
+
+    void append(const basic_string &__other) 
+        { *this += __other; }
 
 protected:
     typedef simple_alloc<char, _Alloc> __char_allocator;

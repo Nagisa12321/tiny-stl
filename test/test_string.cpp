@@ -28,6 +28,7 @@ void __test_iterators();
 void __test_empty();
 void __test_reverve();
 void __test_capacity();
+void __test_shrink_to_fit(); 
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -48,6 +49,7 @@ int main() {
         { "test size and length, ", __test_size_length },
         { "test reserve(). ", __test_reverve },
         { "test capacity(), ", __test_capacity },
+        { "test shrink_to_fit()", __test_shrink_to_fit },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -405,4 +407,46 @@ void __test_capacity() {
  
     s += " is an example string.";
     show_capacity(s);
+}
+
+void __test_shrink_to_fit() {
+    std::cout << "test1: " << std::endl;
+    {
+        tinystd::string s("hello world!");
+        std::cout << s << std::endl;
+        s += " let me have a look... ";
+        std::cout << s << std::endl;
+        s = "hi";
+        std::cout << s << std::endl;
+    }
+    std::cout << "test2: " << std::endl;
+    {
+        tinystd::string s;
+        std::cout << "Size of std::string is " << sizeof s << " bytes\n"
+                  << "Default-constructed capacity is " << s.capacity()
+                  << " and size is " << s.size() << '\n';
+        for (int i = 0; i < 42; i++)
+            s.append(" 42 ");
+        std::cout << "Capacity after 42 appends is " << s.capacity()
+                  << " and size is " << s.size() << '\n';
+        s.clear();
+        std::cout << "Capacity after clear() is " << s.capacity()
+                  << " and size is " << s.size() << '\n';
+        s.shrink_to_fit();
+        std::cout << "Capacity after shrink_to_fit() is " << s.capacity()
+                  << " and size is " << s.size() << '\n';
+    }
+    std::cout << "test3: " << std::endl; 
+    {
+        tinystd::string s(100, 'a');
+        std::cout << s << std::endl;
+        std::cout << "size: " << s.size() << ", capacity: " << s.capacity() << std::endl;
+        s = tinystd::string(50, '#');
+        std::cout << s << std::endl;
+        std::cout << "size: " << s.size() << ", capacity: " << s.capacity() << std::endl;
+        s.shrink_to_fit();
+        std::cout << s << std::endl;
+        std::cout << "size: " << s.size() << ", capacity: " << s.capacity() << std::endl;
+
+    }
 }
