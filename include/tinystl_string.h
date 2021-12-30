@@ -92,14 +92,26 @@ public:
     const_reference operator[](size_type __idx) const
         { return begin()[__idx]; }
 
-    basic_string &operator+(const basic_string &__other) {
+    basic_string &operator+=(const basic_string &__other) {
         size_type __sz = size();
         _M_transform_shape(__other.size());
         tinystd::uninitialized_copy(__other.begin(), __other.end(), begin() + __sz);
         return *this;   
     }
 
-    basic_string &operator+(char __c) { push_back(__c); return *this; }
+    basic_string &operator+=(char __c) { push_back(__c); return *this; }
+    
+    basic_string operator+(const basic_string &__other) {
+        basic_string __tmp = *this;
+        __tmp += __other;
+        return __tmp;
+    }
+
+    basic_string operator+(char __c) {
+        basic_string __tmp = *this;
+        __tmp += __c;
+        return __tmp;
+    }
 
     basic_string &operator=(const basic_string &__other) {
         clear();

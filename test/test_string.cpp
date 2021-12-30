@@ -27,6 +27,7 @@ void __test_c_str();
 void __test_iterators();
 void __test_empty();
 void __test_reverve();
+void __test_capacity();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -46,6 +47,7 @@ int main() {
         { "test empty(). ", __test_empty },
         { "test size and length, ", __test_size_length },
         { "test reserve(). ", __test_reverve },
+        { "test capacity(), ", __test_capacity },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -391,4 +393,16 @@ void __test_reverve() {
     s.reserve(new_capacity);
     assert(new_capacity <= s.capacity());
     std::cout << s << std::endl;
+}
+
+void show_capacity(tinystd::string const& s) {
+    std::cout << "'" << s << "' has capacity " << s.capacity() << ".\n";
+}
+ 
+void __test_capacity() {
+    tinystd::string s{"Exemplar"};
+    show_capacity(s);
+ 
+    s += " is an example string.";
+    show_capacity(s);
 }
