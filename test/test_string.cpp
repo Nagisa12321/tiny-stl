@@ -29,6 +29,8 @@ void __test_empty();
 void __test_reverve();
 void __test_capacity();
 void __test_shrink_to_fit(); 
+void __test_clean();
+void __test_insert();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -50,6 +52,8 @@ int main() {
         { "test reserve(). ", __test_reverve },
         { "test capacity(), ", __test_capacity },
         { "test shrink_to_fit()", __test_shrink_to_fit },
+        { "test clean(). ", __test_clean },
+        { "test insert()... ", __test_insert },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -449,4 +453,55 @@ void __test_shrink_to_fit() {
         std::cout << "size: " << s.size() << ", capacity: " << s.capacity() << std::endl;
 
     }
+}
+
+void __test_clean() {
+    tinystd::string s{"Exemplar"};
+    tinystd::string::size_type const capacity = s.capacity();
+
+    s.clear();
+    assert(s.capacity() == capacity); // <- not guaranteed
+    assert(s.empty());
+    assert(s.size() == 0);
+}
+
+void __test_insert() {
+    tinystd::string s = "xmplr";
+
+    // insert(size_type index, size_type count, char ch)
+    s.insert(0, 1, 'E');
+    assert(tinystd::string("Exmplr") == s);
+
+    // insert(size_type index, const char* s)
+    s.insert(2, "e");
+    assert(tinystd::string("Exemplr") == s);
+
+    // insert(size_type index, string const& str)
+    s.insert(6, tinystd::string("a"));
+    assert(tinystd::string("Exemplar") == s);
+
+    // insert(size_type index, string const& str,
+    //     size_type index_str, size_type count)
+    s.insert(8, tinystd::string(" is an example string."), 0, 14);
+    assert(tinystd::string("Exemplar is an example") == s);
+
+    // insert(const_iterator pos, char ch)
+    s.insert(s.cbegin() + s.find_first_of('n') + 1, ':');
+    assert(tinystd::string("Exemplar is an: example") == s);
+
+    // insert(const_iterator pos, size_type count, char ch)
+    s.insert(s.cbegin() + s.find_first_of(':') + 1, 2, '=');
+    assert(tinystd::string("Exemplar is an:== example") == s);
+
+    // insert(const_iterator pos, InputIt first, InputIt last)
+    {
+        tinystd::string seq = " string";
+        s.insert(s.begin() + s.find_last_of('e') + 1,
+                 std::begin(seq), std::end(seq));
+        assert(tinystd::string("Exemplar is an:== example string") == s);
+    }
+
+    // insert(const_iterator pos, std::initializer_list<char>)
+    s.insert(s.cbegin() + s.find_first_of('g') + 1, {'.'});
+    assert(tinystd::string("Exemplar is an:== example string.") == s);
 }

@@ -301,6 +301,43 @@ public:
     void append(const basic_string &__other) 
         { *this += __other; }
 
+    void insert(size_type __pos, size_type __cnt, char __c)
+        { _M_fill_insert(__pos, __cnt, __c); }
+
+    void insert(size_type __pos, const basic_string &__str)
+        { _M_copy_insert(__pos, __str.begin(), __str.end(), __str.size()); }
+
+    void insert(size_type __pos, const char *__cstr) {
+        size_t __len = strlen(__cstr);
+        _M_copy_insert(__pos, __cstr, __cstr + __len, __len);
+    }
+
+    void insert(size_type __pos, const basic_string &__str, size_type __idx, size_type __cnt)
+        { _M_copy_insert(__pos, __str.begin() + __idx, __str.begin() + __idx + __cnt, __cnt); }
+
+    void insert(const_iterator __pos, char __c) 
+        { _M_copy_insert(__pos - begin(), &__c, &__c + 1, 1); }
+
+    void insert(const_iterator __pos, size_type __cnt, char __c) 
+        { _M_fill_insert(__pos - begin(), __cnt, __c); }
+
+    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
+    void insert(const_iterator __pos, _InputIter __lhs, _InputIter __rhs)
+        { _M_copy_insert(__pos - begin(), __lhs, __rhs); }
+
+    size_type find_first_of(char __c) {
+        iterator __pos = tinystd::find(begin(), end(), __c);
+        if (__pos == end()) return -1;
+        return __pos - begin();
+    }
+
+    size_type find_last_of(char __c) {
+        for (size_type __off = size(); __off >= 0; --__off) {
+            if (operator[](__off) == __c)
+                return __off;
+        }
+        return -1;
+    }
 protected:
     typedef simple_alloc<char, _Alloc> __char_allocator;
     __string_data _M_data;
@@ -394,6 +431,27 @@ protected:
         _M_set_size(__sz + __n);
     }
 
+    void _M_fill_insert(size_type __pos, size_type __n, char __c) {
+        size_type __old_sz = size();
+        _M_transform_shape(__n);
+        tinystd::copy_backward(begin() + __pos, begin() + __old_sz, end());
+        tinystd::uninitialized_fill_n(begin() + __pos, __n, __c);
+    }
+
+    template <typename _InputIter>
+    void _M_copy_insert(size_type __pos, _InputIter __lhs, _InputIter __rhs) {
+        size_type __len = tinystd::distance(__lhs, __rhs);
+        _M_copy_insert(__pos, __lhs, __rhs, __len); 
+    }
+
+    template <typename _InputIter>
+    void _M_copy_insert(size_type __pos, _InputIter __lhs, _InputIter __rhs, size_type __len) {
+        size_type __old_sz = size();
+        _M_transform_shape(__len);
+        tinystd::copy_backward(begin() + __pos, begin() + __old_sz, end());
+        tinystd::uninitialized_copy(__lhs, __rhs, begin() + __pos);
+    }
+
     void _M_set_size(size_type __sz) {
         if (_M_long_mode()) {
             _M_data._M_l._M_size = __sz;
@@ -412,6 +470,12 @@ std::ostream &operator<<(std::ostream &__out, const basic_string<_Alloc> &__str)
         __out << __str._M_data._M_s._M_data;
     }
     return __out;
+}
+
+template <typename _Alloc>
+bool operator==(const basic_string<_Alloc> &__lhs, const basic_string<_Alloc> &__rhs) {
+    return __lhs.size() == __rhs.size() && 
+        tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
 }
 
 // 
