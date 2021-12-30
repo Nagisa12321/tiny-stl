@@ -18,6 +18,7 @@ void __test_push_back();
 void __test_add_operator();
 void __test_assignment_operator();
 void __test_assign();
+void __test_at();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -29,6 +30,7 @@ int main() {
         { "test operator+(), ", __test_add_operator },
         { "test operator=(), ", __test_assignment_operator },
         { "test assign() ", __test_assign },
+        { "test at(), ", __test_at },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -254,4 +256,23 @@ void __test_assign() {
     // assign(std::initializer_list<charT> ilist)
     s.assign({'C', '-', 's', 't', 'y', 'l', 'e'});
     std::cout << s << '\n'; // "C-style"
+}
+
+void __test_at() {
+    tinystd::string s("message"); // for capacity
+ 
+    s = "abc";
+    s.at(2) = 'x'; // ok
+    std::cout << s << '\n';
+ 
+    std::cout << "string size = " << s.size() << '\n';
+    std::cout << "string capacity = " << s.capacity() << '\n';
+ 
+    try {
+        // This will throw since the requested offset is greater than the current size.
+        s.at(3) = 'x';
+    }
+    catch (std::out_of_range const& exc) {
+        std::cout << exc.what() << '\n';
+    }
 }

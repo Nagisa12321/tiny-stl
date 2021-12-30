@@ -160,6 +160,16 @@ public:
     void assign(_InputIter __lhs, _InputIter __rhs)
         { _M_copy_assign(__lhs, __rhs); }
 
+    const_reference at(size_type __idx) const {
+        if (__idx >= size()) {
+            throw std::out_of_range("out of bound!");
+        }
+        return begin()[__idx];
+    }
+    
+    reference at(size_type __idx) 
+        { return const_cast<reference>((static_cast<const basic_string *>(this))->at(__idx)); }
+
     void __debug_message() const {
         printf("string: 0x%lx, 0x%lx, 0x%lx\n", (long) _M_data._M_l._M_data, 
                                            (long) _M_data._M_l._M_size, 
