@@ -16,6 +16,7 @@ void __test_constructor();
 void __test_size_length(); 
 void __test_push_back();
 void __test_add_operator();
+void __test_assignment_operator();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -25,6 +26,7 @@ int main() {
         { "test size and length, ", __test_size_length },
         { "test push_back, ", __test_push_back },
         { "test operator+(), ", __test_add_operator },
+        { "test operator=(), ", __test_assignment_operator },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -171,4 +173,46 @@ void __test_add_operator() {
     tinystd::string s1 = "Hello";
     tinystd::string s2 = "world";
     std::cout << s1 + ' ' + s2 + "!\n";
+}
+
+/**
+ * @brief 
+ * "alpha" "alpha"
+ * "alpha" ""
+ * "beta"
+ * "!"
+ * "gamma"
+ * "#"
+ *  
+ */
+void __test_assignment_operator() {
+    tinystd::string str1;
+    tinystd::string str2{"alpha"};
+
+    // (1) operator=( const basic_string& );
+    str1 = str2;
+    std::cout << "\"" << str1 << "\"" << ' '   // "alpha"
+              << "\"" << str2 << "\"" << '\n'; // "alpha"
+
+    // (2) operator=( basic_string&& );
+    str1 = std::move(str2);
+    std::cout << "\"" << str1 << "\"" << ' '   // "alpha"
+              << "\"" << str2 << "\"" << '\n'; // "alpha"
+
+
+    // (3) operator=( const CharT* );
+    str1 = "beta";
+    std::cout << "\"" << str1 << "\"" << '\n'; // "beta"
+
+    // (4) operator=( CharT );
+    str1 = '!';
+    std::cout << "\"" << str1 << "\"" << '\n'; // "!"
+
+    // (5) operator=( std::initializer_list<CharT> );
+    str1 = {'g', 'a', 'm', 'm', 'a'};
+    std::cout << "\"" << str1 << "\"" << '\n'; // "gamma"
+
+    // (6) operator=( const T& );
+    str1 = 35U;                             // equivalent to str1 = static_cast<char>(35U);
+    std::cout << "\"" << str1 << "\"" << '\n'; // "#" (ASCII = 35)
 }

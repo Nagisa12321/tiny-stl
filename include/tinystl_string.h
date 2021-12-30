@@ -95,6 +95,15 @@ public:
 
     basic_string &operator+(char __c) { push_back(__c); return *this; }
 
+    basic_string &operator=(const basic_string &__other) {
+        clear();
+        _M_set_size(__other.size());
+        tinystd::uninitialized_copy(__other.begin(), __other.end(), begin());
+        return *this;
+    }
+
+    basic_string &operator=(char __c) { *this = basic_string{__c}; return *this; }
+
     iterator begin() { return const_cast<iterator>(static_cast<const basic_string *>(this)->begin()); }
     iterator end() { return const_cast<iterator>(static_cast<const basic_string *>(this)->end()); }
     const_iterator begin() const {
@@ -133,6 +142,7 @@ public:
     }
 
     void clear() {
+        memset(begin(), 0, size());
     }
 
     void __debug_message() const {
