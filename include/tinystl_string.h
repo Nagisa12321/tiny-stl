@@ -164,6 +164,9 @@ public:
         }
     }
 
+    void pop_back() 
+        { _M_pop_back(1); }
+
     void clear() 
         { memset(begin(), 0, size()); _M_set_size(0); }
 
@@ -351,6 +354,31 @@ public:
         }
         return -1;
     }
+    
+    iterator erase(iterator __pos) {
+        size_type __off = __pos - begin();
+        tinystd::uninitialized_copy(__pos + 1, end(), __pos);
+        _M_pop_back(1);
+        return begin() + __off;
+    }
+
+    iterator erase(iterator __lhs, iterator __rhs) {
+        size_type __off = __lhs - begin();
+        size_type __d = tinystd::distance(__lhs, __rhs);  
+        tinystd::uninitialized_copy(__rhs, end(), __lhs); 
+        _M_pop_back(__d);
+        return begin() + __off;
+    }
+
+    basic_string &erase(size_type __pos = 0, size_type __cnt = -1) {
+        size_type __d = tinystd::min(__cnt, size() - __pos);
+        tinystd::uninitialized_copy(begin() + __pos + __cnt, end(), begin() + __pos);
+        _M_pop_back(__d);
+        return *this;
+    }
+
+    size_type find(_CharT __c) 
+        { return find_first_of(__c); }
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;
@@ -471,6 +499,15 @@ protected:
         } else {
             _M_data._M_s._M_size = __sz << 1;
         }
+    }
+
+    void _M_pop_back(size_type __sz) {
+        _M_set_size(size() - __sz);
+        _CharT *__new_end = end();
+        //
+        // Set the memory to zero...
+        // 
+        memset(__new_end, 0x0, __sz);
     }
 };
 #undef __max_short_cap

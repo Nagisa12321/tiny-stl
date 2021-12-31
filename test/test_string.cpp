@@ -10,6 +10,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include "tinystl_iterator.h"
 
 void __test_std_string();
 void __test_init();
@@ -31,6 +32,7 @@ void __test_capacity();
 void __test_shrink_to_fit(); 
 void __test_clean();
 void __test_insert();
+void __test_erase();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -54,6 +56,7 @@ int main() {
         { "test shrink_to_fit()", __test_shrink_to_fit },
         { "test clean(). ", __test_clean },
         { "test insert()... ", __test_insert },
+        { "test erase()...", __test_erase },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -469,7 +472,7 @@ void __test_insert() {
     tinystd::string s = "xmplr";
 
     // insert(size_type index, size_type count, char ch)
-    s.insert(s.begin(), 'E');
+    s.insert((int) 0, 1, 'E');
     assert(tinystd::string("Exmplr") == s);
 
     // insert(size_type index, const char* s)
@@ -504,4 +507,27 @@ void __test_insert() {
     // insert(const_iterator pos, std::initializer_list<char>)
     s.insert(s.cbegin() + s.find_first_of('g') + 1, {'.'});
     assert(tinystd::string("Exemplar is an:== example string.") == s);
+}
+
+// 1) This Is An Example
+// 2) This Is Example
+// 3) ThisIs Example
+// 4) ThisIs
+// 5) This
+void __test_erase() {
+    tinystd::string s = "This Is An Example";
+    std::cout << "1) " << s << '\n';
+
+    s.erase(7, 3); // erases " An" using overload (1)
+    std::cout << "2) " << s << '\n';
+
+    s.erase(std::find(s.begin(), s.end(), ' ')); // erases first ' '; overload (2)
+    std::cout << "3) " << s << '\n';
+
+    s.erase(s.find(' ')); // trims from ' ' to the end of the string; overload (1)
+    std::cout << "4) " << s << '\n';
+
+    auto it = tinystd::next(s.begin(), s.find('s')); // obtains iterator to the first 's'
+    s.erase(it, std::next(it, 2));               // erases "sI"; overload (3)
+    std::cout << "5) " << s << '\n';
 }

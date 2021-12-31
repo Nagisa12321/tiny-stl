@@ -46,7 +46,12 @@ _ForwardIter copy_backward(_InputIter __lhs, _InputIter __rhs, _ForwardIter __re
 
 template <typename _Tp>
 _Tp max(const _Tp &__lhs, const _Tp &__rhs) {
-    return __lhs >= __rhs ? __lhs : __rhs;
+    return __lhs > __rhs ? __lhs : __rhs;
+}
+
+template <typename _Tp>
+_Tp min(const _Tp &__lhs, const _Tp &__rhs) {
+    return __lhs < __rhs ? __lhs : __rhs;
 }
 
 template <typename _ForwardIter, typename _Tp>
