@@ -96,12 +96,8 @@ public:
     const_reference operator[](size_type __idx) const
         { return begin()[__idx]; }
 
-    basic_string &operator+=(const basic_string &__other) {
-        size_type __sz = size();
-        _M_transform_shape(__other.size());
-        tinystd::uninitialized_copy(__other.begin(), __other.end(), begin() + __sz);
-        return *this;   
-    }
+    basic_string &operator+=(const basic_string &__other) 
+        { _M_copy_append(__other.begin(), __other.end(), __other.size()); return *this; }
 
     basic_string &operator+=(_CharT __c) { push_back(__c); return *this; }
     
@@ -305,9 +301,6 @@ public:
         }
     }
 
-    void append(const basic_string &__other) 
-        { *this += __other; }
-
     basic_string &insert(size_type __pos, size_type __cnt, _CharT __c)
         { _M_fill_insert(__pos, __cnt, __c); return *this; }
 
@@ -423,6 +416,26 @@ public:
         _M_copy_replace(__pos, __count, __cstr, __cstr + __ocnt, __ocnt);
         return *this;
     }
+
+    basic_string &append(size_type __n, _CharT __c)
+        { _M_fill_append(__n, __c); return *this; }
+
+    basic_string &append(const basic_string &__other)
+        { _M_copy_append(__other.begin(), __other.end(), __other.size()); return *this; }
+
+    basic_string &append(const basic_string &__other, size_type __pos, size_type __count) { 
+        basic_string __tmp(__other, __pos, __count);
+        _M_copy_append(__tmp.begin(), __tmp.end(), __tmp.size()); 
+        return *this; 
+    }
+
+    basic_string &append(const _CharT *__s, size_type __count)
+        { _M_copy_append(__s, __s + __count, __count); return *this; }
+
+    template <typename _InputIter>
+    basic_string &append(_InputIter __lhs, _InputIter __rhs)
+        { _M_copy_append(__lhs, __rhs); return *this; }
+
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;
@@ -594,6 +607,23 @@ protected:
             _M_transform_shape(__rpsz - __cnt);
             tinystd::copy_backward(begin() + __pos, begin() + __old_sz, end());
         }
+    }
+
+    void _M_fill_append(size_type __n, _CharT __c) {
+        size_type __old_sz = size();
+        _M_transform_shape(__n);
+        tinystd::uninitialized_fill_n(begin() + __old_sz, __n, __c);
+    }
+
+    template <typename _InputIter>
+    void _M_copy_append(_InputIter __lhs, _InputIter __rhs) 
+        { _M_copy_append(__lhs, __rhs, tinystd::distance(__lhs, __rhs)); }
+
+    template <typename _InputIter>
+    void _M_copy_append(_InputIter __lhs, _InputIter __rhs, size_type __d) {
+        size_type __old_sz = size();
+        _M_transform_shape(__d);
+        tinystd::uninitialized_copy(__lhs, __rhs, begin() + __old_sz); 
     }
 };
 #undef __max_short_cap

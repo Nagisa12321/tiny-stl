@@ -36,6 +36,7 @@ void __test_erase();
 void __test_add_eq_operator();
 void __test_compare();
 void __test_replace();
+void __test_append();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -63,6 +64,7 @@ int main() {
         { "test operator+=()...", __test_add_eq_operator },
         { "test compare()... ", __test_compare }, 
         { "test replace()... ", __test_replace }, 
+        { "test append()... ", __test_append }
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -681,4 +683,50 @@ void test_replace_remove_all() {
     count = remove_all(str2, "http");
     assert(count == 4);
     std::cout << "#4 " << str2 << '\n';
+}
+
+// 1) ***
+// 2) ***string
+// 3) ***stringing
+// 4) ***stringing Two 
+// 5) ***stringing Two C-string
+// 6) ***stringing Two C-string and one
+// 7) ***stringing Two C-string and one list
+// 
+void __test_append() {
+    tinystd::basic_string<char> str = "string";
+    const char *cptr = "C-string";
+    const char carr[] = "Two and one";
+
+    tinystd::string output;
+
+    // 1) Append a char 3 times.
+    // Notice, this is the only overload accepting chars.
+    output.append(3, '*');
+    std::cout << "1) " << output << "\n";
+
+    //  2) Append a whole string
+    output.append(str);
+    std::cout << "2) " << output << "\n";
+
+    // 3) Append part of a string (last 3 letters, in this case)
+    output.append(str, 3, 3);
+    std::cout << "3) " << output << "\n";
+
+    // 4) Append part of a C-string
+    // Notice, because `append` returns *this, we can chain calls together
+    output.append(1, ' ').append(carr, 4);
+    std::cout << "4) " << output << "\n";
+
+    // 5) Append a whole C-string
+    output.append(cptr);
+    std::cout << "5) " << output << "\n";
+
+    // 6) Append range
+    output.append(&carr[3], std::end(carr) - 1);
+    std::cout << "6) " << output << "\n";
+
+    // 7) Append initializer list
+    output.append({' ', 'l', 'i', 's', 't'});
+    std::cout << "7) " << output << "\n";
 }
