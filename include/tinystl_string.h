@@ -16,36 +16,39 @@
 #include <initializer_list>
 namespace tinystd {
 
+template <typename _CharT>
 struct __long_mode {
     size_t _M_cap;
     size_t _M_size;
-    char *_M_data;
+    _CharT *_M_data;
 };
 
+template <typename _CharT>
 struct __short_mode {
     unsigned char _M_size;
-    char _M_data[23];
+    _CharT _M_data[23];
 };
 //
 // _M_l._M_cap & 1
 // _M_s._M_szie & 1
 //
+template <typename _CharT>
 union __string_data {
-    __long_mode _M_l;
-    __short_mode _M_s;
+    __long_mode<_CharT> _M_l;
+    __short_mode<_CharT> _M_s;
 };
 
-template <typename _Alloc> class basic_string;
-template <typename _Alloc>
-std::ostream &operator<<(std::ostream &__out, const basic_string<_Alloc> &__str);
+template <typename _CharT, typename _Alloc> class basic_string;
+template <typename _CharT, typename _Alloc>
+std::ostream &operator<<(std::ostream &__out, const basic_string<_CharT, _Alloc> &__str);
 
 
 #define __max_short_cap 22
-template <typename _Alloc = __DEFAULT_ALLOCATOR>
+template <typename _CharT, typename _Alloc = __DEFAULT_ALLOCATOR>
 class basic_string {
-    friend std::ostream &operator<< <>(std::ostream &__out, const basic_string<> &__str);
+    friend std::ostream &operator<< <>(std::ostream &__out, const basic_string<_CharT> &__str);
 public:
-    typedef char value_type;
+    typedef _CharT value_type;
     typedef value_type *pointer;
     typedef const value_type *const_pointer;
     typedef value_type *iterator;
@@ -59,12 +62,12 @@ public:
     // Init all to zero. 
     //
     basic_string() : _M_data{0} {}
-    basic_string(size_type __n, char __c) : basic_string() { _M_fill_initialize(__n, __c); }
-    basic_string(const char *__cstr) : basic_string() {
+    basic_string(size_type __n, _CharT __c) : basic_string() { _M_fill_initialize(__n, __c); }
+    basic_string(const _CharT *__cstr) : basic_string() {
         int __len = strlen(__cstr);
         _M_copy_initialize(__cstr, __cstr + __len, __len);
     }
-    basic_string(const char *__cstr, size_type __count) : basic_string() {
+    basic_string(const _CharT *__cstr, size_type __count) : basic_string() {
         _M_copy_initialize(__cstr, __cstr + __count, __count);
     }
     template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
@@ -77,7 +80,7 @@ public:
     basic_string(const basic_string& __other, size_type __pos) : basic_string() {
         _M_copy_initialize(__other.begin() + __pos, __other.end());
     }
-    basic_string(std::initializer_list<char> __li) : basic_string() { 
+    basic_string(std::initializer_list<_CharT> __li) : basic_string() { 
         _M_copy_initialize(__li.begin(), __li.end());
     }
     ~basic_string() {
@@ -99,7 +102,7 @@ public:
         return *this;   
     }
 
-    basic_string &operator+=(char __c) { push_back(__c); return *this; }
+    basic_string &operator+=(_CharT __c) { push_back(__c); return *this; }
     
     basic_string operator+(const basic_string &__other) {
         basic_string __tmp = *this;
@@ -107,7 +110,7 @@ public:
         return __tmp;
     }
 
-    basic_string operator+(char __c) {
+    basic_string operator+(_CharT __c) {
         basic_string __tmp = *this;
         __tmp += __c;
         return __tmp;
@@ -120,7 +123,7 @@ public:
         return *this;
     }
 
-    basic_string &operator=(char __c) { *this = basic_string{__c}; return *this; }
+    basic_string &operator=(_CharT __c) { *this = basic_string{__c}; return *this; }
 
     const_iterator cbegin() { return static_cast<const basic_string *>(this)->begin(); }
     const_iterator cend() { return static_cast<const basic_string *>(this)->end(); }
@@ -151,7 +154,7 @@ public:
     }
     bool empty() const { return size() == 0; }
 
-    void push_back(char __c) {
+    void push_back(_CharT __c) {
         int __idx = size();
         _M_transform_shape(1);
         if (_M_long_mode()) {
@@ -164,7 +167,7 @@ public:
     void clear() 
         { memset(begin(), 0, size()); _M_set_size(0); }
 
-    void assign(size_type __cnt, char __c) 
+    void assign(size_type __cnt, _CharT __c) 
         { _M_fill_assign(__cnt, __c); }
 
     void assign(const basic_string &__other) 
@@ -173,7 +176,7 @@ public:
     void assign(const basic_string &__other, size_type __pos, size_type __cnt) 
         { _M_copy_assign(__other.begin() + __pos, __other.begin() + __pos + __cnt, __other.size()); }
 
-    void assign(const char *__cstr, size_type __pos) 
+    void assign(const _CharT *__cstr, size_type __pos) 
         { _M_copy_assign(__cstr, __cstr + __pos, __pos); }
 
     template <typename _InputIter>
@@ -215,10 +218,10 @@ public:
     // 
     // in c++11 they are same 
     //
-    const char *data() const
+    const _CharT *data() const
         { return begin(); }
     
-    const char *c_str() const
+    const _CharT *c_str() const
         { return begin(); } 
 
     void reserve(size_type __new_cap) {
@@ -233,10 +236,10 @@ public:
             ++__new_cap;
         
         size_type __sz = size();
-        char *__old_space = 0;
+        _CharT *__old_space = 0;
         if (_M_long_mode())
             __old_space = _M_data._M_l._M_data;
-        char *__new_space = __char_allocator::_S_allocate(__new_cap);
+        _CharT *__new_space = __char_allocator::_S_allocate(__new_cap);
         //
         // Set to zero
         //
@@ -258,7 +261,7 @@ public:
                 //
                 // Copy bcak to the short mode. 
                 // 
-                char *__old_data = _M_data._M_l._M_data;
+                _CharT *__old_data = _M_data._M_l._M_data;
                 size_type __cap = capacity();
 
                 // Set the memory to zero. 
@@ -276,13 +279,13 @@ public:
                 // make a short capa... 
                 // but it is still long mode... 
                 // 
-                char *__old_data = _M_data._M_l._M_data;
+                _CharT *__old_data = _M_data._M_l._M_data;
                 size_type __cap = capacity();
                 size_type __new_cap = __sz + 1;
                 if (__new_cap % 2 == 0) ++__new_cap;
 
                 // Allocate a new space, it's size is __sz + 1... 
-                char *__new_space = __char_allocator::_S_allocate(__new_cap);
+                _CharT *__new_space = __char_allocator::_S_allocate(__new_cap);
                 memset(__new_space, 0, __new_cap);
 
                 // copy to the new space
@@ -301,37 +304,47 @@ public:
     void append(const basic_string &__other) 
         { *this += __other; }
 
-    void insert(size_type __pos, size_type __cnt, char __c)
-        { _M_fill_insert(__pos, __cnt, __c); }
+    basic_string &insert(size_type __pos, size_type __cnt, _CharT __c)
+        { _M_fill_insert(__pos, __cnt, __c); return *this; }
 
-    void insert(size_type __pos, const basic_string &__str)
-        { _M_copy_insert(__pos, __str.begin(), __str.end(), __str.size()); }
+    basic_string &insert(size_type __pos, const basic_string &__str)
+        { _M_copy_insert(__pos, __str.begin(), __str.end(), __str.size()); return *this; }
 
-    void insert(size_type __pos, const char *__cstr) {
+    basic_string &insert(size_type __pos, const _CharT *__cstr) {
         size_t __len = strlen(__cstr);
         _M_copy_insert(__pos, __cstr, __cstr + __len, __len);
+        return *this;
     }
 
-    void insert(size_type __pos, const basic_string &__str, size_type __idx, size_type __cnt)
-        { _M_copy_insert(__pos, __str.begin() + __idx, __str.begin() + __idx + __cnt, __cnt); }
+    basic_string &insert(size_type __pos, const basic_string &__str, size_type __idx, size_type __cnt)
+        { _M_copy_insert(__pos, __str.begin() + __idx, __str.begin() + __idx + __cnt, __cnt); return *this; }
 
-    void insert(const_iterator __pos, char __c) 
-        { _M_copy_insert(__pos - begin(), &__c, &__c + 1, 1); }
+    iterator insert(const_iterator __pos, _CharT __c) { 
+        size_type __off = __pos - begin();
+        _M_copy_insert(__off, &__c, &__c + 1, 1); 
+        return begin() + __off;
+    }
 
-    void insert(const_iterator __pos, size_type __cnt, char __c) 
-        { _M_fill_insert(__pos - begin(), __cnt, __c); }
+    iterator insert(const_iterator __pos, size_type __cnt, _CharT __c) { 
+        size_type __off = __pos - begin();
+        _M_fill_insert(__off, __cnt, __c); 
+        return begin() + __off;
+    }
 
-    template <typename _InputIter, tinystd::void_t<decltype(*tinystd::__declval<_InputIter>())>* = nullptr>
-    void insert(const_iterator __pos, _InputIter __lhs, _InputIter __rhs)
-        { _M_copy_insert(__pos - begin(), __lhs, __rhs); }
+    template <typename _InputIter>
+    iterator insert(const_iterator __pos, _InputIter __lhs, _InputIter __rhs) { 
+        size_type __off = __pos - begin();
+        _M_copy_insert(__off, __lhs, __rhs); 
+        return begin() + __off; 
+    }
 
-    size_type find_first_of(char __c) {
+    size_type find_first_of(_CharT __c) {
         iterator __pos = tinystd::find(begin(), end(), __c);
         if (__pos == end()) return -1;
         return __pos - begin();
     }
 
-    size_type find_last_of(char __c) {
+    size_type find_last_of(_CharT __c) {
         for (size_type __off = size(); __off >= 0; --__off) {
             if (operator[](__off) == __c)
                 return __off;
@@ -339,8 +352,8 @@ public:
         return -1;
     }
 protected:
-    typedef simple_alloc<char, _Alloc> __char_allocator;
-    __string_data _M_data;
+    typedef simple_alloc<_CharT, _Alloc> __char_allocator;
+    __string_data<_CharT> _M_data;
 
     bool _M_long_mode() const { return _M_data._M_s._M_size & 1; }
 
@@ -361,7 +374,7 @@ protected:
         }
     }
 
-    void _M_fill_initialize(size_type __n, char __c) {
+    void _M_fill_initialize(size_type __n, _CharT __c) {
         _M_size_init(__n);
         tinystd::uninitialized_fill_n(begin(), __n, __c);
     }
@@ -378,7 +391,7 @@ protected:
         tinystd::uninitialized_copy(__lhs, __rhs, begin());
     }
 
-    void _M_fill_assign(size_type __n, char __c) {
+    void _M_fill_assign(size_type __n, _CharT __c) {
         memset(begin(), 0, size());
         size_type __sz = size();
         if (__n > __sz) {
@@ -414,7 +427,7 @@ protected:
             // the new mode is long mode 
             // so the new capa is a Odd number
             if (__new_sz % 2 == 0) ++__new_sz; 
-            char *__new_space = __char_allocator::_S_allocate(__new_sz);
+            _CharT *__new_space = __char_allocator::_S_allocate(__new_sz);
             // set the memory to zero. 
             memset(__new_space, 0, __cap << 1);
             // copy to the new space
@@ -431,7 +444,7 @@ protected:
         _M_set_size(__sz + __n);
     }
 
-    void _M_fill_insert(size_type __pos, size_type __n, char __c) {
+    void _M_fill_insert(size_type __pos, size_type __n, _CharT __c) {
         size_type __old_sz = size();
         _M_transform_shape(__n);
         tinystd::copy_backward(begin() + __pos, begin() + __old_sz, end());
@@ -462,8 +475,8 @@ protected:
 };
 #undef __max_short_cap
 
-template <typename _Alloc>
-std::ostream &operator<<(std::ostream &__out, const basic_string<_Alloc> &__str) {
+template <typename _CharT, typename _Alloc>
+std::ostream &operator<<(std::ostream &__out, const basic_string<_CharT, _Alloc> &__str) {
     if (__str._M_long_mode()) {
         __out << __str._M_data._M_l._M_data;
     } else {
@@ -472,8 +485,8 @@ std::ostream &operator<<(std::ostream &__out, const basic_string<_Alloc> &__str)
     return __out;
 }
 
-template <typename _Alloc>
-bool operator==(const basic_string<_Alloc> &__lhs, const basic_string<_Alloc> &__rhs) {
+template <typename _CharT, typename _Alloc>
+bool operator==(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_CharT, _Alloc> &__rhs) {
     return __lhs.size() == __rhs.size() && 
         tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
 }
@@ -481,7 +494,7 @@ bool operator==(const basic_string<_Alloc> &__lhs, const basic_string<_Alloc> &_
 // 
 // There is the real string... 
 //
-typedef basic_string<> string;
+typedef basic_string<char> string;
 
 } // namespace tinystd
 #endif // __TINYSTL_STRING_H

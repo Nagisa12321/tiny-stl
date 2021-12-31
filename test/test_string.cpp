@@ -469,7 +469,7 @@ void __test_insert() {
     tinystd::string s = "xmplr";
 
     // insert(size_type index, size_type count, char ch)
-    s.insert(0, 1, 'E');
+    s.insert(s.begin(), 'E');
     assert(tinystd::string("Exmplr") == s);
 
     // insert(size_type index, const char* s)
