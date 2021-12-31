@@ -377,12 +377,12 @@ public:
     size_type find(_CharT __c) 
         { return find_first_of(__c); }
 
-    size_type find(const basic_string &__sub, size_type __pos, size_type __len) {
-        size_type __sz = __sub.size();
-        iterator __it = tinystd::find_if(begin() + __pos, begin() + __pos + __len, [&](const _CharT &__c) {
-            return basic_string(&__c, &__c + __sz) == __sub;
+    size_type find(const basic_string &__sub, size_type __pos, size_type __count) {
+        if (__pos + __count >= size()) return -1;
+        iterator __it = tinystd::find_if(begin() + __pos, end() - __count, [&](const _CharT &__c) {
+            return basic_string(&__c, &__c + __count) == __sub;
         }); 
-        if (__it == end()) return -1;
+        if (__it == end() - __count) return -1;
         return __it - begin();
     }
 
@@ -415,6 +415,12 @@ public:
         size_type __d = tinystd::min(__ocnt, __other.size() - __opos);
         basic_string __tmp(__other, __ocnt, __d); 
         _M_copy_replace(__pos, __count, __tmp.begin(), __tmp.end(), __d);
+        return *this;
+    }
+
+    basic_string &replace(size_type __pos, size_type __count, 
+        const _CharT *__cstr, size_type __ocnt) {
+        _M_copy_replace(__pos, __count, __cstr, __cstr + __ocnt, __ocnt);
         return *this;
     }
 protected:

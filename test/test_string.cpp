@@ -660,7 +660,7 @@ tinystd::size_t replace_all(tinystd::string &inout, std::string_view what, std::
         inout.replace(pos, what.length(), with.data(), with.length());
     }
     return count;
-}
+}   
 
 tinystd::size_t remove_all(tinystd::string &inout, std::string_view what) {
     return replace_all(inout, what, "");
