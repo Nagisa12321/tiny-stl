@@ -35,6 +35,7 @@ void __test_insert();
 void __test_erase();
 void __test_add_eq_operator();
 void __test_compare();
+void __test_replace();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -61,6 +62,7 @@ int main() {
         { "test erase()...", __test_erase },
         { "test operator+=()...", __test_add_eq_operator },
         { "test compare()... ", __test_compare }, 
+        { "test replace()... ", __test_replace }, 
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -627,4 +629,56 @@ void __test_compare() {
                       compare_value > 0 ? "Super comes before Bat\n" :
                                           "Super and Bat are the same.\n");
     }
+}
+
+tinystd::size_t replace_all(tinystd::string& inout, std::string_view what, std::string_view with);
+tinystd::size_t remove_all(tinystd::string& inout, std::string_view what);
+void test_replace_remove_all();
+// A quick red fox jumps over the lazy dog.
+// 
+// #1 ftp: ftpftp: ftp:
+// #2 http: httphttp: http:
+// #3 http: httphttp: http:
+// #4 : : :
+void __test_replace() {
+    tinystd::string str{"The quick brown fox jumps over the lazy dog."};
+
+    str.replace(10, 5, "red"); // (5)
+
+    str.replace(str.begin(), str.begin() + 3, 1, 'A'); // (6)
+
+    std::cout << str << "\n\n";
+
+    test_replace_remove_all();
+}
+
+tinystd::size_t replace_all(tinystd::string &inout, std::string_view what, std::string_view with) {
+    tinystd::size_t count{};
+    for (tinystd::string::size_type pos{};
+         inout.npos != (pos = inout.find(what.data(), pos, what.length()));
+         pos += with.length(), ++count) {
+        inout.replace(pos, what.length(), with.data(), with.length());
+    }
+    return count;
+}
+
+tinystd::size_t remove_all(tinystd::string &inout, std::string_view what) {
+    return replace_all(inout, what, "");
+}
+
+void test_replace_remove_all() {
+    tinystd::string str2{"ftp: ftpftp: ftp:"};
+    std::cout << "#1 " << str2 << '\n';
+
+    auto count = replace_all(str2, "ftp", "http");
+    assert(count == 4);
+    std::cout << "#2 " << str2 << '\n';
+
+    count = replace_all(str2, "ftp", "http");
+    assert(count == 0);
+    std::cout << "#3 " << str2 << '\n';
+
+    count = remove_all(str2, "http");
+    assert(count == 4);
+    std::cout << "#4 " << str2 << '\n';
 }

@@ -10,6 +10,12 @@ _InputIter find(_InputIter __lhs, _InputIter __rhs, const _Tp &__val) {
     return __lhs;
 }
 
+template <typename _InputIter, typename _UnaryPredicate>
+_InputIter find_if(_InputIter __lhs, _InputIter __rhs, _UnaryPredicate __conn) {
+    while (__lhs != __rhs && !__conn(*__lhs)) ++__lhs;
+    return __lhs;
+}
+
 template <typename _InputIter, typename _Function>
 void for_each(_InputIter __lhs, _InputIter __rhs, _Function __func) {
     while (__lhs != __rhs)

@@ -56,6 +56,8 @@ public:
     typedef const value_type &const_reference;
     typedef size_t size_type;
     typedef ptrdiff_t different_type;
+    
+    static size_type npos;
 
     //
     // Init all to zero. 
@@ -354,30 +356,35 @@ public:
         return -1;
     }
     
-    iterator erase(iterator __pos) {
-        size_type __off = __pos - begin();
-        tinystd::uninitialized_copy(__pos + 1, end(), __pos);
-        _M_pop_back(1);
+    iterator erase(iterator __pos) { 
+        size_type __off = __pos - begin(); 
+        _M_copy_replace(__off, 1, begin(), begin()); 
         return begin() + __off;
     }
 
-    iterator erase(iterator __lhs, iterator __rhs) {
+    iterator erase(iterator __lhs, iterator __rhs) { 
         size_type __off = __lhs - begin();
-        size_type __d = tinystd::distance(__lhs, __rhs);  
-        tinystd::uninitialized_copy(__rhs, end(), __lhs); 
-        _M_pop_back(__d);
+        _M_copy_replace(__off, __rhs - __lhs, begin(), begin()); 
         return begin() + __off;
     }
 
     basic_string &erase(size_type __pos = 0, size_type __cnt = -1) {
         size_type __d = tinystd::min(__cnt, size() - __pos);
-        tinystd::uninitialized_copy(begin() + __pos + __cnt, end(), begin() + __pos);
-        _M_pop_back(__d);
+        _M_copy_replace(__pos, __d, begin(), begin()); 
         return *this;
     }
 
     size_type find(_CharT __c) 
         { return find_first_of(__c); }
+
+    size_type find(const basic_string &__sub, size_type __pos, size_type __len) {
+        size_type __sz = __sub.size();
+        iterator __it = tinystd::find_if(begin() + __pos, begin() + __pos + __len, [&](const _CharT &__c) {
+            return basic_string(&__c, &__c + __sz) == __sub;
+        }); 
+        if (__it == end()) return -1;
+        return __it - begin();
+    }
 
     int compare(const basic_string &__other) 
         { return _M_compare(*this, __other); }
@@ -393,6 +400,23 @@ public:
                 tinystd::basic_string(__other, __opos, __d)); 
         }
     
+    basic_string &replace(size_type __pos, size_type __count, const basic_string &__other) {
+        _M_copy_replace(__pos, __count, __other.begin(), __other.end()); 
+        return *this;
+    }
+
+    basic_string &replace(const_iterator __lhs, const_iterator __rhs, size_type __ocnt, _CharT __c) {
+        _M_fill_replace(__lhs - begin(), __rhs - __lhs, __ocnt, __c);
+        return *this;
+    }
+
+    basic_string &replace(size_type __pos, size_type __count, 
+        const basic_string &__other, size_type __opos, size_type __ocnt = -1) {
+        size_type __d = tinystd::min(__ocnt, __other.size() - __opos);
+        basic_string __tmp(__other, __ocnt, __d); 
+        _M_copy_replace(__pos, __count, __tmp.begin(), __tmp.end(), __d);
+        return *this;
+    }
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;
@@ -539,8 +563,37 @@ protected:
         else
             return 1;
     }
+
+    void _M_fill_replace(size_type __pos, size_type __cnt, size_type __n, _CharT __c) {
+        _M_fix_size(__pos, __cnt, __n);
+        tinystd::uninitialized_fill_n(begin() + __pos, __cnt, __c);
+    }
+
+    template <typename _InputIter>
+    void _M_copy_replace(size_type __pos, size_type __cnt, _InputIter __lhs, _InputIter __rhs) 
+        { _M_copy_replace(__pos, __cnt, __lhs, __rhs, tinystd::distance(__lhs, __rhs)); }
+
+    template <typename _InputIter>
+    void _M_copy_replace(size_type __pos, size_type __cnt, _InputIter __lhs, _InputIter __rhs, size_type __d) {
+        _M_fix_size(__pos, __cnt, __d);
+        tinystd::uninitialized_copy(__lhs, __rhs, begin() + __pos);
+    }
+
+    void _M_fix_size(size_type __pos, size_type __cnt, size_type __rpsz) {
+        if (__rpsz < __cnt) {
+            tinystd::uninitialized_copy(begin() + __pos + __cnt, end(), begin() + __pos + __rpsz); 
+            _M_pop_back(__cnt - __rpsz); 
+        } else if (__rpsz > __cnt) {
+            size_type __old_sz = size(); 
+            _M_transform_shape(__rpsz - __cnt);
+            tinystd::copy_backward(begin() + __pos, begin() + __old_sz, end());
+        }
+    }
 };
 #undef __max_short_cap
+
+template <typename _CharT, typename _Alloc>
+typename basic_string<_CharT, _Alloc>::size_type basic_string<_CharT, _Alloc>::npos = -1;
 
 template <typename _CharT, typename _Alloc>
 std::ostream &operator<<(std::ostream &__out, const basic_string<_CharT, _Alloc> &__str) {
