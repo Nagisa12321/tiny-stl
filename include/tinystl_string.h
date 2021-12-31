@@ -436,6 +436,13 @@ public:
     basic_string &append(_InputIter __lhs, _InputIter __rhs)
         { _M_copy_append(__lhs, __rhs); return *this; }
 
+    basic_string substr(size_type __pos = 0, size_type __cnt = -1) 
+        { 
+            size_type __sz = size();
+            if (__pos >= __sz)
+                throw std::out_of_range("pos is eq or bigger than the size of string. ");
+            return basic_string(*this, __pos, tinystd::min(__sz - __pos, __cnt)); 
+        }
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;
@@ -646,8 +653,6 @@ bool operator==(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_C
     return __lhs.size() == __rhs.size() && 
         tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
 }
-
-
 
 //
 // There is the real string...

@@ -37,6 +37,7 @@ void __test_add_eq_operator();
 void __test_compare();
 void __test_replace();
 void __test_append();
+void __test_substr();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -64,7 +65,8 @@ int main() {
         { "test operator+=()...", __test_add_eq_operator },
         { "test compare()... ", __test_compare }, 
         { "test replace()... ", __test_replace }, 
-        { "test append()... ", __test_append }
+        { "test append()... ", __test_append }, 
+        { "test substr()... ", __test_substr }
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -729,4 +731,36 @@ void __test_append() {
     // 7) Append initializer list
     output.append({' ', 'l', 'i', 's', 't'});
     std::cout << "7) " << output << "\n";
+}
+
+// abcdefghij
+// 567
+// hij
+// pos exceeds string size
+void __test_substr() {
+    tinystd::string a = "0123456789abcdefghij";
+
+    // count is npos, returns [pos, size())
+    tinystd::string sub1 = a.substr(10);
+    std::cout << sub1 << '\n';
+
+    // both pos and pos+count are within bounds, returns [pos, pos+count)
+    tinystd::string sub2 = a.substr(5, 3);
+    std::cout << sub2 << '\n';
+
+    // pos is within bounds, pos+count is not, returns [pos, size())
+    tinystd::string sub4 = a.substr(a.size() - 3, 50);
+    // this is effectively equivalent to
+    // std::string sub4 = a.substr(17, 3);
+    // since a.size() == 20, pos == a.size()-3 == 17, and a.size()-pos == 3
+
+    std::cout << sub4 << '\n';
+
+    try {
+        // pos is out of bounds, throws
+        tinystd::string sub5 = a.substr(a.size() + 3, 50);
+        std::cout << sub5 << '\n';
+    } catch (const std::out_of_range &e) {
+        std::cout << "pos exceeds string size\n";
+    }
 }
