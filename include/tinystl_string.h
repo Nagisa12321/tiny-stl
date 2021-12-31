@@ -465,6 +465,12 @@ public:
     }
 
     size_type max_size() const { return size_type(-1) >> 1; }
+
+    void swap(basic_string &__other) {
+        __string_data __tmp = _M_data;
+        _M_data = __other._M_data;
+        __other._M_data = __tmp;
+    }
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;

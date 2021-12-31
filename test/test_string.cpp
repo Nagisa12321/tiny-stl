@@ -40,6 +40,7 @@ void __test_append();
 void __test_substr();
 void __test_copy();
 void __test_resize();
+void __test_swap();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -71,6 +72,7 @@ int main() {
         { "test substr()... ", __test_substr },
         { "test copy()... ", __test_copy },
         { "test resize()... ", __test_resize },
+        { "test swap()... ", __test_swap }, 
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -835,4 +837,24 @@ void __test_resize() {
             std::cout << "3. Length error: " << ex.what() << '\n';
         }
     }
+}
+// before swap
+// a: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+// b: bbbbb
+// after swap
+// a: bbbbb
+// b: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+void __test_swap() {
+    tinystd::string a(50, 'A');
+    tinystd::string b(5, 'b');
+
+    std::cout << "before swap" << '\n';
+    std::cout << "a: " << a << '\n';
+    std::cout << "b: " << b << '\n';
+
+    a.swap(b);
+
+    std::cout << "after swap" << '\n';
+    std::cout << "a: " << a << '\n';
+    std::cout << "b: " << b << '\n';
 }
