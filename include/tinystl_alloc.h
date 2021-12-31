@@ -4,6 +4,7 @@
 #include <limits.h>     // for UINT_MAX
 #include <string.h>
 #include <stdio.h>
+#include <new>          // for the std::bad_alloc
 #include "tinystl_constructor.h"
 #include "tinystl_types.h"
 #define __THROW_BAD_ALLOC   fprintf(stderr, "out of memory"); exit(1)
@@ -13,7 +14,7 @@ namespace tinystd {
 
 template <typename _Tp> inline _Tp *allocate(size_t __sz);
 template <typename _Tp> inline void deallocate(_Tp *__p, size_t __sz);
-
+void __thow_bad_alloc() { throw std::bad_alloc(); }
 
 /**
  * @tparam _Alloc 
@@ -67,7 +68,10 @@ public:
 private:
     static void (*__malloc_alloc_oom_handler)();
     static void *_S_oom_malloc(size_t __sz) {
-        void (*__my_alloc_handler)();
+        // 
+        // MUST SET THIS SHIT HERE!
+        //
+        void (*__my_alloc_handler)() = __thow_bad_alloc;
         void *__res;
         for (;;) {
             __my_alloc_handler = __my_alloc_handler;
@@ -89,6 +93,7 @@ private:
         }
     }
 };
+
 
 template <int _Inst>
 void (*__malloc_alloc_template<_Inst>::__malloc_alloc_oom_handler)() = 0;

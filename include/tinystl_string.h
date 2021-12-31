@@ -443,6 +443,28 @@ public:
                 throw std::out_of_range("pos is eq or bigger than the size of string. ");
             return basic_string(*this, __pos, tinystd::min(__sz - __pos, __cnt)); 
         }
+
+    size_type copy(_CharT* __dest, size_type __count, size_type __pos = 0) const {
+        size_type __sz = size();
+        if (__pos >= __sz) 
+            throw std::out_of_range("pos is eq or bigger than the size of the string. ");
+        size_type __d = tinystd::min(__sz - __pos, __count);
+        tinystd::uninitialized_copy(begin() + __pos, 
+                begin() + __pos + __d, __dest);
+        return __d;
+    }
+
+    void resize(size_type __new_sz, _CharT __c = _CharT()) {
+        if (__new_sz > max_size())
+            throw std::length_error("bigger than max size. ");
+        size_type __sz = size();
+        if (__new_sz < __sz)
+            { _M_pop_back(__sz - __new_sz); }
+        else if (__new_sz > __sz)
+            { _M_fill_insert(__sz, __new_sz - __sz, __c); }
+    }
+
+    size_type max_size() const { return size_type(-1) >> 1; }
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;

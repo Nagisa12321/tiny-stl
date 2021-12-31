@@ -38,6 +38,8 @@ void __test_compare();
 void __test_replace();
 void __test_append();
 void __test_substr();
+void __test_copy();
+void __test_resize();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -66,7 +68,9 @@ int main() {
         { "test compare()... ", __test_compare }, 
         { "test replace()... ", __test_replace }, 
         { "test append()... ", __test_append }, 
-        { "test substr()... ", __test_substr }
+        { "test substr()... ", __test_substr },
+        { "test copy()... ", __test_copy },
+        { "test resize()... ", __test_resize },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -762,5 +766,73 @@ void __test_substr() {
         std::cout << sub5 << '\n';
     } catch (const std::out_of_range &e) {
         std::cout << "pos exceeds string size\n";
+    }
+}
+
+void __test_copy() {
+    tinystd::string foo("quuuux");
+    char bar[7]{};
+    foo.copy(bar, sizeof bar);
+    std::cout << bar << '\n';
+}
+
+// Basic functionality:
+// Shorten:
+// 1. Before: "Where is the end??????????????"
+// 2. After:  "Where is"
+// Lengthen:
+// 3. Before: "Ha"
+// 4. After:  "Haaaaaaa"
+// 
+// Errors:
+// 1. Exception: std::bad_alloc
+// 2. Exception: std::bad_alloc
+// 3. Length error: basic_string::_M_replace_aux
+void __test_resize() {
+    const unsigned desired_length{8};
+    tinystd::string long_string("Where is the end??????????????");
+    tinystd::string short_string("Ha");
+
+    std::cout << "Basic functionality:\n"
+              << "Shorten:\n"
+              << "1. Before: " << "\"" << long_string << "\"" << '\n';
+
+    long_string.resize(desired_length);
+
+    std::cout << "2. After:  " << "\"" << long_string << "\"" << '\n';
+
+    std::cout << "Lengthen:\n"
+              << "3. Before: " << "\"" << short_string << "\"" << '\n';
+
+    short_string.resize(desired_length, 'a');
+
+    std::cout << "4. After:  " << "\"" << short_string << "\"" << "\n\n";
+
+    std::cout << "Errors:\n";
+    {
+        tinystd::string s;
+
+        try {
+            // size is OK, no length_error
+            // (may throw bad_alloc)
+            s.resize(s.max_size() - 1, 'x');
+        } catch (const std::bad_alloc &ex) {
+            std::cout << "1. Exception: " << ex.what() << '\n';
+        }
+
+        try {
+            // size is OK, no length_error
+            // (may throw bad_alloc)
+            s.resize(s.max_size(), 'x');
+        } catch (const std::bad_alloc &ex) {
+            std::cout << "2. Exception: " << ex.what() << '\n';
+        }
+
+        try {
+            // size is BAD, throw length_error
+            s.resize(s.max_size() + 1, 'x');
+        } catch (const std::length_error &ex) {
+            std::cout << "3. Length error: " << ex.what() << '\n';
+        }
     }
 }
