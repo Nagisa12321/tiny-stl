@@ -33,6 +33,8 @@ void __test_shrink_to_fit();
 void __test_clean();
 void __test_insert();
 void __test_erase();
+void __test_add_eq_operator();
+void __test_compare();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -57,6 +59,8 @@ int main() {
         { "test clean(). ", __test_clean },
         { "test insert()... ", __test_insert },
         { "test erase()...", __test_erase },
+        { "test operator+=()...", __test_add_eq_operator },
+        { "test compare()... ", __test_compare }, 
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -530,4 +534,97 @@ void __test_erase() {
     auto it = tinystd::next(s.begin(), s.find('s')); // obtains iterator to the first 's'
     s.erase(it, std::next(it, 2));               // erases "sI"; overload (3)
     std::cout << "5) " << s << '\n';
+}
+// ""
+// "This"
+// "This is "
+// "This is a"
+// "This is a string."
+// "This is a string.L"
+void __test_add_eq_operator() {
+    tinystd::string str;
+    str.reserve(50);                       // reserves sufficient storage space to avoid memory reallocation
+    std::cout << "\"" << str << "\"" << '\n'; // empty string
+
+    str += "This";
+    std::cout << "\"" << str << "\"" << '\n';
+
+    str += tinystd::string(" is ");
+    std::cout << "\"" << str << "\"" << '\n';
+
+    str += 'a';
+    std::cout << "\"" << str << "\"" << '\n';
+
+    str += {' ', 's', 't', 'r', 'i', 'n', 'g', '.'};
+    std::cout << "\"" << str << "\"" << '\n';
+
+    str += 76.85; // equivalent to str += static_cast<char>(76.85), might not be the intent
+    std::cout << "\"" << str << "\"" << '\n';
+}
+// Batman comes before Superman
+// Superman comes before man
+// man and man are the same.
+// Batman comes before Superman
+// Superman comes before man
+// Bat comes before Super
+void __test_compare() {
+    // 1) Compare with other string
+    {
+        int compare_value{
+            tinystd::string{"Batman"}.compare(tinystd::string{"Superman"})};
+        std::cout << (compare_value < 0 ? "Batman comes before Superman\n" :
+                      compare_value > 0 ? "Superman comes before Batman\n" :
+                                          "Superman and Batman are the same.\n");
+    }
+
+    // 2) Compare substring with other string
+    {
+        int compare_value{
+            tinystd::string{"Batman"}.compare(3, 3, tinystd::string{"Superman"})};
+        std::cout << (compare_value < 0 ? "man comes before Superman\n" :
+                      compare_value > 0 ? "Superman comes before man\n" :
+                                          "man and Superman are the same.\n");
+    }
+
+    // 3) Compare substring with other substring
+    {
+        tinystd::string a{"Batman"};
+        tinystd::string b{"Superman"};
+
+        int compare_value{a.compare(3, 3, b, 5, 3)};
+
+        std::cout << (compare_value < 0 ? "man comes before man\n" :
+                      compare_value > 0 ? "man comes before man\n" :
+                                          "man and man are the same.\n");
+        // Compare substring with other substring
+        // defaulting to end of other string
+        assert(compare_value == a.compare(3, 3, b, 5));
+    }
+
+    // 4) Compare with char pointer
+    {
+        int compare_value{tinystd::string{"Batman"}.compare("Superman")};
+
+        std::cout << (compare_value < 0 ? "Batman comes before Superman\n" :
+                      compare_value > 0 ? "Superman comes before Batman\n" :
+                                          "Superman and Batman are the same.\n");
+    }
+
+    // 5) Compare substring with char pointer
+    {
+        int compare_value{tinystd::string{"Batman"}.compare(3, 3, "Superman")};
+
+        std::cout << (compare_value < 0 ? "man comes before Superman\n" :
+                      compare_value > 0 ? "Superman comes before man\n" :
+                                          "man and Superman are the same.\n");
+    }
+
+    // 6) Compare substring with char pointer substring
+    {
+        int compare_value{tinystd::string{"Batman"}.compare(0, 3, "Superman", 5)};
+
+        std::cout << (compare_value < 0 ? "Bat comes before Super\n" :
+                      compare_value > 0 ? "Super comes before Bat\n" :
+                                          "Super and Bat are the same.\n");
+    }
 }

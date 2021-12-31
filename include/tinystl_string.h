@@ -42,7 +42,6 @@ template <typename _CharT, typename _Alloc> class basic_string;
 template <typename _CharT, typename _Alloc>
 std::ostream &operator<<(std::ostream &__out, const basic_string<_CharT, _Alloc> &__str);
 
-
 #define __max_short_cap 22
 template <typename _CharT, typename _Alloc = __DEFAULT_ALLOCATOR>
 class basic_string {
@@ -379,6 +378,21 @@ public:
 
     size_type find(_CharT __c) 
         { return find_first_of(__c); }
+
+    int compare(const basic_string &__other) 
+        { return _M_compare(*this, __other); }
+
+    int compare(size_type __pos, size_type __cnt, const basic_string &__other) 
+        { return _M_compare(tinystd::basic_string(*this, __pos, __cnt), __other); }
+
+    int compare(size_type __pos, size_type __cnt, 
+            const basic_string &__other, size_type __opos, size_type __ocnt = -1)
+        { 
+            size_type __d = tinystd::min(__ocnt, __other.size() - __opos);
+            return _M_compare(tinystd::basic_string(*this, __pos, __cnt), 
+                tinystd::basic_string(__other, __opos, __d)); 
+        }
+    
 protected:
     typedef simple_alloc<_CharT, _Alloc> __char_allocator;
     __string_data<_CharT> _M_data;
@@ -509,6 +523,22 @@ protected:
         // 
         memset(__new_end, 0x0, __sz);
     }
+
+    int _M_compare(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_CharT, _Alloc> &__rhs) {
+        typename basic_string<_CharT, _Alloc>::size_type __off;
+        for (__off = 0; __off < __rhs.size() && __off < __lhs.size(); ++__off) {
+            if (__lhs[__off] < __rhs[__off])
+                return -1;
+            else if (__lhs[__off] > __rhs[__off])
+                return 1;
+        }
+        if (__off == __lhs.size() && __off == __rhs.size())
+            return 0;
+        else if (__off == __lhs.size())
+            return -1;
+        else
+            return 1;
+    }
 };
 #undef __max_short_cap
 
@@ -528,8 +558,10 @@ bool operator==(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_C
         tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
 }
 
-// 
-// There is the real string... 
+
+
+//
+// There is the real string...
 //
 typedef basic_string<char> string;
 
