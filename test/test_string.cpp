@@ -44,6 +44,8 @@ void __test_swap();
 void __test_find();
 void __test_first_not_of();
 void __test_first_of();
+void __test_find_last_of();
+void __test_find_last_not_of();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -79,7 +81,8 @@ int main() {
         { "test find()... ", __test_find },
         { "test fitst_not_of()...", __test_first_not_of },
         { "test first_of()...", __test_first_of },
-
+        { "test find_last_of()... ", __test_find_last_of },
+        { "test find_last_not_of()", __test_find_last_not_of }
 
     };
 
@@ -944,4 +947,55 @@ void __test_first_of() {
     std::cout << str.find_first_of(search_cstr, 0, 4) << '\n';
     // 'x' is not in "Hello World', thus it will return std::string::npos
     std::cout << str.find_first_of('x') << '\n';
+}
+
+void __test_find_last_of() {
+    const tinystd::string path = "/root/config";
+    auto const pos = path.find_last_of('/');
+    const auto leaf = path.substr(pos + 1);
+
+    std::cout << leaf << '\n';
+}
+
+void show_pos(const tinystd::string &str, tinystd::string::size_type found) {
+    if (found != tinystd::string::npos) {
+        std::cout << "[" << found << "] = \'" << str[found] << "\'\n";
+    } else {
+        std::cout << "not found"
+                     "\n";
+    }
+}
+// [3] = '_'
+// [2] = 'c'
+// [1] = 'b'
+// [5] = '2'
+// [2] = 'c'
+// [6] = '3'
+// not found
+void __test_find_last_not_of() {
+    tinystd::string str{"abc_123"};
+    char const *skip_set{"0123456789"};
+    tinystd::string::size_type str_last_pos{tinystd::string::npos};
+
+    show_pos(str, str.find_last_not_of(skip_set)); // [3] = '_'
+
+    str_last_pos = 2;
+    show_pos(str, str.find_last_not_of(skip_set, str_last_pos)); // [2] = 'c'
+
+    str_last_pos = 2;
+    show_pos(str, str.find_last_not_of('c', str_last_pos)); // [1] = 'b'
+
+    const char arr[]{'3', '4', '5'};
+    show_pos(str, str.find_last_not_of(arr)); // [5] = '2'
+
+    str_last_pos = 2;
+    tinystd::string::size_type skip_set_size{4};
+    show_pos(str, str.find_last_not_of(skip_set,
+                                       str_last_pos,
+                                       skip_set_size)); // [2] = 'c'
+
+    show_pos(str, str.find_last_not_of("abc")); // [6] = '3'
+
+    str_last_pos = 2;
+    show_pos(str, str.find_last_not_of("abc", str_last_pos)); // not found
 }

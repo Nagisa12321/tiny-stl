@@ -369,13 +369,25 @@ public:
             return true;
         }); }
 
-    size_type find_last_of(_CharT __c) {
-        for (size_type __off = size(); __off >= 0; --__off) {
-            if (operator[](__off) == __c)
-                return __off;
-        }
-        return -1;
-    }
+    size_type find_last_of(_CharT __c, size_type __pos = -1) const 
+        { return _M_find_last(__pos, [__c](_CharT __cc) { return __c == __cc; }); }
+
+    size_type find_last_not_of(_CharT __c, size_type __pos = -1) const 
+        { return _M_find_last(__pos, [__c](_CharT __cc) { return __c != __cc; }); }
+
+    size_type find_last_not_of(const basic_string &__collector, size_type __pos = -1) const
+        { return _M_find_last(__pos, [&__collector](_CharT __c) {
+            for (_CharT __cc : __collector) 
+                if (__cc == __c) return false;
+            return true;
+        }); }
+
+    size_type find_last_not_of(const _CharT *__s, size_type __pos, size_type __count) const
+        { return _M_find_last(__pos, [__s, __count](_CharT __c) {
+            for (size_type __off = 0; __off < __count; ++__off)
+                if (__s[__off] == __c) return false;
+            return true;
+        }); }
     
     iterator erase(iterator __pos) { 
         size_type __off = __pos - begin(); 
@@ -700,6 +712,14 @@ protected:
             { return __conn(__c); });
         if (__res == end()) return -1;
         return __res - begin();
+    }
+
+    template <typename _UnaryPredicate>
+    size_type _M_find_last(size_type __pos, _UnaryPredicate __conn) const {
+        for (size_type __off = tinystd::min(size() - 1, __pos); __off >= 0; --__off) {
+            if (__conn(operator[](__off))) return __off;
+        }
+        return -1;
     }
 };
 #undef __max_short_cap
