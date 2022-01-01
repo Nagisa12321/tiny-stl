@@ -76,7 +76,8 @@ public:
         _M_copy_initialize(__lhs, __rhs);
     }
     basic_string(const basic_string& __other, size_type __pos, size_type __count) : basic_string() {
-        _M_copy_initialize(__other.begin() + __pos, __other.begin() + __pos + __count);
+        size_type __d = tinystd::min(__other.size() - __pos, __count);
+        _M_copy_initialize(__other.begin() + __pos, __other.begin() + __pos + __d);
     }
     basic_string(const basic_string& __other, size_type __pos) : basic_string() {
         _M_copy_initialize(__other.begin() + __pos, __other.end());

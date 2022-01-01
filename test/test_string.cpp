@@ -10,6 +10,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include <bitset>
 #include "tinystl_iterator.h"
 
 void __test_std_string();
@@ -46,6 +47,7 @@ void __test_first_not_of();
 void __test_first_of();
 void __test_find_last_of();
 void __test_find_last_not_of();
+void __test_npos();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -82,8 +84,8 @@ int main() {
         { "test fitst_not_of()...", __test_first_not_of },
         { "test first_of()...", __test_first_of },
         { "test find_last_of()... ", __test_find_last_of },
-        { "test find_last_not_of()", __test_find_last_not_of }
-
+        { "test find_last_not_of()", __test_find_last_not_of },
+        { "test npos... ", __test_npos },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -998,4 +1000,22 @@ void __test_find_last_not_of() {
 
     str_last_pos = 2;
     show_pos(str, str.find_last_not_of("abc", str_last_pos)); // not found
+}
+
+// no 'a' in 'test'
+// st
+// 00011
+void __test_npos() {
+    // string search functions return npos if nothing is found
+    tinystd::string s = "test";
+    if(s.find('a') == tinystd::string::npos)
+        std::cout << "no 'a' in 'test'\n";
+ 
+    // functions that take string subsets as arguments 
+    // use npos as the "all the way to the end" indicator
+    tinystd::string s2(s, 2, tinystd::string::npos);
+    std::cout << s2 << '\n';
+ 
+    std::bitset<5> b("aaabb", tinystd::string::npos, 'a', 'b');
+    std::cout << b << '\n';
 }
