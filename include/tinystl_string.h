@@ -335,8 +335,8 @@ public:
         return begin() + __off; 
     }
 
-    size_type find_first_of(_CharT __c) {
-        iterator __pos = tinystd::find(begin(), end(), __c);
+    size_type find_first_of(_CharT __c) const {
+        const_iterator __pos = tinystd::find(begin(), end(), __c);
         if (__pos == end()) return -1;
         return __pos - begin();
     }
@@ -367,16 +367,21 @@ public:
         return *this;
     }
 
-    size_type find(_CharT __c) 
+    size_type find(_CharT __c) const
         { return find_first_of(__c); }
 
-    size_type find(const basic_string &__sub, size_type __pos, size_type __count) {
+    size_type find(const basic_string &__sub, size_type __pos, size_type __count) const {
         if (__pos + __count >= size()) return -1;
-        iterator __it = tinystd::find_if(begin() + __pos, end() - __count, [&](const _CharT &__c) {
+        const_iterator __it = tinystd::find_if(begin() + __pos, end() - __count, [&](const _CharT &__c) {
             return basic_string(&__c, &__c + __count) == __sub;
         }); 
         if (__it == end() - __count) return -1;
         return __it - begin();
+    }
+
+    size_type find(const basic_string &__sub, size_type __pos = 0) const {
+        size_type __count = __sub.size();
+        return find(__sub, __pos, __count);
     }
 
     int compare(const basic_string &__other) 
@@ -436,7 +441,7 @@ public:
     basic_string &append(_InputIter __lhs, _InputIter __rhs)
         { _M_copy_append(__lhs, __rhs); return *this; }
 
-    basic_string substr(size_type __pos = 0, size_type __cnt = -1) 
+    basic_string substr(size_type __pos = 0, size_type __cnt = -1) const
         { 
             size_type __sz = size();
             if (__pos >= __sz)

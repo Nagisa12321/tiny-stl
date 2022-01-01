@@ -41,6 +41,7 @@ void __test_substr();
 void __test_copy();
 void __test_resize();
 void __test_swap();
+void __test_find();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -73,6 +74,7 @@ int main() {
         { "test copy()... ", __test_copy },
         { "test resize()... ", __test_resize },
         { "test swap()... ", __test_swap }, 
+        { "test find()... ", __test_find },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -857,4 +859,39 @@ void __test_swap() {
     std::cout << "after swap" << '\n';
     std::cout << "a: " << a << '\n';
     std::cout << "b: " << b << '\n';
+}
+
+void print(tinystd::string::size_type n, tinystd::string const &s) {
+    if (n == std::string::npos) {
+        std::cout << "not found\n";
+    } else {
+        std::cout << "found: " << s.substr(n) << '\n';
+    }
+}
+// 
+// >> test find()...  ========================
+// found: is is a string
+// found: is a string
+// found: a string
+// not found
+// 
+void __test_find() {
+    tinystd::string::size_type n;
+    tinystd::string const s = "This is a string";
+
+    // search from beginning of string
+    n = s.find("is");
+    print(n, s);
+
+    // search from position 5
+    n = s.find("is", 5);
+    print(n, s);
+
+    // find a single character
+    n = s.find('a');
+    print(n, s);
+
+    // find a single character
+    n = s.find('q');
+    print(n, s);
 }
