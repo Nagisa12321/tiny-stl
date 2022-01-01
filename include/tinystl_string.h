@@ -335,11 +335,39 @@ public:
         return begin() + __off; 
     }
 
-    size_type find_first_of(_CharT __c) const {
-        const_iterator __pos = tinystd::find(begin(), end(), __c);
-        if (__pos == end()) return -1;
-        return __pos - begin();
-    }
+    size_type find_first_of(_CharT __c, size_type __pos = 0) const 
+        { return _M_find_first(__pos, [__c](_CharT __cc) { return __c == __cc; }); }
+
+    size_type find_first_of(const _CharT *__s, size_type __pos, size_type __count) const
+        { return _M_find_first(__pos, [__s, __count](_CharT __c) {
+            for (size_type __off = 0; __off < __count; ++__off)
+                if (__s[__off] == __c) return true;
+            return false;
+        }); }
+
+    size_type find_first_of(const basic_string &__collector, size_type __pos = 0) const 
+        { return _M_find_first(__pos, [&__collector](_CharT __c) {
+            for (_CharT __cc : __collector) 
+                if (__cc == __c) return true;
+            return false;
+        }); }
+
+    size_type find_first_not_of(_CharT __c, size_type __pos = 0) const 
+        { return _M_find_first(__pos, [__c](_CharT __cc) { return __c != __cc; }); }
+
+    size_type find_first_not_of(const basic_string &__collector, size_type __pos = 0) const
+        { return _M_find_first(__pos, [&__collector](_CharT __c) {
+            for (_CharT __cc : __collector) 
+                if (__cc == __c) return false;
+            return true;
+        }); }
+
+    size_type find_first_not_of(const _CharT *__s, size_type __pos, size_type __count) const
+        { return _M_find_first(__pos, [__s, __count](_CharT __c) {
+            for (size_type __off = 0; __off < __count; ++__off)
+                if (__s[__off] == __c) return false;
+            return true;
+        }); }
 
     size_type find_last_of(_CharT __c) {
         for (size_type __off = size(); __off >= 0; --__off) {
@@ -664,6 +692,14 @@ protected:
         size_type __old_sz = size();
         _M_transform_shape(__d);
         tinystd::uninitialized_copy(__lhs, __rhs, begin() + __old_sz); 
+    }
+
+    template <typename _UnaryPredicate>
+    size_type _M_find_first(size_type __pos, _UnaryPredicate __conn) const {
+        const_iterator __res = tinystd::find_if(begin() + __pos, end(), [__conn](_CharT __c)
+            { return __conn(__c); });
+        if (__res == end()) return -1;
+        return __res - begin();
     }
 };
 #undef __max_short_cap

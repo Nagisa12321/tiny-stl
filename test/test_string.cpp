@@ -42,6 +42,8 @@ void __test_copy();
 void __test_resize();
 void __test_swap();
 void __test_find();
+void __test_first_not_of();
+void __test_first_of();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -75,6 +77,10 @@ int main() {
         { "test resize()... ", __test_resize },
         { "test swap()... ", __test_swap }, 
         { "test find()... ", __test_find },
+        { "test fitst_not_of()...", __test_first_not_of },
+        { "test first_of()...", __test_first_of },
+
+
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -894,4 +900,48 @@ void __test_find() {
     // find a single character
     n = s.find('q');
     print(n, s);
+}
+
+// Before: Some data with %MACROS to substitute
+// After: Some data with some very nice macros to substitute
+void __test_first_not_of() {
+    tinystd::string to_search = "Some data with %MACROS to substitute";
+
+    std::cout << "Before: " << to_search << '\n';
+
+    auto pos = tinystd::string::npos;
+    while ((pos = to_search.find('%')) != std::string::npos) {
+        // Permit uppercase letters, lowercase letters and numbers in macro names
+        const auto after = to_search.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                       "abcdefghijklmnopqrstuvwxyz"
+                                                       "0123456789",
+                                                       pos + 1);
+
+        // Now to_search[pos] == '%' and to_search[after] == ' ' (after the 'S')
+
+        if (after != tinystd::string::npos)
+            to_search.replace(pos, after - pos, "some very nice macros");
+    }
+
+    std::cout << "After: " << to_search << '\n';
+}
+// 4
+// 7
+// 1
+// 4
+// 18446744073709551615
+void __test_first_of() {
+    // the test string
+    tinystd::string str = tinystd::string("Hello World!");
+
+    // strings and chars to search for
+    tinystd::string search_str = tinystd::string("o");
+    const char *search_cstr = "Good Bye!";
+
+    std::cout << str.find_first_of(search_str) << '\n';
+    std::cout << str.find_first_of(search_str, 5) << '\n';
+    std::cout << str.find_first_of(search_cstr) << '\n';
+    std::cout << str.find_first_of(search_cstr, 0, 4) << '\n';
+    // 'x' is not in "Hello World', thus it will return std::string::npos
+    std::cout << str.find_first_of('x') << '\n';
 }
