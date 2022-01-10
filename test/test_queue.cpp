@@ -18,6 +18,7 @@ void __test_list_queue();
 void __test_obj_queue();
 void __test_priority_queue();
 void __test_constructor();
+void __test_top();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -27,6 +28,7 @@ int main() {
         { "test my queue of objects . ", __test_obj_queue },
         { "test priority_queue... ", __test_priority_queue },
         { "test priority_queue's constructors... ", __test_constructor },
+        { "test priority_queue's top()... ", __test_top },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -177,5 +179,41 @@ void __test_constructor() {
     for (; !pq4.empty(); pq4.pop()) {
         const auto &z = pq4.top();
         std::cout << "pq4.top() = " << z << '\n';
+    }
+}
+
+struct Event {
+    int priority{};
+    char data{' '};
+
+    friend bool operator<(Event const &lhs, Event const &rhs) {
+        return lhs.priority < rhs.priority;
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, Event const &e) {
+        return os << "{ " << e.priority << ", '" << e.data << "' } ";
+    }
+};
+
+// Fill the events queue:
+// { 6, 'L' }  { 8, 'I' }  { 9, 'S' }  { 1, 'T' }  { 5, 'E' }  { 3, 'N' }
+// Process events:
+// { 9, 'S' }  { 8, 'I' }  { 6, 'L' }  { 5, 'E' }  { 3, 'N' }  { 1, 'T' }
+void __test_top() {
+    tinystd::priority_queue<Event> events;
+
+    std::cout << "Fill the events queue:\n";
+
+    for (auto const e : {Event{6, 'L'}, {8, 'I'}, {9, 'S'}, {1, 'T'}, {5, 'E'}, {3, 'N'}}) {
+        std::cout << e << ' ';
+        events.push(e);
+    }
+
+    std::cout << "\n"
+                 "Process events:\n";
+
+    for (; !events.empty(); events.pop()) {
+        Event const &e = events.top();
+        std::cout << e << ' ';
     }
 }
