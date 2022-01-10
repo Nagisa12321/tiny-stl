@@ -72,9 +72,13 @@ public:
     priority_queue()
         : _M_c() 
         , _M_comm() {}
-    priority_queue(_BinaryPredicate __comm)
+    priority_queue(const _BinaryPredicate &__comm)
         : _M_c()
         , _M_comm(__comm) {}
+    priority_queue(const _BinaryPredicate &__comm, const _Sequence &__container)
+        : _M_c(__container)
+        , _M_comm(__comm) 
+        { tinystd::make_heap(_M_c.begin(), _M_c.end(), _M_comm); }
     template <typename _Iterator>
     priority_queue(_Iterator __first, _Iterator __last)
         : _M_c(__first, __last)

@@ -6,6 +6,7 @@
 #include <ostream>
 #include <vector>
 #include <queue>
+#include <complex.h>
 
 // template init
 template class tinystd::queue<int>;
@@ -16,6 +17,7 @@ void __test_tiny_queue();
 void __test_list_queue();
 void __test_obj_queue();
 void __test_priority_queue();
+void __test_constructor();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -24,6 +26,7 @@ int main() {
         { "test my queue (container is list). ", __test_list_queue },
         { "test my queue of objects . ", __test_obj_queue },
         { "test priority_queue... ", __test_priority_queue },
+        { "test priority_queue's constructors... ", __test_constructor },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -126,4 +129,53 @@ void __test_priority_queue() {
         q3.push(n);
 
     print_queue(q3);
+}
+
+// pq1.size() = 1
+// pq2.size() = 1
+// pq3.size() = 5
+// pq3 : 5 4 3 1 1 
+// pq4.top() = (3,2)
+// pq4.top() = (5,1)
+// pq4.top() = (7,3)
+void __test_constructor() {
+    tinystd::priority_queue<int> pq1;
+    pq1.push(5);
+    std::cout << "pq1.size() = " << pq1.size() << '\n';
+
+    tinystd::priority_queue<int> pq2{pq1};
+    std::cout << "pq2.size() = " << pq2.size() << '\n';
+
+    tinystd::vector<int> vec{3, 1, 4, 1, 5};
+    tinystd::priority_queue<int> pq3{tinystd::less<int>(), vec};
+    std::cout << "pq3.size() = " << pq3.size() << '\n';
+
+    for (std::cout << "pq3 : "; !pq3.empty(); pq3.pop()) {
+        std::cout << pq3.top() << ' ';
+    }
+    std::cout << '\n';
+
+    // Demo With Custom Comparator:
+
+    using my_value_t = std::complex<double>;
+    using my_container_t = tinystd::vector<my_value_t>;
+
+    auto my_comp = [](const my_value_t &z1, const my_value_t &z2) {
+        return z2.real() < z1.real();
+    };
+
+    tinystd::priority_queue<my_value_t,
+                            my_container_t,
+                            decltype(my_comp)>
+        pq4{my_comp};
+
+    using namespace std::complex_literals;
+    pq4.push(5.0 + 1i);
+    pq4.push(3.0 + 2i);
+    pq4.push(7.0 + 3i);
+
+    for (; !pq4.empty(); pq4.pop()) {
+        const auto &z = pq4.top();
+        std::cout << "pq4.top() = " << z << '\n';
+    }
 }
