@@ -17,8 +17,7 @@ inline void __heapify_down(_RandomAccessIter __first, _RandomAccessIter __last, 
     if (__c2 < __last && __comm(*__max_iter, *__c2)) __max_iter = __c2;
 
     if (__max_iter != __pos) {
-        // TODO: iterator swap? 
-        auto __tmp = *__max_iter;
+        typename tinystd::__iterator_traits<_RandomAccessIter>::value_type __tmp = *__max_iter;
         *__max_iter = *__pos;
         *__pos = __tmp;
 
@@ -38,8 +37,7 @@ inline void __heapify_up(_RandomAccessIter __first, _RandomAccessIter __last, _R
     if (__c2 < __last && __comm(*__max_iter, *__c2)) __max_iter = __c2;
 
     if (__max_iter != __pos) {
-        // TODO: iterator swap? 
-        auto __tmp = *__max_iter;
+        typename tinystd::__iterator_traits<_RandomAccessIter>::value_type __tmp = *__max_iter;
         *__max_iter = *__pos;
         *__pos = __tmp;
 
