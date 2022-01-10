@@ -3,13 +3,13 @@
 
 namespace tinystd {
 
-template <typename _RandonAccessIter>
-inline void __heapify_down(_RandonAccessIter __first, _RandonAccessIter __last, _RandonAccessIter __pos) {
+template <typename _RandomAccessIter>
+inline void __heapify_down(_RandomAccessIter __first, _RandomAccessIter __last, _RandomAccessIter __pos) {
     if (__last <= __pos) return;
 
-    _RandonAccessIter __c1 = __first + 2 * (__pos - __first) + 1;
-    _RandonAccessIter __c2 = __first + 2 * (__pos - __first) + 2;
-    _RandonAccessIter __max_iter = __pos;
+    _RandomAccessIter __c1 = __first + 2 * (__pos - __first) + 1;
+    _RandomAccessIter __c2 = __first + 2 * (__pos - __first) + 2;
+    _RandomAccessIter __max_iter = __pos;
 
     if (__c1 < __last && *__max_iter < *__c1) __max_iter = __c1;
     if (__c2 < __last && *__max_iter < *__c2) __max_iter = __c2;
@@ -24,6 +24,26 @@ inline void __heapify_down(_RandonAccessIter __first, _RandonAccessIter __last, 
     }
 }
 
+template <typename _RandomAccessIter>
+inline void __heapify_up(_RandomAccessIter __first, _RandomAccessIter __last, _RandomAccessIter __pos) {
+    if (__pos < __first) return;
+
+    _RandomAccessIter __c1 = __first + 2 * (__pos - __first) + 1;
+    _RandomAccessIter __c2 = __first + 2 * (__pos - __first) + 2;
+    _RandomAccessIter __max_iter = __pos;
+
+    if (__c1 < __last && *__max_iter < *__c1) __max_iter = __c1;
+    if (__c2 < __last && *__max_iter < *__c2) __max_iter = __c2;
+
+    if (__max_iter != __pos) {
+        // TODO: iterator swap? 
+        auto __tmp = *__max_iter;
+        *__max_iter = *__pos;
+        *__pos = __tmp;
+
+        __heapify_up(__first, __last, __first + (__pos - __first - 1) / 2);
+    }
+}
 
 
 //
@@ -32,9 +52,8 @@ inline void __heapify_down(_RandonAccessIter __first, _RandonAccessIter __last, 
 // to compare the elements, the second uses the given comparison function comp.
 // 
 template <typename _RandomAccessIter>
-inline void push_heap(_RandomAccessIter __first, _RandomAccessIter __last) {
-
-}
+inline void push_heap(_RandomAccessIter __first, _RandomAccessIter __last)
+    { __heapify_up(__first, __last, __first + (__last - __first - 2) / 2); }
 
 // Swaps the value in the position first and the value in the position last-1 
 // and makes the subrange [first, last-1) into a heap. This has the effect of 
