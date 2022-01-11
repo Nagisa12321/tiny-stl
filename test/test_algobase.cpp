@@ -12,6 +12,7 @@ void __test_fill();
 void __test_fill_n();
 void __test_iter_swap();
 void __test_lexicographical_compare();
+void __test_mismatch();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -20,6 +21,7 @@ int main() {
         { "test fill_n... ", __test_fill_n },
         { "test iter_swap...", __test_iter_swap },
         { "test lexicographical_compare...", __test_lexicographical_compare },
+        { "test mismatch...", __test_mismatch },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -114,4 +116,19 @@ void __test_iter_swap() {
     std::cout << "\nAfter sort : ";
     for(auto e : v) std::cout << e << ' ';
     std::cout << '\n';
+}
+
+std::string mirror_ends(const std::string& in)
+{
+    return std::string(in.begin(),
+                       tinystd::mismatch(in.begin(), in.end(), in.rbegin()).first);
+}
+
+// ab
+// a
+// aba
+void __test_mismatch() {
+    std::cout << mirror_ends("abXYZba") << '\n'
+              << mirror_ends("abca") << '\n'
+              << mirror_ends("aba") << '\n';
 }

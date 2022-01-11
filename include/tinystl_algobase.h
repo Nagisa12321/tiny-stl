@@ -3,6 +3,7 @@
 #include "tinystl_functional.h"
 #include "tinystl_iterator_base.h"
 #include "tinystl_move.h"
+#include "tinystl_pair.h"
 
 namespace tinystd {
 
@@ -77,6 +78,21 @@ template <typename _Tp>
 _Tp min(const _Tp &__lhs, const _Tp &__rhs) {
     return __lhs < __rhs ? __lhs : __rhs;
 }
+
+template <typename _InputIter1, typename _InputIter2, typename _BinaryPredicate> 
+tinystd::pair<_InputIter1, _InputIter2> mismatch(_InputIter1 __first1, _InputIter1 __last1,
+                                                 _InputIter2 __first2, _BinaryPredicate __comm) 
+{
+    while (__first1 != __last1 && __comm(*__first1, *__first2)) 
+        { ++__first1; ++__first2; }
+    return { __first1, __first2 };
+}
+
+template <typename _InputIter1, typename _InputIter2> 
+tinystd::pair<_InputIter1, _InputIter2> mismatch(_InputIter1 __first1, _InputIter1 __last1,
+                                                 _InputIter2 __first2) 
+    { return tinystd::mismatch(__first1, __last1, __first2, 
+        tinystd::equal_to<typename __iterator_traits<_InputIter1>::value_type>()); }
 
 
 }
