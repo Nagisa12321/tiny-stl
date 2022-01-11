@@ -2,6 +2,7 @@
 #define TINYSTL_ALGOBASE_H
 #include "tinystl_functional.h"
 #include "tinystl_iterator_base.h"
+#include "tinystl_move.h"
 
 namespace tinystd {
 
@@ -30,6 +31,13 @@ template <typename _ForwardIter, typename _Tp>
 void fill(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val) {
     for (; __lhs != __rhs; ++__lhs) 
         { *__lhs = __val; }
+}
+
+template <typename _ForwardIter1, typename _ForwardIter2>
+void iter_swap(_ForwardIter1 __lhs, _ForwardIter2 __rhs) {
+    typename __iterator_traits<_ForwardIter1>::value_type __tmp = *__lhs;
+    *__lhs = *__rhs;
+    *__rhs = __tmp;
 }
 
 }

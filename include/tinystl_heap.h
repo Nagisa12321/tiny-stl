@@ -2,6 +2,7 @@
 #define __TINYSTL_HEAP_H
 #include "tinystl_iterator_base.h"
 #include "tinystl_functional.h"
+#include "tinystl_algobase.h"
 
 namespace tinystd {
 
@@ -17,10 +18,7 @@ inline void __heapify_down(_RandomAccessIter __first, _RandomAccessIter __last, 
     if (__c2 < __last && __comm(*__max_iter, *__c2)) __max_iter = __c2;
 
     if (__max_iter != __pos) {
-        typename tinystd::__iterator_traits<_RandomAccessIter>::value_type __tmp = *__max_iter;
-        *__max_iter = *__pos;
-        *__pos = __tmp;
-
+        tinystd::iter_swap(__max_iter, __pos);
         __heapify_down(__first, __last, __max_iter, __comm);
     }
 }
@@ -37,10 +35,7 @@ inline void __heapify_up(_RandomAccessIter __first, _RandomAccessIter __last, _R
     if (__c2 < __last && __comm(*__max_iter, *__c2)) __max_iter = __c2;
 
     if (__max_iter != __pos) {
-        typename tinystd::__iterator_traits<_RandomAccessIter>::value_type __tmp = *__max_iter;
-        *__max_iter = *__pos;
-        *__pos = __tmp;
-
+        tinystd::iter_swap(__max_iter, __pos);
         __heapify_up(__first, __last, __first + (__pos - __first - 1) / 2, __comm);
     }
 }
@@ -65,9 +60,7 @@ inline void push_heap(_RandomAccessIter __first, _RandomAccessIter __last) {
 // removing the first element from the heap defined by the range [first, last).
 template <typename _RandomAccessIter, typename _BinaryPredicate>
 inline void pop_heap(_RandomAccessIter __first, _RandomAccessIter __last, _BinaryPredicate __comm) {
-    typename tinystd::__iterator_traits<_RandomAccessIter>::value_type __tmp = *__first;
-    *__first = *(__last - 1);
-    *(__last - 1) = __tmp;
+    tinystd::iter_swap(__first, __last - 1);
     __heapify_down(__first, __last - 1, __first, __comm);
 }
 
