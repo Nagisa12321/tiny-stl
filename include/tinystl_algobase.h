@@ -40,6 +40,25 @@ void iter_swap(_ForwardIter1 __lhs, _ForwardIter2 __rhs) {
     *__rhs = __tmp;
 }
 
+template <class _InputIter1, class _InputIter2, typename _Compare>
+bool lexicographical_compare(_InputIter1 __first1, _InputIter1 __last1,
+                             _InputIter2 __first2, _InputIter2 __last2,
+                             _Compare __cmp) {
+    for (; __first1 != __last1 && __first2 != __last2; ++__first1, ++__first2) {
+        if (__cmp(*__first1, *__first2)) return true;
+        if (__cmp(*__first2, *__first1)) return false;
+    } 
+    return (__first1 != __last1) && (__first2 != __last2);
+}
+
+template <class _InputIt1, class _InputIt2>
+bool lexicographical_compare(_InputIt1 __first1, _InputIt1 __last1,
+                             _InputIt2 __first2, _InputIt2 __last2) {
+    return tinystd::lexicographical_compare(__first1, __last1, __first2, __last2, 
+        tinystd::less<typename __iterator_traits<_InputIt1>::value_type>());
+}
+
+
 }
 
 #endif // TINYSTL_ALGOBASE_H
