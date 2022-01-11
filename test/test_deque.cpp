@@ -2,6 +2,7 @@
 #include "tinystl_deque.h"
 #include "tinystl_list.h"
 #include "tinystl_vector.h"
+#include "tinystl_algobase.h"
 #include <cstdio>
 #include <cstdlib>
 #include <deque>

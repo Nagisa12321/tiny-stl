@@ -1,7 +1,7 @@
 #ifndef __TINYSTL_STRING_H
 #define __TINYSTL_STRING_H
 
-#include "tinystl_algo.h"
+#include "tinystl_algobase.h"
 #include "tinystl_alloc.h"
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"

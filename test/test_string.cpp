@@ -11,6 +11,7 @@
 #include <cassert>
 #include <algorithm>
 #include <bitset>
+#include "tinystl_algobase.h"
 #include "tinystl_iterator.h"
 
 void __test_std_string();
