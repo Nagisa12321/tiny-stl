@@ -5,10 +5,12 @@
 #include "tinystl_numeric.h"
 
 void __test_accmulate();
+void __test_adjacent_difference();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test accmulate()...", __test_accmulate },
+        { "test adjacent_difference()", __test_adjacent_difference },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -45,4 +47,29 @@ void __test_accmulate() {
               << "product: " << product << '\n'
               << "dash-separated string: " << s << '\n'
               << "dash-separated string (right-folded): " << rs << '\n';
+}
+
+auto print = [](auto comment, auto const& sequence) {
+    std::cout << comment;
+    for (const auto& n : sequence)
+        std::cout << n << ' ';
+    std::cout << '\n';
+};
+
+// Initially, v = 4 6 9 13 18 19 19 15 10
+// Modified v = 4 2 3 4 5 1 0 -4 -5
+// Fibonacci, a = 1 1 2 3 5 8 13 21 34 55
+void __test_adjacent_difference() {
+    // Default implementation - the difference b/w two adjacent items
+
+    std::vector v{4, 6, 9, 13, 18, 19, 19, 15, 10};
+    print("Initially, v = ", v);
+    tinystd::adjacent_difference(v.begin(), v.end(), v.begin());
+    print("Modified v = ", v);
+
+    // Fibonacci
+
+    std::array<int, 10> a{1};
+    tinystd::adjacent_difference(begin(a), std::prev(end(a)), std::next(begin(a)), std::plus<>{});
+    print("Fibonacci, a = ", a);
 }
