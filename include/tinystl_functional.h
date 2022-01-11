@@ -5,17 +5,26 @@ namespace tinystd {
 
 template <typename _Tp>
 struct less {
-    bool operator()(const _Tp &__lhs, const _Tp &__rhs) { return __lhs < __rhs; }
+    bool operator()(const _Tp &__lhs, const _Tp &__rhs) const 
+        { return __lhs < __rhs; }
 };
 
 template <typename _Tp>
 struct greater {
-    bool operator()(const _Tp &__lhs, const _Tp &__rhs) { return __lhs > __rhs; }
+    bool operator()(const _Tp &__lhs, const _Tp &__rhs) const 
+        { return __lhs > __rhs; }
 };
 
 template <typename _Tp>
 struct equal_to {
-    bool operator()(const _Tp &__lhs, const _Tp &__rhs) { return __lhs == __rhs; }
+    bool operator()(const _Tp &__lhs, const _Tp &__rhs) const 
+        { return __lhs == __rhs; }
+};
+
+template <typename _Tp>
+struct plus {
+    _Tp operator()(const _Tp &__lhs, const _Tp &__rhs) const 
+        { return __lhs + __rhs; }
 };
 
 }
