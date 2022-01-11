@@ -74,5 +74,11 @@ _OutputIter partial_sum(_InputIter __first, _InputIter __last, _OutputIter __d_f
     { return tinystd::partial_sum(__first, __last, __d_first, 
         tinystd::plus<typename __iterator_traits<_InputIter>::value_type>()); }
 
+template <typename _ForwardIter, typename _Tp>
+void iota(_ForwardIter __first, _ForwardIter __last, _Tp __value) {
+    while (__first != __last) 
+        { *__first++ = __value++; }
+}
+
 }
 #endif // TINYSTL_NUMERIC_H

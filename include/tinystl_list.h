@@ -72,15 +72,26 @@ public:
 //
 // Constructors
 //
-    list() : _M_node(_M_get_node()) {
-        // point to myself
-        _M_node->_M_next = _M_node;
-        _M_node->_M_prev = _M_node;
-    }
+    list() 
+        : _M_node(_M_get_node()) 
+        {
+            // point to myself
+            _M_node->_M_next = _M_node;
+            _M_node->_M_prev = _M_node;
+        }
     template <typename _InputIter> 
-    list(_InputIter __begin, _InputIter __end) : list() { _M_copy_init(__begin, __end); }
-    list(const list &__li) : list() { _M_copy_init(__li.begin(), __li.end()); }
-    list(std::initializer_list<_Tp> __li) : list() { _M_copy_init(__li.begin(), __li.end()); }
+    list(_InputIter __begin, _InputIter __end) 
+        : list() 
+        { _M_copy_init(__begin, __end); }
+    list(const list &__li) 
+        : list() 
+        { _M_copy_init(__li.begin(), __li.end()); }
+    list(std::initializer_list<_Tp> __li) 
+        : list() 
+        { _M_copy_init(__li.begin(), __li.end()); }
+    list(size_type __cnt)
+        : list()
+        { _M_fill_init(__cnt, _Tp()); }
     ~list() { clear(); _M_destory_node(_M_node); }
 
     list &operator=(const list &__li) { clear(); _M_copy_init(__li.begin(), __li.end()); return *this; }
@@ -368,9 +379,11 @@ protected:
 // Initialize option
 //
     template <typename _Iterator>
-    void _M_copy_init(_Iterator __lhs, _Iterator __rhs) {
-        while (__lhs != __rhs) { push_back(*__lhs++); }
-    }
+    void _M_copy_init(_Iterator __lhs, _Iterator __rhs) 
+        { while (__lhs != __rhs) { push_back(*__lhs++); }}
+
+    void _M_fill_init(size_type __cnt, const _Tp &__data) 
+        { for (; __cnt > 0; --__cnt) { push_back(__data); }}
     /**
      * @brief move the nodes between [__first, __last)
      *  to the place behind __pos.

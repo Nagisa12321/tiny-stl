@@ -3,14 +3,17 @@
 #include <algorithm>
 #include <numeric>
 #include <iterator>
+#include <random>
 #include "tinystl_numeric.h"
 #include "tinystl_vector.h"
 #include "tinystl_functional.h"
+#include "tinystl_list.h"
 
 void __test_accmulate();
 void __test_adjacent_difference();
 void __test_inner_product();
 void __test_partial_sum();
+void __test_iota();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -18,6 +21,7 @@ int main() {
         { "test adjacent_difference()", __test_adjacent_difference },
         { "test inner_product()... ", __test_inner_product },
         { "test partial_sum()...", __test_partial_sum },
+        { "test iota()... ", __test_iota },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -110,5 +114,25 @@ void __test_partial_sum() {
     for (auto n : v) {
         std::cout << n << " ";
     }
+    std::cout << '\n';
+}
+
+// Contents of the list: -4 -3 -2 -1 0 1 2 3 4 5
+// Contents of the list, shuffled: 0 -1 3 4 -4 1 -2 -3 2 5
+void __test_iota() {
+    tinystd::list<int> l(10);
+    tinystd::iota(l.begin(), l.end(), -4);
+ 
+    tinystd::vector<tinystd::list<int>::iterator> v(l.size());
+    std::iota(v.begin(), v.end(), l.begin());
+ 
+    std::shuffle(v.begin(), v.end(), std::mt19937{std::random_device{}()});
+ 
+    std::cout << "Contents of the list: ";
+    for(auto n: l) std::cout << n << ' ';
+    std::cout << '\n';
+ 
+    std::cout << "Contents of the list, shuffled: ";
+    for(auto i: v) std::cout << *i << ' ';
     std::cout << '\n';
 }
