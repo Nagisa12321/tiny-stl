@@ -33,6 +33,12 @@ struct minus {
         { return __lhs - __rhs; }
 }; 
 
+template <typename _Tp>
+struct multiplies {
+    _Tp operator()(const _Tp &__lhs, const _Tp &__rhs) const
+        { return __lhs * __rhs; }
+};
+
 }
 
 #endif // __TINYSTL_FUNCTIONAL_H

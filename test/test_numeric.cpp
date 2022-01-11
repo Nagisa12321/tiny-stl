@@ -3,14 +3,18 @@
 #include <algorithm>
 #include <numeric>
 #include "tinystl_numeric.h"
+#include "tinystl_vector.h"
+#include "tinystl_functional.h"
 
 void __test_accmulate();
 void __test_adjacent_difference();
+void __test_inner_product();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test accmulate()...", __test_accmulate },
         { "test adjacent_difference()", __test_adjacent_difference },
+        { "test inner_product()... ", __test_inner_product },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -72,4 +76,18 @@ void __test_adjacent_difference() {
     std::array<int, 10> a{1};
     tinystd::adjacent_difference(begin(a), std::prev(end(a)), std::next(begin(a)), std::plus<>{});
     print("Fibonacci, a = ", a);
+}
+
+// Inner product of a and b: 21
+// Number of pairwise matches between a and b: 2
+void __test_inner_product() {
+    tinystd::vector<int> a{0, 1, 2, 3, 4};
+    tinystd::vector<int> b{5, 4, 2, 3, 1};
+ 
+    int r1 = tinystd::inner_product(a.begin(), a.end(), b.begin(), 0);
+    std::cout << "Inner product of a and b: " << r1 << '\n';
+ 
+    int r2 = tinystd::inner_product(a.begin(), a.end(), b.begin(), 0,
+                                tinystd::plus<int>(), tinystd::equal_to<int>());
+    std::cout << "Number of pairwise matches between a and b: " <<  r2 << '\n';
 }

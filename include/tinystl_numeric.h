@@ -39,6 +39,20 @@ _OutputIter adjacent_difference(_InputIter __first, _InputIter __last, _OutputIt
     { return tinystd::adjacent_difference(__first, __last, __d_first, 
         tinystd::minus<typename __iterator_traits<_InputIter>::value_type>()); }
 
+
+template <typename _InputIter1, typename _InputIter2, 
+          typename _BinaryOperation1, typename _BinaryOperation2, typename _Tp>
+_Tp inner_product(_InputIter1 __first1, _InputIter1 __last1, 
+                  _InputIter2 __first2, _Tp __init, 
+                  _BinaryOperation1 __op1, _BinaryOperation2 __op2) {
+    while (__first1 != __last1) 
+        { __init = __op1(__init, __op2(*__first1++, *__first2++)); }
+    return __init;
 }
 
+template <typename _InputIter1, typename _InputIter2, typename _Tp>
+_Tp inner_product(_InputIter1 __first1, _InputIter1 __last1, _InputIter2 __first2, _Tp __init) 
+    { return tinystd::inner_product(__first1, __last1, __first2, __init, tinystd::plus<_Tp>(), tinystd::multiplies<_Tp>()); }
+
+}
 #endif // TINYSTL_NUMERIC_H
