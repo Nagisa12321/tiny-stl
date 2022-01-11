@@ -42,16 +42,6 @@ _ForwardIter copy_backward(_InputIter __lhs, _InputIter __rhs, _ForwardIter __re
     return __rhs;
 }
 
-template <typename _Tp>
-_Tp max(const _Tp &__lhs, const _Tp &__rhs) {
-    return __lhs > __rhs ? __lhs : __rhs;
-}
-
-template <typename _Tp>
-_Tp min(const _Tp &__lhs, const _Tp &__rhs) {
-    return __lhs < __rhs ? __lhs : __rhs;
-}
-
 template <typename _InputIter, typename _Distance>
 void advance(_InputIter &__in, _Distance __d);
 template <typename _RandomAccessIter, typename _Distance>
