@@ -54,5 +54,25 @@ template <typename _InputIter1, typename _InputIter2, typename _Tp>
 _Tp inner_product(_InputIter1 __first1, _InputIter1 __last1, _InputIter2 __first2, _Tp __init) 
     { return tinystd::inner_product(__first1, __last1, __first2, __init, tinystd::plus<_Tp>(), tinystd::multiplies<_Tp>()); }
 
+
+template <typename _InputIter, typename _OutputIter, typename _BinaryOperation>
+_OutputIter partial_sum(_InputIter __first, _InputIter __last, _OutputIter __d_first, _BinaryOperation __op) {
+    if (__first == __last) 
+        { return __d_first; }
+    typedef typename __iterator_traits<_InputIter>::value_type __value_type;
+    __value_type __sum = *__first++;
+    *__d_first++ = __sum;
+    while (__first != __last) {
+        __sum = __op(__sum, *__first++);
+        *__d_first++ = __sum;
+    }
+    return ++__d_first;
+}
+
+template <typename _InputIter, typename _OutputIter>
+_OutputIter partial_sum(_InputIter __first, _InputIter __last, _OutputIter __d_first) 
+    { return tinystd::partial_sum(__first, __last, __d_first, 
+        tinystd::plus<typename __iterator_traits<_InputIter>::value_type>()); }
+
 }
 #endif // TINYSTL_NUMERIC_H

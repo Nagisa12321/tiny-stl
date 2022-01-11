@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <iterator>
 #include "tinystl_numeric.h"
 #include "tinystl_vector.h"
 #include "tinystl_functional.h"
@@ -9,12 +10,14 @@
 void __test_accmulate();
 void __test_adjacent_difference();
 void __test_inner_product();
+void __test_partial_sum();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test accmulate()...", __test_accmulate },
         { "test adjacent_difference()", __test_adjacent_difference },
         { "test inner_product()... ", __test_inner_product },
+        { "test partial_sum()...", __test_partial_sum },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -90,4 +93,22 @@ void __test_inner_product() {
     int r2 = tinystd::inner_product(a.begin(), a.end(), b.begin(), 0,
                                 tinystd::plus<int>(), tinystd::equal_to<int>());
     std::cout << "Number of pairwise matches between a and b: " <<  r2 << '\n';
+}
+
+// The first 10 even numbers are: 2 4 6 8 10 12 14 16 18 20 
+// The first 10 powers of 2 are: 2 4 8 16 32 64 128 256 512 1024
+void __test_partial_sum() {
+    tinystd::vector<int> v = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2}; // or std::vector<int>v(10, 2);
+ 
+    std::cout << "The first 10 even numbers are: ";
+    tinystd::partial_sum(v.begin(), v.end(), 
+                     std::ostream_iterator<int>(std::cout, " "));
+    std::cout << '\n';
+ 
+    tinystd::partial_sum(v.begin(), v.end(), v.begin(), tinystd::multiplies<int>());
+    std::cout << "The first 10 powers of 2 are: ";
+    for (auto n : v) {
+        std::cout << n << " ";
+    }
+    std::cout << '\n';
 }
