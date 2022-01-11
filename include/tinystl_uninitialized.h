@@ -2,6 +2,7 @@
 #define __TINYSTL_UNINITIALIZED_H
 #include "tinystl_iterator_base.h"
 #include "tinystl_algo.h"
+#include "tinystl_algobase.h"
 #include "tinystl_constructor.h"
 #include "tinystl_type_traits.h"
 #include <string.h> // for memmove

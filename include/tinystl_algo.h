@@ -22,14 +22,6 @@ void for_each(_InputIter __lhs, _InputIter __rhs, _Function __func) {
         __func(*__lhs++);
 }
 
-template <typename _ForwardIter, typename _Size, typename _Tp>
-_ForwardIter fill_n(_ForwardIter __lhs, _Size __sz, const _Tp &__val) {
-    // TODO: fix code here
-    for (; __sz > 0; --__sz, ++__lhs) { *__lhs = __val; }
-    return __lhs;
-}
-
-
 template <typename _InputIter, typename _ForwardIter>
 _ForwardIter copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
     // TODO: fix code here (chapter 6)
@@ -60,16 +52,6 @@ _Tp min(const _Tp &__lhs, const _Tp &__rhs) {
     return __lhs < __rhs ? __lhs : __rhs;
 }
 
-template <typename _ForwardIter, typename _Tp>
-void fill(_ForwardIter __lhs, _ForwardIter __rhs, const _Tp &__val) {
-    // TODO: fix code here
-    for (; __lhs != __rhs; ++__lhs) 
-        { *__lhs = __val; }
-}
-
-/////////////////////
-////// advance //////
-/////////////////////
 template <typename _InputIter, typename _Distance>
 void advance(_InputIter &__in, _Distance __d);
 template <typename _RandomAccessIter, typename _Distance>

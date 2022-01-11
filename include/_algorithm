@@ -1,0 +1,7 @@
+#ifndef __ALGORITHM__
+#define __ALGORITHM__
+
+#include "tinystl_algobase.h"
+#include "tinystl_algo.h"
+
+#endif
