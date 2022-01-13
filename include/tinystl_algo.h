@@ -22,13 +22,6 @@ void for_each(_InputIter __lhs, _InputIter __rhs, _Function __func) {
         __func(*__lhs++);
 }
 
-template <typename _InputIter, typename _ForwardIter>
-_ForwardIter copy(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
-    // TODO: fix code here (chapter 6)
-    for (; __lhs != __rhs; ++__lhs, ++__res) { *__res = *__lhs; } 
-    return __res;
-}
-
 /**
  * @brief Copies the elements from the range, 
  * defined by [first, last), to another range ending at d_last. 

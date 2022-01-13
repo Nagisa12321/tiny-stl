@@ -42,19 +42,40 @@ int main() {
  * v = { 7, 5, 16, 8, 25, 13, };
  */
 void __test_vector() {
-    // Create a vector containing integers
-    tinystd::vector<int> v = {7, 5, 16, 8};
+    std::cout << "test1: " << std::endl;
+    {
+        // Create a vector containing integers
+        tinystd::vector<int> v = {7, 5, 16, 8};
 
-    // Add two more integers to vector
-    v.push_back(25);
-    v.push_back(13);
+        // Print out the vector
+        std::cout << "v = { ";
+        for (int n : v) {
+            std::cout << n << ", ";
+        }
+        std::cout << "}; \n";
 
-    // Print out the vector
-    std::cout << "v = { ";
-    for (int n : v) {
-        std::cout << n << ", ";
+        // Add two more integers to vector
+        v.push_back(25);
+        v.push_back(13);
+
+        // Print out the vector
+        std::cout << "v = { ";
+        for (int n : v) {
+            std::cout << n << ", ";
+        }
+        std::cout << "}; \n";
     }
-    std::cout << "}; \n";
+    std::cout << "test2: " << std::endl;
+    {
+        tinystd::vector<int> ivec;
+        for (int i = 0; i < 10; ++i)
+            ivec.push_back(i);
+
+        for (int i = 0; i < 10; ++i) 
+            std::cout << ivec[i] << ' ';
+        
+        std::cout << std::endl;
+    }
 }
 
 template <typename T>

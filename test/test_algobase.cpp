@@ -6,6 +6,7 @@
 #include <random>
 #include "tinystl_algobase.h"
 #include "tinystl_vector.h"
+#include "tinystl_numeric.h"
 
 void __test_equal();
 void __test_fill();
@@ -13,6 +14,7 @@ void __test_fill_n();
 void __test_iter_swap();
 void __test_lexicographical_compare();
 void __test_mismatch();
+void __test_copy();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -22,6 +24,7 @@ int main() {
         { "test iter_swap...", __test_iter_swap },
         { "test lexicographical_compare...", __test_lexicographical_compare },
         { "test mismatch...", __test_mismatch },
+        { "test copy...", __test_copy },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -131,4 +134,49 @@ void __test_mismatch() {
     std::cout << mirror_ends("abXYZba") << '\n'
               << mirror_ends("abca") << '\n'
               << mirror_ends("aba") << '\n';
+}
+
+// to_vector contains: +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 
+// odd numbers in to_vector are: +1 +3 +5 +7 +9 
+// to_vector contains these multiples of 3:
+// +0 +3 +6 +9
+void __test_copy() {
+    std::cout << "test1: " << std::endl;
+    {
+        tinystd::vector<int> from_vector(10);
+        tinystd::iota(from_vector.begin(), from_vector.end(), 0);
+    
+        tinystd::vector<int> to_vector;
+        tinystd::copy(from_vector.begin(), from_vector.end(),
+                  std::back_inserter(to_vector));
+        // or, alternatively,
+        //  std::vector<int> to_vector(from_vector.size());
+        //  std::copy(from_vector.begin(), from_vector.end(), to_vector.begin());
+        // either way is equivalent to
+        //  std::vector<int> to_vector = from_vector;
+    
+        std::cout << "to_vector contains: ";
+    
+        tinystd::copy(to_vector.begin(), to_vector.end(),
+                  std::ostream_iterator<int>(std::cout, " "));
+        std::cout << '\n';
+    
+        std::cout << "odd numbers in to_vector are: ";
+    
+        std::copy_if(to_vector.begin(), to_vector.end(),
+                     std::ostream_iterator<int>(std::cout, " "),
+                     [](int x) { return x % 2 != 0; });
+        std::cout << '\n';
+    
+        std::cout << "to_vector contains these multiples of 3:\n";
+    
+        to_vector.clear();
+        std::copy_if(from_vector.begin(), from_vector.end(),
+                     std::back_inserter(to_vector),
+                     [](int x) { return x % 3 == 0; });
+    
+        for (int x : to_vector)
+            std::cout << x << ' ';
+        std::cout << '\n';
+    }
 }

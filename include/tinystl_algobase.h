@@ -4,6 +4,10 @@
 #include "tinystl_iterator_base.h"
 #include "tinystl_move.h"
 #include "tinystl_pair.h"
+#include "tinystl_type_traits.h"
+
+// for memmove() for copy() ...
+#include <string.h>
 
 namespace tinystd {
 
@@ -94,6 +98,50 @@ tinystd::pair<_InputIter1, _InputIter2> mismatch(_InputIter1 __first1, _InputIte
     { return tinystd::mismatch(__first1, __last1, __first2, 
         tinystd::equal_to<typename __iterator_traits<_InputIter1>::value_type>()); }
 
+inline char *copy(char *__lhs, char *__rhs, char *__res) 
+    { memmove(__res, __lhs, (__rhs - __lhs) * sizeof(char)); return __res + (__rhs - __lhs); }
+
+inline wchar_t *copy(wchar_t *__lhs, wchar_t *__rhs, wchar_t *__res)
+    { memmove(__res, __lhs, (__rhs - __lhs) * sizeof(wchar_t)); return __res + (__rhs - __lhs); }
+
+template <typename _RandomAccessIter, typename _OutputIter, typename _Distance>
+inline _OutputIter __copy_d(_RandomAccessIter __lhs, _RandomAccessIter __rhs, _OutputIter __res, _Distance __d) {
+    for (; __d > 0; --__d)
+        { *__res++ = *__lhs++; }
+    return __res;
+}
+
+template <typename _Tp>
+inline _Tp *__copy_t(const _Tp *__lhs, const _Tp *__rhs, _Tp *__res, tinystd::__true_type) 
+    { memmove(__res, __lhs, (__rhs - __lhs) * sizeof(_Tp)); return __res + (__rhs - __lhs); }
+
+template <typename _Tp>
+inline _Tp *__copy_t(const _Tp *__lhs, const _Tp *__rhs, _Tp *__res, tinystd::__false_type) 
+    { return tinystd::__copy_d(__lhs, __rhs, __res, __rhs - __lhs); }
+
+template <typename _Tp>
+inline _Tp *copy(_Tp *__lhs, _Tp *__rhs, _Tp *__res) 
+    { return tinystd::__copy_t(__lhs, __rhs, __res, typename tinystd::__type_traits<_Tp>::has_trivial_assignment_operator());}
+
+template <typename _Tp>
+inline _Tp *copy(const _Tp *__lhs, const _Tp *__rhs, _Tp *__res) 
+    { return tinystd::__copy_t(__lhs, __rhs, __res, typename tinystd::__type_traits<_Tp>::has_trivial_assignment_operator());}
+
+template <typename _RandomAccessIter, typename _OutputIter>
+inline _OutputIter __copy_aux(_RandomAccessIter __lhs, _RandomAccessIter __rhs, _OutputIter __res, __random_access_iter) 
+    { return tinystd::__copy_d(__lhs, __rhs, __res, __rhs - __lhs); }
+
+template <typename _InputIter, typename _OutputIter>
+inline _OutputIter copy(_InputIter __lhs, _InputIter __rhs, _OutputIter __res, __input_iter) { 
+    for (; __lhs != __rhs; ++__lhs, ++__res) { *__res = *__lhs; } 
+    return __res;  
+}
+
+template <typename _InputIter, typename _OutputIter>
+inline _OutputIter copy(_InputIter __lhs, _InputIter __rhs, _OutputIter __res) {
+    typedef typename __iterator_traits<_InputIter>::iterator_category __iterator_type;
+    return tinystd::__copy_aux(__lhs, __rhs, __res, __iterator_type());
+}
 
 }
 
