@@ -22,19 +22,6 @@ void for_each(_InputIter __lhs, _InputIter __rhs, _Function __func) {
         __func(*__lhs++);
 }
 
-/**
- * @brief Copies the elements from the range, 
- * defined by [first, last), to another range ending at d_last. 
- * The elements are copied in reverse order (the last element is copied first), 
- * but their relative order is preserved.
- */
-template <typename _InputIter, typename _ForwardIter>
-_ForwardIter copy_backward(_InputIter __lhs, _InputIter __rhs, _ForwardIter __res) {
-    // TODO: fix code here
-    for (; __lhs != __rhs; ) { *(--__res) = *(--__rhs); }
-    return __rhs;
-}
-
 template <typename _InputIter, typename _Distance>
 void advance(_InputIter &__in, _Distance __d);
 template <typename _RandomAccessIter, typename _Distance>

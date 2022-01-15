@@ -197,6 +197,32 @@ inline _OutputIter copy(_InputIter __lhs, _InputIter __rhs, _OutputIter __res) {
     return tinystd::__copy_aux(__lhs, __rhs, __res, __iterator_type());
 }
 
+template <typename _RandomAccessIter, typename _OutputIter>
+_OutputIter __copy_backward_aux(_RandomAccessIter __lhs, _RandomAccessIter __rhs, _OutputIter __res, __random_access_iter) {
+    typedef typename __iterator_traits<_RandomAccessIter>::difference_type __distance;
+    __distance __d = __rhs - __lhs;
+    for (; __d > 0; --__d) 
+        { *--__res = *--__rhs; }
+    return __res;
+}
+
+template <typename _RandomAccessIter, typename _OutputIter>
+_OutputIter __copy_backward_aux(_RandomAccessIter __lhs, _RandomAccessIter __rhs, _OutputIter __res, __input_iter) {
+    for (; __lhs != __rhs; ) { *(--__res) = *(--__rhs); }
+    return __res;
+}
+
+/**
+ * @brief Copies the elements from the range, 
+ * defined by [first, last), to another range ending at d_last. 
+ * The elements are copied in reverse order (the last element is copied first), 
+ * but their relative order is preserved.
+ */
+template <typename _InputIter, typename _OutputIter>
+_OutputIter copy_backward(_InputIter __lhs, _InputIter __rhs, _OutputIter __res) 
+    { return __copy_backward_aux(__lhs, __rhs, __res, 
+        typename __iterator_traits<_InputIter>::iterator_category()); }
+
 }
 
 #endif // TINYSTL_ALGOBASE_H

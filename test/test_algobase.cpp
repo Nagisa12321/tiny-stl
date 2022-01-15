@@ -20,6 +20,7 @@ void __test_iter_swap();
 void __test_lexicographical_compare();
 void __test_mismatch();
 void __test_copy();
+void __test_copy_backward();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
@@ -30,6 +31,7 @@ int main() {
         { "test lexicographical_compare...", __test_lexicographical_compare },
         { "test mismatch...", __test_mismatch },
         { "test copy...", __test_copy },
+        { "test copy_backward...", __test_copy_backward },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -263,4 +265,22 @@ void __test_copy() {
         __print_container(sdeqd.begin(), sdeqd.end());
     }
 }
+
+// to_vector contains: 0 0 0 0 0 0 1 2 3 4 5 6 7 8 9
+void __test_copy_backward() {
+    tinystd::vector<int> from_vector;
+    for (int i = 0; i < 10; i++) {
+        from_vector.push_back(i);
+    }
+ 
+    tinystd::vector<int> to_vector(15);
+ 
+    tinystd::copy_backward(from_vector.begin(), from_vector.end(), to_vector.end());
+ 
+    std::cout << "to_vector contains: ";
+    for (auto i: to_vector) {
+        std::cout << i << " ";
+    }
+}
+
 #undef __copy_test
