@@ -37,6 +37,7 @@ struct __avl_tree_base_iterator {
     typedef __bidirectional_iter iterator_category;
     typedef ptrdiff_t difference_type;
     typedef size_t size_type;
+
     typedef __avl_tree_base_iterator __self;
 
     __avl_tree_base_iterator(__base_ptr __node)
@@ -75,6 +76,45 @@ struct __avl_tree_base_iterator {
             // so I don't want to deal with it...
             _M_node = __parent;
         }
+    }
+};
+
+template <typename _Tp, typename _Ref, typename _Ptr>
+struct __avl_tree_iterator : public __avl_tree_base_iterator {
+    typedef _Tp value_type;
+    typedef _Ptr pointer;
+    typedef _Ref reference;
+
+    typedef __avl_tree_iterator<_Tp, _Ref, _Ptr> __self;
+    typedef typename __avl_tree_node<_Tp>::__ptr __ptr;
+
+    __avl_tree_iterator()
+        : __avl_tree_base_iterator(0) {}
+    __avl_tree_iterator(__ptr __node)
+        : __avl_tree_base_iterator(__node) {}
+
+    reference operator*() const
+        { return __ptr(_M_node)->_M_value; }
+
+    pointer operator->() const
+        { return &(operator*()); }
+
+    __self &operator++()
+        { _M_increment(); return *this; }
+
+    __self operator++(int) {
+        __self __tmp = *this;
+        _M_increment();
+        return __tmp;
+    }
+
+    __self &operator--() 
+        { _M_decrement(); return *this; }
+
+    __self operator--(int) {
+        __self __tmp = *this;
+        _M_decrement();
+        return __tmp;
     }
 };
 
