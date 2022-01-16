@@ -1,14 +1,18 @@
+#include <string>
 #include <vector>
 #include <iostream>
 #include <cassert>
 #include <cstring>
 #include "tinystl_tree.h"
+#include "tinystl_functional.h"
 
 void __test_tree_node_base_iterator();
+void __test_insert_unique();
 
 int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test the tree node base iterator... ", __test_tree_node_base_iterator },
+        { "test insert_unique...", __test_insert_unique },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -114,5 +118,21 @@ void __test_tree_node_base_iterator() {
         assert(pvec == res);
 
         std::cout << "...ok" << std::endl;
+    }
+}
+
+
+void __test_insert_unique() {
+    std::cout << "test1: " << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, std::string, int, decltype(cmp)> tree;
+        for (int i = 0; i < 10; ++i)
+            tree.insert_unique();
+        
+        auto it = tree.begin();
+        for (int i = 0; i < 10; ++i) {
+            assert(*it++ == i);
+        }
     }
 }
