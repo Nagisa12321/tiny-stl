@@ -1,8 +1,10 @@
+#include <ostream>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <cassert>
 #include <cstring>
+#include "tinystl_pair.h"
 #include "tinystl_tree.h"
 #include "tinystl_functional.h"
 
@@ -121,18 +123,43 @@ void __test_tree_node_base_iterator() {
     }
 }
 
+template <typename _Key, typename _Value>
+struct __pair_key_of_value {
+    _Key operator()(const tinystd::pair<_Key, _Value> &p) const
+        { return p.first; }
+};
 
 void __test_insert_unique() {
-    std::cout << "test1: " << std::endl;
+    std::cout << "test1(not rorate): " << std::endl;
     {
         tinystd::less<int> cmp;
-        tinystd::__avl_tree<int, std::string, int, decltype(cmp)> tree;
+        tinystd::__avl_tree<int, tinystd::pair<int, std::string>, 
+            __pair_key_of_value<int, std::string>, decltype(cmp)> tree;
+        
         for (int i = 0; i < 10; ++i)
-            tree.insert_unique();
+            tree.insert_unique({i, std::to_string(i)});
         
         auto it = tree.begin();
         for (int i = 0; i < 10; ++i) {
-            assert(*it++ == i);
+            assert((it++)->second == std::to_string(i));
         }
     }
+    std::cout << "test2(not rorate): " << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, tinystd::pair<int, std::string>, 
+            __pair_key_of_value<int, std::string>, decltype(cmp)> tree;
+        
+        int ra[7] = { 3, 1, 5, 0, 2, 4, 6 };
+        for (int i = 0; i < 7; ++i) {
+            tree.insert_unique({ra[i], std::to_string(ra[i])});
+        }
+
+        auto it = tree.begin();
+        for (int i = 0; i < 7; ++i) {
+            assert((it++)->second == std::to_string(i));
+        }
+    }
+
+
 }

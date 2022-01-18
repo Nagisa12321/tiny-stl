@@ -6,6 +6,9 @@
 #include "tinystl_types.h"
 #include "tinystl_pair.h"
 
+// for memory set. 
+#include <string.h>
+
 namespace tinystd {
 
 struct __avl_tree_node_base {
@@ -27,6 +30,10 @@ struct __avl_tree_node_base {
     }
 };
 
+// 
+// Can only have the "value"
+// but I can get the "key" from the value!
+//
 template <typename _Tp>
 struct __avl_tree_node : public __avl_tree_node_base {
     typedef __avl_tree_node<_Tp> *__ptr;
@@ -152,10 +159,12 @@ protected:
 
 
     __ptr _M_create_node(const value_type &__val) {
-        __ptr __name = _M_get_node();
+        __ptr __node = _M_get_node();
+        // set the memory to zero
+        memset(__node, 0x0, sizeof(__node));
         // TODO: add try and catch here
-        tinystd::construct(&__name._M_value, __val);
-        return __name;
+        tinystd::construct(&(__node->_M_value), __val);
+        return __node;
     }
 
     void _M_destory_node(__ptr __node) {
@@ -166,10 +175,15 @@ protected:
 protected:
     size_type _M_node_count;
     __ptr _M_root;
-    _Compare _M_comp;
+    _Compare _M_key_comp;
 
 public:
     typedef __avl_tree_iterator<value_type, reference, pointer> iterator;
+
+    __avl_tree()
+        : _M_node_count(0x0)
+        , _M_root(0x0)
+        , _M_key_comp() {}
 
     iterator begin() 
         { return iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
@@ -198,14 +212,17 @@ public:
                 _M_root = __new_node;
             } else {
                 // insert a new node in the right place. 
-                if (_M_comp(__val, __parent._M_node->_M_value)) {
+                if (_M_key_comp(_S_key(__val), _S_key(((__ptr) __parent._M_node)->_M_value))) {
                     __parent._M_node->_M_left = __new_node;
                 } else {
                     __parent._M_node->_M_right = __new_node;
                 }
+                // set the parent of the new node...
+                __new_node->_M_parent = __parent._M_node;
             }
 
             ++_M_node_count;
+            return iterator(__new_node);
         }
     }
 
@@ -218,18 +235,22 @@ public:
     // but if not find, return the parent iterator and false... 
     tinystd::pair<iterator, bool> find(const value_type &__val) {
         __ptr __cur = _M_root, __parent = 0;
-        while (__cur && __cur->_M_value != __val) {
+        while (__cur && _S_key(__cur->_M_value) != _S_key(__val)) {
             __parent = __cur;
-            if (_M_comp(__cur->_M_value, __val))
-                { __cur = __cur->_M_left; }
+            if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
+                { __cur = (__ptr) __cur->_M_left; }
             else
-                { __cur = __cur->_M_right; }
+                { __cur = (__ptr) __cur->_M_right; }
         }
         if (__cur) 
             { return { iterator(__cur), true }; }
         else 
             { return { iterator(__parent), false }; }
     }
+
+protected:
+    static _Key _S_key(const value_type &__data) 
+        { return _KeyOfValue()(__data); }
 };
 
 }
