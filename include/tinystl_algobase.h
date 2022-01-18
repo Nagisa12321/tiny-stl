@@ -66,6 +66,10 @@ bool lexicographical_compare(_InputIt1 __first1, _InputIt1 __last1,
         tinystd::less<typename __iterator_traits<_InputIt1>::value_type>());
 }
 
+template <typename _Tp>
+inline _Tp abs(const _Tp &__val) 
+    { return __val < 0 ? -__val : __val; }
+
 template <typename _Tp, typename _Compare>
 inline const _Tp &max(const _Tp &__lhs, const _Tp &__rhs, _Compare __cmp) {
     return __cmp(__lhs, __rhs) ? __rhs : __lhs;

@@ -1,5 +1,5 @@
-#ifndef TINYSTL_TREE
-#define TINYSTL_TREE
+#ifndef __TINYSTL_TREE
+#define __TINYSTL_TREE
 #include "tinystl_algobase.h"
 #include "tinystl_constructor.h"
 #include "tinystl_iterator_base.h"
@@ -11,6 +11,12 @@
 
 // for memory set. 
 #include <string.h>
+
+#ifdef __test_avl
+    #include <stdio.h>
+    #include <assert.h>
+    #include "tinystl_queue.h"
+#endif
 
 namespace tinystd {
 
@@ -41,8 +47,15 @@ template <typename _Tp>
 struct __avl_tree_node : public __avl_tree_node_base {
     typedef __avl_tree_node<_Tp> *__ptr;
 
-    size_t _M_height;
+    int _M_height;
     _Tp _M_value;
+
+    void _M_height_flush() {
+        _M_height = tinystd::max(
+            _M_left ? ((__ptr) _M_left)->_M_height : 0x0, 
+            _M_right ? ((__ptr) _M_right)->_M_height : 0x0
+        ) + 1;
+    }
 };
 
 struct __avl_tree_base_iterator {
@@ -114,6 +127,12 @@ struct __avl_tree_iterator : public __avl_tree_base_iterator {
     pointer operator->() const
         { return &(operator*()); }
 
+    bool operator==(const __self &__other) const 
+        { return _M_node == __other._M_node; }
+
+    bool operator!=(const __self &__other) const 
+        { return !(*this == __other); }
+         
     __self &operator++()
         { _M_increment(); return *this; }
 
@@ -178,6 +197,105 @@ protected:
         _M_put_node(__node);
     }
 
+    void _M_rotate(__ptr __node) {
+        if (!__node) return; 
+        __ptr __parent = (__ptr) __node->_M_parent;
+        __ptr __pivot = 0;
+        // the four cases. 
+        // (1) LL 
+        if (_M_bf(__node) > 1 && _M_bf((__ptr) __node->_M_left) >= 0) { 
+            __pivot = _M_rorate_right(__node); 
+        // (2) RR
+        } else if (_M_bf(__node) < -1 && _M_bf((__ptr) __node->_M_right) <= 0) {
+            __pivot = _M_rorate_left(__node);
+        // (3) LR
+        } else if (_M_bf(__node) > 1 && _M_bf((__ptr) __node->_M_left) < 0) {
+            __node->_M_left = _M_rorate_right((__ptr) __node->_M_left);
+            __pivot = _M_rorate_left((__ptr) __node->_M_left);
+        // (4) RL
+        } else if (_M_bf(__node) < -1 && _M_bf((__ptr) __node->_M_right) > 0) {
+            __node->_M_right = _M_rorate_left((__ptr) __node->_M_right);
+            __pivot = _M_rorate_right((__ptr) __node->_M_right);
+        }
+    
+        // replace the __node with __pivot
+        if (__pivot) {
+            if (__parent) {
+                if (__parent->_M_left == __node) {
+                    __parent->_M_left = __pivot;
+                } else {
+                    __parent->_M_right = __pivot;
+                }
+                // update the height of parent... 
+                __parent->_M_height_flush();
+            } else {
+                _M_root = __pivot;
+            }
+            __pivot->_M_parent = __parent;
+        }
+
+        // rorate up...
+        _M_rotate(__parent);
+    }
+
+    // return the "Pivot"
+    __ptr _M_rorate_right(__ptr __node) {
+        if (!__node) return 0x0;
+        __ptr __left = (__ptr) __node->_M_left;
+        __ptr __parent = (__ptr) __node->_M_parent; 
+        
+        if (__left) {
+            __node->_M_left = __left->_M_right;
+            if (__left->_M_right)
+                __left->_M_right->_M_parent = __node;
+            __left->_M_right = __node;
+            __left->_M_parent = __parent;
+        }
+
+        __node->_M_parent = __left;
+
+        if (__parent) {
+            if (__node == __parent->_M_left) __parent->_M_left = __left;
+            else __parent->_M_right = __left;
+        }
+
+        __node->_M_height_flush();
+        if (__left)
+            __left->_M_height_flush();
+
+        return __left;
+    }
+
+    __ptr _M_rorate_left(__ptr __node) {
+        if (!__node) return 0x0;
+        __ptr __right = (__ptr) __node->_M_right;
+        __ptr __parent = (__ptr) __node->_M_parent;
+
+        if (__right) {
+            __node->_M_right = __right->_M_left; 
+            if (__right->_M_left)
+                __right->_M_left->_M_parent = __node;
+            __right->_M_left = __node;
+            __right->_M_parent = __parent;
+        }
+
+        __node->_M_parent = __right;
+        if (__parent) {
+            if (__node == __parent->_M_left) __parent->_M_left = __right;
+            else __parent->_M_right = __right;
+        }
+
+        __node->_M_height_flush();
+        if (__right)
+            __right->_M_height_flush();
+
+        return __right;
+    }
+
+    int _M_bf(__ptr __node)
+        { return __node ? ((__node->_M_left ? ((__ptr) __node->_M_left)->_M_height : 0) -
+                 (__node->_M_right ? ((__ptr) __node->_M_right)->_M_height : 0)) : 0; }
+
 protected:
     size_type _M_node_count;
     __ptr _M_root;
@@ -196,7 +314,7 @@ public:
     iterator begin() 
         { return iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
     iterator end()
-        { return iterator((__ptr) __avl_tree_node_base::_S_maximum(_M_root)); }
+        { return iterator(0); }
     bool empty() const 
         { return _M_node_count == 0; }
     size_type size() const
@@ -233,16 +351,23 @@ public:
                 // update the height from __new_node to root; 
                 __ptr __cur = __new_node;
                 while (1) {
-                    __cur->_M_height = tinystd::max(
-                        __cur->_M_left ? ((__ptr) __cur->_M_left)->_M_height : 0x0, 
-                        __cur->_M_right ? ((__ptr) __cur->_M_right)->_M_height : 0x0
-                    ) + 1;
+                    __cur->_M_height_flush();
                     if (__cur == _M_root) break;
                     __cur = (__ptr) __cur->_M_parent;
                 } 
             }
 
             ++_M_node_count;
+
+            // rotate
+            _M_rotate(__new_node);
+
+#ifdef __test_avl
+            // printf(">> insert with assert balanced. \n");
+            // _S_show_tree(_M_root);
+            assert(_S_is_balanced(_M_root));
+#endif 
+
             return iterator(__new_node);
         }
     }
@@ -271,7 +396,7 @@ public:
 
     void clear() { 
         _S_walk_tree(_M_root, [&](__ptr __node) { 
-            _M_destory_node(__node); 
+            // _M_destory_node(__node); 
         });
     }
 
@@ -287,8 +412,54 @@ protected:
         _S_walk_tree((__ptr) __node->_M_right, __fn);
         __fn(__node);
     }
+
+#ifdef __test_avl
+    static int _S_height(__ptr __node) {
+        if (__node == NULL) {
+            return 0;
+        } else {
+            return tinystd::max(_S_height((__ptr) __node->_M_left), 
+                _S_height((__ptr) __node->_M_right)) + 1;
+        }
+    }
+
+    static bool _S_is_balanced(__ptr __node) {
+        if (__node == NULL) {
+            return true;
+        } else {
+            return tinystd::abs(_S_height((__ptr) __node->_M_left) - _S_height((__ptr) __node->_M_right)) <= 1 
+                && _S_is_balanced((__ptr) __node->_M_left) && _S_is_balanced((__ptr) __node->_M_right);
+        }
+    }
+
+    static void _S_show_tree(__ptr __node) {
+        tinystd::queue<__ptr> __q;
+        __q.push(__node);
+
+        while (!__q.empty()) {
+            size_t __sz = __q.size();
+
+            for (int i = 0; i < __sz; ++i) {
+                __ptr poll = __q.front();
+                __q.pop();
+
+                if (poll) {
+                    printf("%d, ", poll->_M_value.first);
+
+                    __q.push((__ptr) poll->_M_left);
+                    __q.push((__ptr) poll->_M_right);
+                } else {
+                    printf("NULL, ");
+                }
+            }
+            
+            printf("\n");
+        }
+    }
+#endif
+
 };
 
 }
 
-#endif // TINYSTL_TREE_H
+#endif // __TINYSTL_TREE_H

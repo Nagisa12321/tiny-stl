@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <ctime>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -7,14 +9,22 @@
 #include "tinystl_pair.h"
 #include "tinystl_tree.h"
 #include "tinystl_functional.h"
+#include "tinystl_vector.h"
+#include "tinystl_iterator.h"
+
+#define __test_avl
 
 void __test_tree_node_base_iterator();
 void __test_insert_unique();
+void __test_rotate();
 
 int main() {
+    srand(time(0x0));
+
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test the tree node base iterator... ", __test_tree_node_base_iterator },
         { "test insert_unique...", __test_insert_unique },
+        { "test insert with retote...", __test_rotate },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -181,3 +191,54 @@ void __test_insert_unique() {
         std::cout << "...ok" << std::endl;
     }
 }
+
+template <typename _Iterator>
+bool __is_sorted(_Iterator __first, _Iterator __last) {
+    if (__first == __last) return true;
+    while (tinystd::next(__first) != __last) {
+        if (*__first > *tinystd::next(__first))
+            return false;
+        tinystd::advance(__first, 1);
+    }
+    return true;
+}
+
+struct return_itself {
+    int operator()(int i) const 
+        { return i; }
+};
+
+void __test_rotate() {
+    std::cout << "test1: insert 100 elements's" << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, tinystd::pair<int, std::string>, 
+            __pair_key_of_value<int, std::string>, decltype(cmp)> tree;
+        
+        for (int i = 0; i < 100; ++i)
+            tree.insert_unique({i, std::to_string(i)});
+
+        auto it = tree.begin();
+        for (int i = 0; i < 100; ++i)
+            assert(it++->second == std::to_string(i));
+
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2: random insert..." << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        
+        for (int i = 0; i < 100; ++i) {
+            int random_shit = rand();
+            tree.insert_unique(random_shit);
+        }
+
+        assert(__is_sorted(tree.begin(), tree.end()));
+
+        std::cout << "...ok" << std::endl;
+    }
+}
+#undef __test_avl
+
