@@ -1,10 +1,13 @@
-#ifndef TINYSTL_TREE_H
-#define TINYSTL_TREE_H
+#ifndef TINYSTL_TREE
+#define TINYSTL_TREE
+#include "tinystl_algobase.h"
 #include "tinystl_constructor.h"
 #include "tinystl_iterator_base.h"
 #include "tinystl_alloc.h"
+#include "tinystl_type_traits.h"
 #include "tinystl_types.h"
 #include "tinystl_pair.h"
+#include "tinystl_vector.h"
 
 // for memory set. 
 #include <string.h>
@@ -38,6 +41,7 @@ template <typename _Tp>
 struct __avl_tree_node : public __avl_tree_node_base {
     typedef __avl_tree_node<_Tp> *__ptr;
 
+    size_t _M_height;
     _Tp _M_value;
 };
 
@@ -160,8 +164,10 @@ protected:
 
     __ptr _M_create_node(const value_type &__val) {
         __ptr __node = _M_get_node();
+
         // set the memory to zero
-        memset(__node, 0x0, sizeof(__node));
+        memset(__node, 0x0, sizeof(__avl_tree_node<_Value>));
+
         // TODO: add try and catch here
         tinystd::construct(&(__node->_M_value), __val);
         return __node;
@@ -184,6 +190,8 @@ public:
         : _M_node_count(0x0)
         , _M_root(0x0)
         , _M_key_comp() {}
+    ~__avl_tree() 
+        { clear(); }
 
     iterator begin() 
         { return iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
@@ -210,15 +218,28 @@ public:
                 // means that before this insert. 
                 // the tree is empty... 
                 _M_root = __new_node;
+                _M_root->_M_height = 1;
             } else {
                 // insert a new node in the right place. 
-                if (_M_key_comp(_S_key(__val), _S_key(((__ptr) __parent._M_node)->_M_value))) {
+                if (_M_key_comp(_S_key(__val), 
+                    _S_key(((__ptr) __parent._M_node)->_M_value))) {
                     __parent._M_node->_M_left = __new_node;
                 } else {
                     __parent._M_node->_M_right = __new_node;
                 }
                 // set the parent of the new node...
                 __new_node->_M_parent = __parent._M_node;
+
+                // update the height from __new_node to root; 
+                __ptr __cur = __new_node;
+                while (1) {
+                    __cur->_M_height = tinystd::max(
+                        __cur->_M_left ? ((__ptr) __cur->_M_left)->_M_height : 0x0, 
+                        __cur->_M_right ? ((__ptr) __cur->_M_right)->_M_height : 0x0
+                    ) + 1;
+                    if (__cur == _M_root) break;
+                    __cur = (__ptr) __cur->_M_parent;
+                } 
             }
 
             ++_M_node_count;
@@ -248,9 +269,24 @@ public:
             { return { iterator(__parent), false }; }
     }
 
+    void clear() { 
+        _S_walk_tree(_M_root, [&](__ptr __node) { 
+            _M_destory_node(__node); 
+        });
+    }
+
 protected:
     static _Key _S_key(const value_type &__data) 
         { return _KeyOfValue()(__data); }
+    
+    template <typename _Function> 
+    static void _S_walk_tree(const __ptr __node, const _Function &__fn) {
+        if (!__node) return;
+
+        _S_walk_tree((__ptr) __node->_M_left, __fn);
+        _S_walk_tree((__ptr) __node->_M_right, __fn);
+        __fn(__node);
+    }
 };
 
 }

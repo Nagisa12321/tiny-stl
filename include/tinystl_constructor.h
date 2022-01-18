@@ -16,7 +16,16 @@ template <typename _Tp, typename... _Args>
 inline void construct(_Tp *__p, _Args &&...__args) { new (__p) _Tp(tinystd::forward(__args)...); }
 
 template <typename _Tp>
-inline void destory(_Tp *__p) { __p->~_Tp();  }
+inline void __destory_aux(_Tp *__p, __true_type) 
+    { __p->~_Tp(); }
+    
+template <typename _Tp>
+inline void __destory_aux(_Tp *__p, __false_type) 
+    {  }
+
+template <typename _Tp>
+inline void destory(_Tp *__p) 
+    { __destory_aux(__p, typename __type_traits<_Tp>::is_POD_type()); }
 
 template <typename _ForwardIter>
 inline void destory(_ForwardIter __lhs, _ForwardIter __rhs) {

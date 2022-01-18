@@ -143,6 +143,7 @@ void __test_insert_unique() {
         for (int i = 0; i < 10; ++i) {
             assert((it++)->second == std::to_string(i));
         }
+        std::cout << "...ok" << std::endl;
     }
     std::cout << "test2(not rorate): " << std::endl;
     {
@@ -159,7 +160,24 @@ void __test_insert_unique() {
         for (int i = 0; i < 7; ++i) {
             assert((it++)->second == std::to_string(i));
         }
+        std::cout << "...ok" << std::endl;
     }
-
-
+    std::cout << "test3(no rorate): " << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, tinystd::pair<int, std::string>, 
+            __pair_key_of_value<int, std::string>, decltype(cmp)> tree;
+        
+        int ra[7] = { 3, 1, 5, 0, 2, 4, 6 };
+        for (int i = 0; i < 7; ++i) {
+            tree.insert_unique({ra[i], std::to_string(ra[i])});
+        }
+        int height[7] = { 1, 2, 1, 3, 1, 2, 1 };
+        auto it = tree.begin();
+        for (int i = 0; i < 7; ++i) {
+            assert(((tinystd::__avl_tree_node<int> *) it._M_node)->_M_height == height[i]);
+            assert((it++)->second == std::to_string(i));
+        }
+        std::cout << "...ok" << std::endl;
+    }
 }
