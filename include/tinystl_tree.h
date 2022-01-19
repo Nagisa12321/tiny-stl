@@ -210,28 +210,26 @@ protected:
             __pivot = _M_rorate_left(__node);
         // (3) LR
         } else if (_M_bf(__node) > 1 && _M_bf((__ptr) __node->_M_left) < 0) {
-            __node->_M_left = _M_rorate_right((__ptr) __node->_M_left);
-            __pivot = _M_rorate_left((__ptr) __node->_M_left);
+            __node->_M_left = _M_rorate_left((__ptr) __node->_M_left);
+            __pivot = _M_rorate_right(__node);
         // (4) RL
         } else if (_M_bf(__node) < -1 && _M_bf((__ptr) __node->_M_right) > 0) {
-            __node->_M_right = _M_rorate_left((__ptr) __node->_M_right);
-            __pivot = _M_rorate_right((__ptr) __node->_M_right);
+            __node->_M_right = _M_rorate_right((__ptr) __node->_M_right);
+            __pivot = _M_rorate_left(__node);
         }
     
         // replace the __node with __pivot
         if (__pivot) {
             if (__parent) {
-                if (__parent->_M_left == __node) {
-                    __parent->_M_left = __pivot;
-                } else {
-                    __parent->_M_right = __pivot;
-                }
                 // update the height of parent... 
-                __parent->_M_height_flush();
+                __ptr __cur = __parent;
+                while (__cur) {
+                    __cur->_M_height_flush();
+                    __cur = (__ptr) __cur->_M_parent;
+                }
             } else {
                 _M_root = __pivot;
             }
-            __pivot->_M_parent = __parent;
         }
 
         // rorate up...
@@ -359,12 +357,14 @@ public:
 
             ++_M_node_count;
 
+#ifdef __test_avl
+            printf(">>>>>>>>>>> insert %d\n", __val);
+#endif 
             // rotate
             _M_rotate(__new_node);
 
 #ifdef __test_avl
-            // printf(">> insert with assert balanced. \n");
-            // _S_show_tree(_M_root);
+            _S_show_tree(_M_root);
             assert(_S_is_balanced(_M_root));
 #endif 
 
@@ -396,7 +396,7 @@ public:
 
     void clear() { 
         _S_walk_tree(_M_root, [&](__ptr __node) { 
-            // _M_destory_node(__node); 
+            _M_destory_node(__node); 
         });
     }
 
@@ -444,12 +444,12 @@ protected:
                 __q.pop();
 
                 if (poll) {
-                    printf("%d, ", poll->_M_value.first);
+                    printf("%d(%d), ", poll->_M_value, poll->_M_height);
 
                     __q.push((__ptr) poll->_M_left);
                     __q.push((__ptr) poll->_M_right);
                 } else {
-                    printf("NULL, ");
+                    printf("NULL(0), ");
                 }
             }
             

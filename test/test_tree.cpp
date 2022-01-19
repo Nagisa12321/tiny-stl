@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstring>
+#include <unordered_set>
 #include "tinystl_pair.h"
 #include "tinystl_tree.h"
 #include "tinystl_functional.h"
@@ -229,13 +230,30 @@ void __test_rotate() {
         tinystd::less<int> cmp;
         tinystd::__avl_tree<int, int, 
             return_itself, decltype(cmp)> tree;
-        
-        for (int i = 0; i < 100; ++i) {
-            int random_shit = rand();
+        for (int i = 0; i < 0xffff; ++i) {
+            int random_shit = rand() % 0xffff;
             tree.insert_unique(random_shit);
         }
 
         assert(__is_sorted(tree.begin(), tree.end()));
+
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test3: insert unique and assert size" << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+
+        std::unordered_set<int> s;
+        for (int i = 0; i < 0xffff; ++i) {
+            s.insert(rand() % 0xffff);
+        }
+        for (int i : s) {
+            tree.insert_unique(i);
+        }
+        assert(__is_sorted(tree.begin(), tree.end()));
+        assert(tree.size() == s.size());
 
         std::cout << "...ok" << std::endl;
     }
