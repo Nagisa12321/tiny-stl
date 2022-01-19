@@ -172,6 +172,7 @@ public:
     typedef const value_type &const_reference;
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
+    typedef __avl_tree_iterator<value_type, reference, pointer> iterator;
 
 protected:
     __ptr _M_get_node() 
@@ -195,6 +196,64 @@ protected:
     void _M_destory_node(__ptr __node) {
         tinystd::destory(__node);
         _M_put_node(__node);
+    }
+
+    tinystd::pair<iterator, bool> _M_find(__ptr __cur, const value_type &__val) {
+        __ptr __parent = (__ptr) __cur->_M_parent;
+        while (__cur && _S_key(__cur->_M_value) != _S_key(__val)) {
+            __parent = __cur;
+            if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
+                { __cur = (__ptr) __cur->_M_left; }
+            else
+                { __cur = (__ptr) __cur->_M_right; }
+        }
+        if (__cur) 
+            { return { iterator(__cur), true }; }
+        else 
+            { return { iterator(__parent), false }; }
+    }
+
+    iterator _M_insert_node(__ptr __new_node, iterator __parent) {
+        const value_type __val = __new_node->_M_value;
+        if (!__parent._M_node) {
+           // means that before this insert. 
+           // the tree is empty... 
+           _M_root = __new_node;
+           _M_root->_M_height = 1;
+       } else {
+           // insert a new node in the right place. 
+           if (_M_key_comp(_S_key(__val), 
+               _S_key(((__ptr) __parent._M_node)->_M_value))) {
+               __parent._M_node->_M_left = __new_node;
+           } else {
+               __parent._M_node->_M_right = __new_node;
+           }
+           // set the parent of the new node...
+           __new_node->_M_parent = __parent._M_node;
+
+           // update the height from __new_node to root; 
+           __ptr __cur = __new_node;
+           while (1) {
+               __cur->_M_height_flush();
+               if (__cur == _M_root) break;
+               __cur = (__ptr) __cur->_M_parent;
+           } 
+       }
+
+       ++_M_node_count;
+
+#ifdef __test_avl
+        printf(">>>>>>>>>>> insert %d\n", __val);
+#endif 
+        // rotate
+        _M_rotate(__new_node);
+
+#ifdef __test_avl
+        _S_show_tree(_M_root);
+        assert(_S_is_balanced(_M_root));
+#endif 
+
+        return iterator(__new_node);
     }
 
     void _M_rotate(__ptr __node) {
@@ -300,7 +359,6 @@ protected:
     _Compare _M_key_comp;
 
 public:
-    typedef __avl_tree_iterator<value_type, reference, pointer> iterator;
 
     __avl_tree()
         : _M_node_count(0x0)
@@ -330,69 +388,29 @@ public:
         else {
             iterator __parent = __res.first;
             __ptr __new_node = _M_create_node(__val);
-            if (!__parent._M_node) {
-                // means that before this insert. 
-                // the tree is empty... 
-                _M_root = __new_node;
-                _M_root->_M_height = 1;
-            } else {
-                // insert a new node in the right place. 
-                if (_M_key_comp(_S_key(__val), 
-                    _S_key(((__ptr) __parent._M_node)->_M_value))) {
-                    __parent._M_node->_M_left = __new_node;
-                } else {
-                    __parent._M_node->_M_right = __new_node;
-                }
-                // set the parent of the new node...
-                __new_node->_M_parent = __parent._M_node;
-
-                // update the height from __new_node to root; 
-                __ptr __cur = __new_node;
-                while (1) {
-                    __cur->_M_height_flush();
-                    if (__cur == _M_root) break;
-                    __cur = (__ptr) __cur->_M_parent;
-                } 
-            }
-
-            ++_M_node_count;
-
-#ifdef __test_avl
-            printf(">>>>>>>>>>> insert %d\n", __val);
-#endif 
-            // rotate
-            _M_rotate(__new_node);
-
-#ifdef __test_avl
-            _S_show_tree(_M_root);
-            assert(_S_is_balanced(_M_root));
-#endif 
-
-            return iterator(__new_node);
+            return _M_insert_node(__new_node, __parent);
         }
     }
 
     iterator insert_equal(const value_type &__val) {
-        
+        tinystd::pair<iterator, bool> __res;
+        __ptr __node = _M_root;
+        while (1) {
+            __res = _M_find(__node, __val);
+            if (!__res.second) break;
+            __node = (__ptr) __res.first._M_node;
+        }
+
+        iterator __parent = __res.first;
+        __ptr __new_node = _M_create_node(__val);
+        return _M_insert_node(__new_node, __parent);
     }
 
     // find that the tree is contains __val 
     // if find the val return it's iterator and true
     // but if not find, return the parent iterator and false... 
-    tinystd::pair<iterator, bool> find(const value_type &__val) {
-        __ptr __cur = _M_root, __parent = 0;
-        while (__cur && _S_key(__cur->_M_value) != _S_key(__val)) {
-            __parent = __cur;
-            if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
-                { __cur = (__ptr) __cur->_M_left; }
-            else
-                { __cur = (__ptr) __cur->_M_right; }
-        }
-        if (__cur) 
-            { return { iterator(__cur), true }; }
-        else 
-            { return { iterator(__parent), false }; }
-    }
+    tinystd::pair<iterator, bool> find(const value_type &__val) 
+        { return _M_find(_M_root, __val); }
 
     void clear() { 
         _S_walk_tree(_M_root, [&](__ptr __node) { 
