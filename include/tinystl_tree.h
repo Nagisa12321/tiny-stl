@@ -355,6 +355,60 @@ protected:
         { return __node ? ((__node->_M_left ? ((__ptr) __node->_M_left)->_M_height : 0) -
                  (__node->_M_right ? ((__ptr) __node->_M_right)->_M_height : 0)) : 0; }
 
+    void _M_delete_node(__ptr __node) {
+        if (!__node) return; 
+
+        __ptr __parent = (__ptr) __node->_M_parent;
+        // the deleted node has no children
+        // and I will just delete it ...
+        if (!__node->_M_left && !__node->_M_right) {
+            if (__parent) {
+                if (__node == __parent->_M_left) __parent->_M_left = 0x0;
+                else __parent->_M_right = 0x0;
+            } else _M_root = 0x0;
+            _M_destory_node(__node);
+        }
+
+        // node have one children 
+        else if (!__node->_M_right) {
+            if (__parent) {
+                if (__node == __parent->_M_left) {
+                    __parent->_M_left = __node->_M_left;
+                    __node->_M_left->_M_parent = __parent;
+                } else {
+                    __parent->_M_right = __node->_M_left;
+                    __node->_M_left->_M_parent = __parent;
+                }
+            } else {
+                _M_root = (__ptr) __node->_M_left;
+                _M_root->_M_parent = 0x0;
+            }
+            _M_destory_node(__node);
+        } else if (!__node->_M_left) {
+            if (__parent) {
+                if (__node == __parent->_M_left) {
+                    __parent->_M_left = __node->_M_right;
+                    __node->_M_right->_M_parent = __parent;
+                } else {
+                    __parent->_M_right = __node->_M_right;
+                    __node->_M_right->_M_parent = __parent;
+                }
+            } else {
+                _M_root = (__ptr) __node->_M_right;
+                _M_root->_M_parent = 0x0;
+            }
+            _M_destory_node(__node);
+        }
+
+        // node have two children 
+        else {
+            iterator __it(__node);
+            __it._M_increment();
+            __node->_M_value = ((__ptr) __it._M_node)->_M_value;
+            _M_delete_node((__ptr) __it._M_node);
+        }
+    }
+
 protected:
     size_type _M_node_count;
     __ptr _M_root;
@@ -370,7 +424,8 @@ public:
         { clear(); }
 
     iterator begin() 
-        { return iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
+        { return empty() ? iterator(0) : 
+            iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
     iterator end()
         { return iterator(0); }
     bool empty() const 
@@ -418,6 +473,14 @@ public:
         _S_walk_tree(_M_root, [&](__ptr __node) { 
             _M_destory_node(__node); 
         });
+    }
+
+    void erase(const value_type &__val) {
+        tinystd::pair<iterator, bool> __res = _M_find(_M_root, __val);
+        if (__res.second) { 
+            _M_delete_node((__ptr) __res.first._M_node); 
+            --_M_node_count;
+        }
     }
 
 protected:

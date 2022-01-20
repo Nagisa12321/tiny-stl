@@ -13,11 +13,13 @@
 #include "tinystl_functional.h"
 #include "tinystl_vector.h"
 #include "tinystl_iterator.h"
+#include "__tinystl_utils.h"
 
 void __test_tree_node_base_iterator();
 void __test_insert_unique();
 void __test_rotate();
 void __test_insert_equal();
+void __test_erase();
 
 int main() {
     srand(time(0x0));
@@ -27,6 +29,7 @@ int main() {
         { "test insert_unique...", __test_insert_unique },
         { "test insert with retote...", __test_rotate },
         { "test insert equal...", __test_insert_equal },
+        { "test erase...", __test_erase },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -301,5 +304,59 @@ void __test_insert_equal() {
     }
 }
 
-// #undef __test_avl
+void __test_erase() {
+    std::cout << "test1(no rorate): erase 3 ways but still sorted..." << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
 
+        for (int i = 0; i < 10; ++i) {
+            tree.insert_unique(i);
+        }
+
+        std::cout << "before remove 3: ";
+        __print_container(tree.begin(), tree.end()); 
+        tree.erase(3);
+        assert(__is_sorted(tree.begin(), tree.end()));
+        std::cout << "after remove 3: ";
+        __print_container(tree.begin(), tree.end()); 
+
+        std::cout << "before remove 5: ";
+        __print_container(tree.begin(), tree.end()); 
+        tree.erase(5);
+        assert(__is_sorted(tree.begin(), tree.end()));
+        std::cout << "after remove 5: ";
+        __print_container(tree.begin(), tree.end()); 
+
+        std::cout << "before remove 9: ";
+        __print_container(tree.begin(), tree.end()); 
+        tree.erase(9);
+        assert(__is_sorted(tree.begin(), tree.end()));
+        std::cout << "after remove 9: ";
+        __print_container(tree.begin(), tree.end());
+
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2(no rorate): random erase but still sorted... " << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+
+        for (int i = 0; i < 0xffff; ++i) {
+            tree.insert_unique(rand() % 0xffff);
+        }
+        std::cout << "after insert 0xffff... size is "<< tree.size() << std::endl;
+        for (int i = 0; i < 0xffff; ++i) {
+            tree.erase(rand() % 0xffff);
+        }
+        std::cout << "after erase 0xffff... size is "<< tree.size() << std::endl;
+
+        assert(__is_sorted(tree.begin(), tree.end()));
+        std::cout << "...ok" << std::endl;
+
+    }
+}
+
+// #undef __test_avl
