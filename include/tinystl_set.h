@@ -62,11 +62,24 @@ public:
         { return _M_tree.begin(); }
     iterator end() const
         { return _M_tree.end(); }
+    iterator cbegin() const
+        { return _M_tree.begin(); }
+    iterator cend() const
+        { return _M_tree.end(); }
+    size_type size() const
+        { return _M_tree.size(); }
+    bool empty() const
+        { return _M_tree.empty(); }
+    size_type max_size() const
+        { return size_type(-1); }
+    void clear() 
+        { _M_tree.clear(); }
 
     iterator insert(const key_type &__key) 
         { return iterator((__avl_tree_node<_Key> *) _M_tree.insert_unique(__key)._M_node); }
     iterator find(const key_type &__key)
         { return iterator((__avl_tree_node<_Key> *) _M_tree.find(__key).first._M_node); }
+    
 };
 
 }
