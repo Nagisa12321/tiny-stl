@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstring>
 #include <unordered_set>
+#include "tinystl_algobase.h"
 #include "tinystl_pair.h"
 #include "tinystl_tree.h"
 #include "tinystl_functional.h"
@@ -20,6 +21,7 @@ void __test_insert_unique();
 void __test_rotate();
 void __test_insert_equal();
 void __test_erase();
+void __test_consrtuctor_and_operator_equal();
 
 int main() {
     srand(time(0x0));
@@ -30,6 +32,7 @@ int main() {
         { "test insert with retote...", __test_rotate },
         { "test insert equal...", __test_insert_equal },
         { "test erase...", __test_erase },
+        { "test constructor and operator equal...", __test_consrtuctor_and_operator_equal },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -359,4 +362,46 @@ void __test_erase() {
     }
 }
 
+void __test_consrtuctor_and_operator_equal() {
+    std::cout << "test1: test constructor..." << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        
+        for (int i = 0; i < 10; ++i) {
+            tree.insert_unique(i);
+        }
+
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree2(tree);
+
+        assert(tinystd::equal(tree.begin(), tree.end(), tree2.begin()));
+        assert(tree.size() == tree.size());
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2: operator= ... " << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        
+        for (int i = 0; i < 10; ++i) {
+            tree.insert_unique(i);
+        }
+
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree2;
+
+        for (int i = 0; i < 0xff; ++i) {
+            tree2.insert_unique(rand() % 0xff);
+        }
+
+        tree2 = tree;
+
+        assert(tinystd::equal(tree.begin(), tree.end(), tree2.begin()));
+        assert(tree.size() == tree.size());
+        std::cout << "...ok" << std::endl;
+    }
+}
 // #undef __test_avl

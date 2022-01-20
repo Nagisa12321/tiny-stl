@@ -39,6 +39,13 @@ struct multiplies {
         { return __lhs * __rhs; }
 };
 
+// return the data itself...
+template <typename _Tp>
+struct identity {
+    const _Tp &operator()(const _Tp &__data) const
+        { return __data; }
+};
+
 }
 
 #endif // __TINYSTL_FUNCTIONAL_H

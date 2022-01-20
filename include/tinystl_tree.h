@@ -173,6 +173,7 @@ public:
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
     typedef __avl_tree_iterator<value_type, reference, pointer> iterator;
+    typedef __avl_tree_iterator<value_type, const_reference, const_pointer> const_iterator;
 
 protected:
     __ptr _M_get_node() 
@@ -202,7 +203,10 @@ protected:
         __ptr __parent = 0x0;
         if (__cur)
             __parent = (__ptr) __cur->_M_parent;
-        while (__cur && _S_key(__cur->_M_value) != _S_key(__val)) {
+        // while (__cur && _S_key(__val) != _S_key(__cur->_M_value)) {
+        while (__cur && 
+                ((_M_key_comp(_S_key(__val), _S_key(__cur->_M_value))) || 
+                (_M_key_comp(_S_key(__cur->_M_value), _S_key(__val))))) {
             __parent = __cur;
             if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
                 { __cur = (__ptr) __cur->_M_left; }
@@ -420,14 +424,38 @@ public:
         : _M_node_count(0x0)
         , _M_root(0x0)
         , _M_key_comp() {}
+    __avl_tree(const _Compare &__comp)
+        : _M_node_count(0x0)
+        , _M_root(0x0)
+        , _M_key_comp(__comp) {}
+    __avl_tree(const __avl_tree &__other)
+        : _M_node_count(0x0)
+        , _M_root(0x0)
+        , _M_key_comp() {
+        for (const value_type &__val : __other)
+             insert_equal(__val);
+    }
     ~__avl_tree() 
         { clear(); }
+
+    __avl_tree &operator=(const __avl_tree &__other) {
+        if (&__other == this) return *this;
+        clear();
+        for (const value_type &__val : __other)
+            insert_equal(__val);
+        return *this;
+    }
 
     iterator begin() 
         { return empty() ? iterator(0) : 
             iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
     iterator end()
         { return iterator(0); }
+    const_iterator begin() const
+        { return empty() ? const_iterator(0) : 
+            const_iterator((__ptr) __avl_tree_node_base::_S_minimum(_M_root)); }
+    const_iterator end() const
+        { return const_iterator(0); }
     bool empty() const 
         { return _M_node_count == 0; }
     size_type size() const
@@ -447,6 +475,12 @@ public:
             __ptr __new_node = _M_create_node(__val);
             return _M_insert_node(__new_node, __parent);
         }
+    }
+
+    template <typename _InputIter>
+    void insert_unique(_InputIter __first, _InputIter __last) {
+        for (; __first != __last; ++__first) 
+            { insert_unique(*__first); }
     }
 
     iterator insert_equal(const value_type &__val) {
@@ -473,6 +507,8 @@ public:
         _S_walk_tree(_M_root, [&](__ptr __node) { 
             _M_destory_node(__node); 
         });
+        _M_root = 0x0;
+        _M_node_count = 0x0;
     }
 
     void erase(const value_type &__val) {
