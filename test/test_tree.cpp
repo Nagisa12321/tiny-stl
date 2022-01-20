@@ -1,4 +1,4 @@
-#define __test_avl
+// #define __test_avl
 #include <cstdlib>
 #include <ctime>
 #include <ostream>
@@ -23,9 +23,9 @@ int main() {
     srand(time(0x0));
 
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
-        // { "test the tree node base iterator... ", __test_tree_node_base_iterator },
-        // { "test insert_unique...", __test_insert_unique },
-        // { "test insert with retote...", __test_rotate },
+        { "test the tree node base iterator... ", __test_tree_node_base_iterator },
+        { "test insert_unique...", __test_insert_unique },
+        { "test insert with retote...", __test_rotate },
         { "test insert equal...", __test_insert_equal },
     };
 
@@ -261,35 +261,45 @@ void __test_rotate() {
 }
 
 void __test_insert_equal() {
-    // std::cout << "test1: insert 10 same elements" << std::endl;
-    // {
-    //     tinystd::less<int> cmp;
-    //     tinystd::__avl_tree<int, int, 
-    //         return_itself, decltype(cmp)> tree;
-
-    //     for (int i = 0; i < 10; ++i) 
-    //         tree.insert_equal(i);
-
-    //     assert(tree.size() == 10);
-    //     assert(__is_sorted(tree.begin(), tree.end()));
-
-    //     std::cout << "...ok" << std::endl;
-    // }
-    std::cout << "test2: insert many random shit..." << std::endl;
+    std::cout << "test1: insert 10 same elements" << std::endl;
     {
         tinystd::less<int> cmp;
         tinystd::__avl_tree<int, int, 
             return_itself, decltype(cmp)> tree;
 
         for (int i = 0; i < 10; ++i) 
-            tree.insert_equal(rand() % 10);
+            tree.insert_equal(i);
 
         assert(tree.size() == 10);
         assert(__is_sorted(tree.begin(), tree.end()));
 
         std::cout << "...ok" << std::endl;
     }
+    std::cout << "test2: insert many random shit..." << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+
+        for (int i = 0; i < 0xffff; ++i) 
+            tree.insert_equal(rand() % 0xff);
+
+        assert(tree.size() == 0xffff);
+        assert(__is_sorted(tree.begin(), tree.end()));
+
+        auto begin = tree.begin();
+        auto end = tree.end();
+        size_t sz = 0;
+        while (begin != end) {
+            ++sz;
+            ++begin;
+        }
+
+        assert(tree.size() == sz);
+
+        std::cout << "...ok" << std::endl;
+    }
 }
 
-#undef __test_avl
+// #undef __test_avl
 

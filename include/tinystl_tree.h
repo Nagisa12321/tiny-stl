@@ -199,7 +199,9 @@ protected:
     }
 
     tinystd::pair<iterator, bool> _M_find(__ptr __cur, const value_type &__val) {
-        __ptr __parent = (__ptr) __cur->_M_parent;
+        __ptr __parent = 0x0;
+        if (__cur)
+            __parent = (__ptr) __cur->_M_parent;
         while (__cur && _S_key(__cur->_M_value) != _S_key(__val)) {
             __parent = __cur;
             if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
@@ -393,15 +395,15 @@ public:
     }
 
     iterator insert_equal(const value_type &__val) {
-        tinystd::pair<iterator, bool> __res;
-        __ptr __node = _M_root;
-        while (1) {
-            __res = _M_find(__node, __val);
-            if (!__res.second) break;
-            __node = (__ptr) __res.first._M_node;
+        __ptr __cur = _M_root;
+        __ptr __parent = 0x0;
+        while (__cur) {
+            __parent = __cur;
+            if (_M_key_comp(_S_key(__val), _S_key(__cur->_M_value)))
+                { __cur = (__ptr) __cur->_M_left; }
+            else
+                { __cur = (__ptr) __cur->_M_right; }
         }
-
-        iterator __parent = __res.first;
         __ptr __new_node = _M_create_node(__val);
         return _M_insert_node(__new_node, __parent);
     }
