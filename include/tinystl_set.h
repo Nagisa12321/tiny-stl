@@ -4,6 +4,7 @@
 #include "tinystl_functional.h"
 #include "tinystl_alloc.h"
 #include "tinystl_tree.h"
+#include "tinystl_pair.h"
 
 // for the initializer_list constructor...
 #include <initializer_list>
@@ -51,7 +52,11 @@ public:
     set(const set &__other)
         : _M_tree(__other._M_tree) {}
     set(std::initializer_list<_Key> __li)
-        : _M_tree() {
+        : _M_tree(_Compare()) {
+        _M_tree.insert_unique(__li.begin(), __li.end());
+    }
+    set(std::initializer_list<_Key> __li, const _Compare &__comp)
+        : _M_tree(__comp) {
         _M_tree.insert_unique(__li.begin(), __li.end());
     }
 
@@ -74,13 +79,21 @@ public:
         { return size_type(-1); }
     void clear() 
         { _M_tree.clear(); }
+    void swap(set &__other) 
+        { _M_tree.swap(__other._M_tree); }
+    key_compare key_comp() const
+        { return _M_tree.key_comp(); }
+    
 
-    iterator insert(const key_type &__key) 
-        { return iterator((__avl_tree_node<_Key> *) _M_tree.insert_unique(__key)._M_node); }
+    tinystd::pair<iterator, bool> insert(const key_type &__key) {
+        pair<typename __rep_type::iterator, bool> __res = _M_tree.insert_unique(__key);
+        return { iterator((__avl_tree_node<_Key> *) __res.first._M_node), __res.second };
+    }
+
     iterator find(const key_type &__key)
         { return iterator((__avl_tree_node<_Key> *) _M_tree.find(__key).first._M_node); }
-    
-};
+
+    };
 
 }
 

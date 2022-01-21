@@ -3,7 +3,10 @@
 #include <iostream>
 #include <set>
 #include <cmath>
+#include <cassert>
+
 #include <tinystl_set.h>
+#include <tinystl_iterator.h>
 
 void __test_constructor();
 void __test_operator_eq();
@@ -12,6 +15,8 @@ void __test_empty();
 void __test_size();
 void __test_max_size();
 void __test_clear();
+void __test_insert();
+void __test_swap();
 
 int main() {
     srand(time(0x0));
@@ -24,6 +29,8 @@ int main() {
         { "test size() ... ", __test_size },
         { "test max_size() ... ", __test_max_size },
         { "test clear() ... ", __test_clear },
+        { "test insert() ... ", __test_insert },
+        { "test swap() ... ", __test_swap },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -187,3 +194,61 @@ void __test_clear() {
     std::cout << "\nSize=" << container.size() << '\n';
 }
 
+// insert done
+// no insertion
+void __test_insert() {
+    tinystd::set<int> set;
+ 
+    auto result_1 = set.insert(3);
+    assert(result_1.first != set.end()); // it's a valid iterator
+    assert(*result_1.first == 3);
+    if (result_1.second)
+        std::cout << "insert done\n";
+ 
+    auto result_2 = set.insert(3);
+    assert(result_2.first == result_1.first); // same iterator
+    assert(*result_2.first == 3);
+    if (!result_2.second)
+        std::cout << "no insertion\n";
+}
+
+template<class Os, class Co> Os& operator<<(Os& os, const Co& co) {
+    os << "{";
+    for (auto const& i : co) { os << ' ' << i; }
+    return os << " } ";
+}
+ 
+// { 1 2 3 } { 4 5 } 2 5 1 4
+// { 4 5 } { 1 2 3 } 2 5 1 4
+// { 1 2 } { 3 4 } 6 9
+// { 3 4 } { 1 2 } 9 6
+void __test_swap() {
+    tinystd::set<int> a1{3, 1, 3, 2}, a2{5, 4, 5};
+ 
+    auto it1 = tinystd::next(a1.begin());
+    auto it2 = tinystd::next(a2.begin());
+ 
+    const int& ref1 = *(a1.begin());
+    const int& ref2 = *(a2.begin());
+ 
+    std::cout << a1 << a2 << *it1 << ' ' << *it2 << ' ' << ref1 << ' ' << ref2 << '\n';
+    a1.swap(a2);
+    std::cout << a1 << a2 << *it1 << ' ' << *it2 << ' ' << ref1 << ' ' << ref2 << '\n';
+ 
+    // Note that every iterator referring to an element in one container before the swap
+    // refers to the same element in the other container after the swap. Same is true
+    // for references.
+ 
+    struct Cmp : std::less<int> {
+        int id{};
+        Cmp(int i) : id{i} { }
+    };
+ 
+    tinystd::set<int, Cmp> s1{ {2, 2, 1, 1}, Cmp{6} }, s2{ {4, 4, 3, 3}, Cmp{9} };
+ 
+    std::cout << s1 << s2 << s1.key_comp().id << ' ' << s2.key_comp().id << '\n';
+    s1.swap(s2);
+    std::cout << s1 << s2 << s1.key_comp().id << ' ' << s2.key_comp().id << '\n';
+ 
+    // So, comparator objects (Cmp) are also exchanged after the swap.
+}

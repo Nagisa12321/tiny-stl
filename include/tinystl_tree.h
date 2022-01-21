@@ -174,6 +174,7 @@ public:
     typedef ptrdiff_t difference_type;
     typedef __avl_tree_iterator<value_type, reference, pointer> iterator;
     typedef __avl_tree_iterator<value_type, const_reference, const_pointer> const_iterator;
+    typedef _Compare key_compare;
 
 protected:
     __ptr _M_get_node() 
@@ -462,18 +463,20 @@ public:
         { return _M_node_count; }
     size_type max_size() const
         { return size_type(-1); }
+    key_compare key_comp() const
+        { return  _M_key_comp; }
     
     // insert the val, then return a pair
     // return the iterator insert
     // return end means it contains the value... 
-    iterator insert_unique(const value_type &__val) {
+    tinystd::pair<iterator, bool> insert_unique(const value_type &__val) {
         tinystd::pair<iterator, bool> __res = find(__val);
         if (__res.second) 
-            { return iterator(0); }
+            { return { __res.first, false }; }
         else {
             iterator __parent = __res.first;
             __ptr __new_node = _M_create_node(__val);
-            return _M_insert_node(__new_node, __parent);
+            return { _M_insert_node(__new_node, __parent), true };
         }
     }
 
@@ -517,6 +520,19 @@ public:
             _M_delete_node((__ptr) __res.first._M_node); 
             --_M_node_count;
         }
+    }
+
+    void swap(__avl_tree &__other) {
+        // TODO: write tinystd::swap
+        size_type __count_tmp = _M_node_count;
+        __ptr __root_tmp = _M_root;
+        _Compare __comp_tmp = _M_key_comp;
+        _M_node_count = __other._M_node_count;
+        _M_root = __other._M_root;
+        _M_key_comp = __other._M_key_comp;
+        __other._M_root = __root_tmp;
+        __other._M_node_count = __count_tmp;
+        __other._M_key_comp = __comp_tmp;
     }
 
 protected:
