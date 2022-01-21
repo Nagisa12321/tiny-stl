@@ -102,7 +102,8 @@ struct __avl_tree_base_iterator {
 
             // now [__parent == NULL] is undefined behaviors
             // so I don't want to deal with it...
-            _M_node = __parent;
+            if (__parent) _M_node = __parent;
+            else _M_node = 0;
         }
     }
 };
@@ -162,6 +163,7 @@ protected:
     typedef __avl_tree_node_base::__base_ptr __base_ptr;
     typedef typename __avl_tree_node<_Value>::__ptr __ptr;
     typedef simple_alloc<__avl_tree_node<_Value>, _Alloc> __avl_tree_node_allocator;
+    typedef __avl_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc> __self;
 
 public:
     typedef _Key key_type;
@@ -200,7 +202,7 @@ protected:
         _M_put_node(__node);
     }
 
-    tinystd::pair<iterator, bool> _M_find(__ptr __cur, const value_type &__val) {
+    tinystd::pair<iterator, bool> _M_find(__ptr __cur, const value_type &__val) const {
         __ptr __parent = 0x0;
         if (__cur)
             __parent = (__ptr) __cur->_M_parent;
@@ -249,16 +251,16 @@ protected:
 
        ++_M_node_count;
 
-#ifdef __test_avl
-        printf(">>>>>>>>>>> insert %d\n", __val);
-#endif 
+// #ifdef __test_avl
+//         printf(">>>>>>>>>>> insert %d\n", __val);
+// #endif 
         // rotate
         _M_rotate(__new_node);
 
-#ifdef __test_avl
-        _S_show_tree(_M_root);
-        assert(_S_is_balanced(_M_root));
-#endif 
+// #ifdef __test_avl
+//         _S_show_tree(_M_root);
+//         assert(_S_is_balanced(_M_root));
+// #endif 
 
         return iterator(__new_node);
     }
@@ -534,6 +536,37 @@ public:
         __other._M_node_count = __count_tmp;
         __other._M_key_comp = __comp_tmp;
     }
+
+    // Returns an iterator pointing to the first element 
+    // that is not less than (i.e. greater or equal to) key.
+    const_iterator lower_bound(const value_type &__val) const 
+        { return const_iterator((__ptr) (const_cast<__self *>(this))->lower_bound(__val)._M_node); }
+
+    iterator lower_bound(const value_type &__val) {
+        tinystd::pair<iterator, bool> __find = _M_find(_M_root, __val);
+        iterator __it = __find.first;
+        if (_M_key_comp(((__ptr) __it._M_node)->_M_value, __val))
+            ++__it;
+        return __it;
+    }
+
+    // Returns an iterator pointing to the 
+    // first element that is greater than key.
+    const_iterator upper_bound(const value_type &__val) const 
+        { return const_iterator((__ptr) (const_cast<__self *>(this))->upper_bound(__val)._M_node); }
+
+    iterator upper_bound(const value_type &__val) {
+        tinystd::pair<iterator, bool> __find = _M_find(_M_root, __val);
+        iterator __it = __find.first;
+        if (_M_key_comp(__val, ((__ptr) __it._M_node)->_M_value))
+            return __it;
+        return ++__it; 
+    }
+
+#ifdef __test_avl
+    void __show()
+        { _S_show_tree(_M_root); }
+#endif
 
 protected:
     static _Key _S_key(const value_type &__data) 

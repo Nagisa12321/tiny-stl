@@ -1,4 +1,4 @@
-// #define __test_avl
+#define __test_avl
 #include <cstdlib>
 #include <ctime>
 #include <ostream>
@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstring>
 #include <unordered_set>
+#include <set>
 #include "tinystl_algobase.h"
 #include "tinystl_pair.h"
 #include "tinystl_tree.h"
@@ -22,6 +23,7 @@ void __test_rotate();
 void __test_insert_equal();
 void __test_erase();
 void __test_consrtuctor_and_operator_equal();
+void __test_bound();
 
 int main() {
     srand(time(0x0));
@@ -33,6 +35,7 @@ int main() {
         { "test insert equal...", __test_insert_equal },
         { "test erase...", __test_erase },
         { "test constructor and operator equal...", __test_consrtuctor_and_operator_equal },
+        { "test bound...", __test_bound },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -404,4 +407,79 @@ void __test_consrtuctor_and_operator_equal() {
         std::cout << "...ok" << std::endl;
     }
 }
-// #undef __test_avl
+
+void __test_bound() {
+    std::cout << "test1: lower_bound and upper_bound" << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        std::set<int> s;
+        
+        for (int i = 0; i <= 10; i += 2) {
+            tree.insert_unique(i);
+            s.insert(i);
+        }
+
+// #ifdef __test_avl
+//      tree.__show();
+// #endif
+
+        assert(*tree.lower_bound(0) == *s.lower_bound(0));
+        assert(*tree.lower_bound(3) == *s.lower_bound(3));
+        assert(*tree.upper_bound(8) == *s.upper_bound(8));
+        assert(*tree.upper_bound(3) == *s.upper_bound(3));
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2: test random lower_bound" << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        std::set<int> s;
+        
+        for (int i = 0; i < 0xffff; ++i) {
+            int random_shit = rand() % 0xfff;
+            tree.insert_unique(random_shit);
+            s.insert(random_shit);
+        }
+
+        for (int i = 0; i < 100; ++i) {
+            int random_shit = rand() % 0xfff;
+            auto it = s.lower_bound(random_shit);
+            if (it == s.end())
+                assert(tree.lower_bound(random_shit) == tree.end());
+            else 
+                assert(*tree.lower_bound(random_shit) == *it);
+        }
+
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2: test random upper_bound" << std::endl;
+    {
+        tinystd::less<int> cmp;
+        tinystd::__avl_tree<int, int, 
+            return_itself, decltype(cmp)> tree;
+        std::set<int> s;
+        
+        for (int i = 0; i < 0xffff; ++i) {
+            int random_shit = rand() % 0xffff;
+            tree.insert_unique(random_shit);
+            s.insert(random_shit);
+        }
+
+        for (int i = 0; i < 100; ++i) {
+            int random_shit = rand() % 0xffff;
+            auto it = s.upper_bound(random_shit);
+            if (it == s.end())
+                assert(tree.upper_bound(random_shit) == tree.end());
+            else {
+                assert(*tree.upper_bound(random_shit) == *it);
+            }
+        }
+
+        std::cout << "...ok" << std::endl;
+    }
+}
+
+#undef __test_avl

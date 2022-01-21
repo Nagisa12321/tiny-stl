@@ -17,6 +17,7 @@ void __test_max_size();
 void __test_clear();
 void __test_insert();
 void __test_swap();
+void __test_bound();
 
 int main() {
     srand(time(0x0));
@@ -31,6 +32,7 @@ int main() {
         { "test clear() ... ", __test_clear },
         { "test insert() ... ", __test_insert },
         { "test swap() ... ", __test_swap },
+        { "test bound() ... ", __test_bound },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -252,3 +254,34 @@ void __test_swap() {
  
     // So, comparator objects (Cmp) are also exchanged after the swap.
 }
+
+void __test_bound() {
+    std::cout << "test1: random with std::set" << std::endl;
+    {
+        tinystd::set<int> tinystd_s;
+        std::set<int> std_s;
+
+        for (int i = 0; i < 0xffff; ++i) {
+            int random_shit = rand() % 0xffff;
+            tinystd_s.insert(random_shit);
+            std_s.insert(random_shit);
+        }
+
+        for (int i = 0; i < 0xffff; ++i) {
+            int random_shit = rand() % 0xffff;
+            auto up = std_s.upper_bound(random_shit);
+            auto low = std_s.lower_bound(random_shit);
+            if (up == std_s.end())
+                assert(tinystd_s.upper_bound(random_shit) == tinystd_s.end());
+            else 
+                assert(*up == *tinystd_s.upper_bound(random_shit));
+            if (low == std_s.end())
+                assert(tinystd_s.lower_bound(random_shit) == tinystd_s.end());
+            else 
+                assert(*low == *tinystd_s.lower_bound(random_shit));
+        }
+
+        std::cout << "...ok" << std::endl;
+    }
+}
+
