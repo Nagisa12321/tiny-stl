@@ -98,6 +98,8 @@ public:
         { return size_type(-1); }
     void clear()
         { _M_tree.clear(); }
+    bool empty() const
+        { return _M_tree.empty(); }
     void swap(map &__other)
         { _M_tree.swap(__other._M_tree); }
     key_compare key_comp() const

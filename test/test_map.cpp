@@ -10,6 +10,8 @@
 void __test_constructor();
 void __test_operator_equal();
 void __test_operator_index();
+void __test_begin_end();
+void __test_empty();
 
 int main() {
     srand(time(0x0));
@@ -18,6 +20,8 @@ int main() {
         { "test constructor of map...", __test_constructor },
         { "test operator=() ... ", __test_operator_equal },
         { "test operator[]() ... ", __test_operator_index }, 
+        { "test begin() or cbrgin() ... ", __test_begin_end },
+        { "test empty() ... ", __test_empty },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -206,3 +210,28 @@ void __test_operator_index() {
     }
 }
 
+// 1, 1.09
+// 4, 4.13
+// 9, 9.24
+void __test_begin_end() {
+    tinystd::map<int, float> num_map;
+    num_map[4] = 4.13;
+    num_map[9] = 9.24;
+    num_map[1] = 1.09;
+    // calls a_map.begin() and a_map.end()
+    for (auto it = num_map.begin(); it != num_map.end(); ++it) {
+      std::cout << it->first << ", " << it->second << '\n';
+    }
+}
+
+// Initially, numbers.empty(): true
+// After adding elements, numbers.empty(): false
+void __test_empty() {
+    tinystd::map<int,int> numbers;
+    std::cout << std::boolalpha;
+    std::cout << "Initially, numbers.empty(): " << numbers.empty() << '\n';
+ 
+    numbers.insert({42, 13});
+    numbers.insert({13317, 123}); 
+    std::cout << "After adding elements, numbers.empty(): " << numbers.empty() << '\n';
+}
