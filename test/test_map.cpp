@@ -9,6 +9,7 @@
 
 void __test_constructor();
 void __test_operator_equal();
+void __test_operator_index();
 
 int main() {
     srand(time(0x0));
@@ -16,6 +17,7 @@ int main() {
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test constructor of map...", __test_constructor },
         { "test operator=() ... ", __test_operator_equal },
+        { "test operator[]() ... ", __test_operator_index }, 
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -161,5 +163,46 @@ void __test_operator_equal() {
  
     std::cout << "After move assigment:\n"; 
     display_sizes(nums1, nums2, nums3);
+}
+
+auto print = [](auto const comment, auto const& map) {
+    std::cout << comment << "{";
+    for (const auto &pair : map) {
+        std::cout << "{" << pair.first << ": " << pair.second << "}";
+    }
+    std::cout << "}\n";
+};
+ 
+// letter_counts initially contains: {{a: 27}{b: 3}{c: 1}}
+// after modifications it contains: {{a: 27}{b: 42}{c: 1}{x: 9}}
+// 2 occurrences of word 'a'
+// 1 occurrences of word 'hoax'
+// 2 occurrences of word 'is'
+// 1 occurrences of word 'not'
+// 3 occurrences of word 'sentence'
+// 0 occurrences of word 'that'
+// 2 occurrences of word 'this'
+void __test_operator_index() {
+    tinystd::map<char, int> letter_counts {{'a', 27}, {'b', 3}, {'c', 1}};
+ 
+    print("letter_counts initially contains: ", letter_counts);
+ 
+    letter_counts['b'] = 42;  // updates an existing value
+    letter_counts['x'] = 9;  // inserts a new value
+ 
+    print("after modifications it contains: ", letter_counts);
+ 
+    // count the number of occurrences of each word
+    // (the first call to operator[] initialized the counter with zero)
+    std::map<std::string, int>  word_map;
+    for (const auto &w : { "this", "sentence", "is", "not", "a", "sentence",
+                           "this", "sentence", "is", "a", "hoax"}) {
+        ++word_map[w];
+    }
+    word_map["that"]; // just inserts the pair {"that", 0}
+ 
+    for (const auto &[word, count] : word_map) {
+        std::cout << count << " occurrences of word '" << word << "'\n";
+    }
 }
 
