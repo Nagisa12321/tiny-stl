@@ -115,6 +115,8 @@ public:
     }
     tinystd::pair<iterator, bool> insert(const value_type &__val)
         { return _M_tree.insert_unique(__val); }
+    void erase(iterator __pos) 
+        { _M_tree.erase(*__pos); }
 };
 
 }

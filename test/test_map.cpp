@@ -25,7 +25,7 @@ int main() {
         { "test begin() or cbrgin() ... ", __test_begin_end },
         { "test empty() ... ", __test_empty },
         { "test size() ... ", __test_size },
-        { "test erase() ... ",  }
+        { "test erase() ... ", __test_erase },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -244,4 +244,22 @@ void __test_empty() {
 void __test_size() {
     tinystd::map<int,char> nums {{1, 'a'}, {3, 'b'}, {5, 'c'}, {7, 'd'}};
     std::cout << "nums contains " << nums.size() << " elements.\n";
+}
+
+// two four six
+void __test_erase() {
+    tinystd::map<int, std::string> c = {
+        {1, "one" }, {2, "two" }, {3, "three"},
+        {4, "four"}, {5, "five"}, {6, "six"  }
+    };
+ 
+    // erase all odd numbers from c
+    for(auto it = c.begin(); it != c.end(); ) {
+        auto prev = it++;
+        if(prev->first % 2 != 0) c.erase(prev);
+    }
+ 
+    for(auto& p : c) {
+        std::cout << p.second << ' ';
+    }
 }
