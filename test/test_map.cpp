@@ -8,12 +8,14 @@
 #include <tinystl_pair.h>
 
 void __test_constructor();
+void __test_operator_equal();
 
 int main() {
     srand(time(0x0));
 
     std::vector<std::pair<std::string, void (*)()>> __test_cases{
         { "test constructor of map...", __test_constructor },
+        { "test operator=() ... ", __test_operator_equal },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -124,3 +126,40 @@ void __test_constructor()
                   << ", " << p.first.y << ") is "
                   << p.second << '\n';
 }
+
+void display_sizes(const tinystd::map<int, int> &nums1,
+                   const tinystd::map<int, int> &nums2,
+                   const tinystd::map<int, int> &nums3) {
+    std::cout << "nums1: " << nums1.size() 
+              << " nums2: " << nums2.size()
+              << " nums3: " << nums3.size() << '\n';
+}
+ 
+// nums1: 6 nums2: 0 nums3: 0
+// After assigment:
+// nums1: 6 nums2: 6 nums3: 0
+// After move assigment:
+// nums1: 0 nums2: 6 nums3: 6
+void __test_operator_equal() {
+    tinystd::map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}, 
+                              {6, 1}, {7, 1}, {8, 9}};
+    tinystd::map<int, int> nums2; 
+    tinystd::map<int, int> nums3;
+ 
+    std::cout << "Initially:\n";
+    display_sizes(nums1, nums2, nums3);
+ 
+    // copy assignment copies data from nums1 to nums2
+    nums2 = nums1;
+ 
+    std::cout << "After assigment:\n"; 
+    display_sizes(nums1, nums2, nums3);
+ 
+    // move assignment moves data from nums1 to nums3,
+    // modifying both nums1 and nums3
+    nums3 = std::move(nums1);
+ 
+    std::cout << "After move assigment:\n"; 
+    display_sizes(nums1, nums2, nums3);
+}
+
