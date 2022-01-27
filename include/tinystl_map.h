@@ -117,6 +117,8 @@ public:
         { return _M_tree.insert_unique(__val); }
     void erase(iterator __pos) 
         { _M_tree.erase(*__pos); }
+    size_type count(const value_type &__key) const 
+        { return _M_tree.find(__key).second ? 0x1 : 0x0; }
 };
 
 }
