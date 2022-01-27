@@ -3,6 +3,7 @@
 
 #include "tinystl_algobase.h"
 #include "tinystl_alloc.h"
+#include "tinystl_initializer_list.h"
 #include "tinystl_types.h"
 #include "tinystl_uninitialized.h"
 
@@ -743,6 +744,10 @@ bool operator==(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_C
     return __lhs.size() == __rhs.size() && 
         tinystd::equal(__lhs.begin(), __lhs.end(), __rhs.begin());
 }
+
+template <typename _CharT, typename _Alloc>
+bool operator<(const basic_string<_CharT, _Alloc> &__lhs, const basic_string<_CharT, _Alloc> &__rhs) 
+    { return tinystd::lexicographical_compare(__lhs.begin(), __lhs.end(), __rhs.begin(), __rhs.end()); }
 
 //
 // There is the real string...

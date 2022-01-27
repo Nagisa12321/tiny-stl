@@ -6,6 +6,8 @@
 
 #include <tinystl_map.h>
 #include <tinystl_pair.h>
+#include <tinystl_iterator.h>
+#include <tinystl_string.h>
 
 void __test_constructor();
 void __test_operator_equal();
@@ -14,6 +16,7 @@ void __test_begin_end();
 void __test_empty();
 void __test_size();
 void __test_erase();
+void __test_swap();
 
 int main() {
     srand(time(0x0));
@@ -26,6 +29,7 @@ int main() {
         { "test empty() ... ", __test_empty },
         { "test size() ... ", __test_size },
         { "test erase() ... ", __test_erase },
+        { "test swap() ... ", __test_swap },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -262,4 +266,52 @@ void __test_erase() {
     for(auto& p : c) {
         std::cout << p.second << ' ';
     }
+}
+
+// print out a std::pair
+template <class Os, class U, class V>
+Os& operator<<(Os& os, const tinystd::pair<U, V>& p) {
+    return os << p.first << ":" << p.second;
+}
+ 
+// print out a container
+template <class Os, class Co>
+Os& operator<<(Os& os, const Co& co) {
+    os << "{";
+    for (auto const& i : co) { os << ' ' << i; }
+    return os << " }\n";
+}
+ 
+// ──────── before swap ────────
+// m1: { α:alpha β:beta γ:gamma }
+// m2: { δ:delta ε:epsilon }
+// ref: α:alpha
+// iter: β:beta
+// ──────── after swap ────────
+// m1: { δ:delta ε:epsilon }
+// m2: { α:alpha β:beta γ:gamma }
+// ref: α:alpha
+// iter: β:beta
+void __test_swap()
+{
+    tinystd::map<tinystd::string, tinystd::string>
+        m1 { {"γ", "gamma"}, {"β", "beta"}, {"α", "alpha"}, {"γ", "gamma"}, },
+        m2 { {"ε", "epsilon"}, {"δ", "delta"}, {"ε", "epsilon"} };
+ 
+    const auto& ref = *(m1.begin());
+    const auto iter = tinystd::next(m1.cbegin());
+ 
+    std::cout << "──────── before swap ────────\n"
+              << "m1: " << m1 << "m2: " << m2 << "ref: " << ref
+              << "\niter: " << *iter << '\n';
+ 
+    m1.swap(m2);
+ 
+    std::cout << "──────── after swap ────────\n"
+              << "m1: " << m1 << "m2: " << m2 << "ref: " << ref
+              << "\niter: " << *iter << '\n';
+ 
+    // Note that every iterator referring to an element in one container before
+    // the swap refers to the same element in the other container after the swap.
+    // Same is true for references.
 }
