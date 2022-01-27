@@ -12,6 +12,8 @@ void __test_operator_equal();
 void __test_operator_index();
 void __test_begin_end();
 void __test_empty();
+void __test_size();
+void __test_erase();
 
 int main() {
     srand(time(0x0));
@@ -22,6 +24,8 @@ int main() {
         { "test operator[]() ... ", __test_operator_index }, 
         { "test begin() or cbrgin() ... ", __test_begin_end },
         { "test empty() ... ", __test_empty },
+        { "test size() ... ", __test_size },
+        { "test erase() ... ",  }
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -234,4 +238,10 @@ void __test_empty() {
     numbers.insert({42, 13});
     numbers.insert({13317, 123}); 
     std::cout << "After adding elements, numbers.empty(): " << numbers.empty() << '\n';
+}
+
+// nums contains 4 elements.
+void __test_size() {
+    tinystd::map<int,char> nums {{1, 'a'}, {3, 'b'}, {5, 'c'}, {7, 'd'}};
+    std::cout << "nums contains " << nums.size() << " elements.\n";
 }
