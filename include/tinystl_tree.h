@@ -505,7 +505,7 @@ public:
     // find that the tree is contains __val 
     // if find the val return it's iterator and true
     // but if not find, return the parent iterator and false... 
-    tinystd::pair<iterator, bool> find(const value_type &__val) 
+    tinystd::pair<iterator, bool> find(const value_type &__val) const
         { return _M_find(_M_root, __val); }
 
     void clear() { 

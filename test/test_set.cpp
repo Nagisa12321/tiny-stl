@@ -18,6 +18,7 @@ void __test_clear();
 void __test_insert();
 void __test_swap();
 void __test_bound();
+void __test_count();
 
 int main() {
     srand(time(0x0));
@@ -33,6 +34,7 @@ int main() {
         { "test insert() ... ", __test_insert },
         { "test swap() ... ", __test_swap },
         { "test bound() ... ", __test_bound },
+        { "test count() ... ", __test_count },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -284,4 +286,39 @@ void __test_bound() {
         std::cout << "...ok" << std::endl;
     }
 }
+
+struct S {
+    int x;
+    S(int i) : x{i} { std::cout << "S{" << i << "} "; }
+    bool operator<(S const& s) const { return x < s.x; }
+};
+ 
+struct R {
+    int x;
+    R(int i) : x{i} { std::cout << "R{" << i << "} "; }
+    bool operator<(R const& r) const { return x < r.x; }
+};
+bool operator<(R const& r, int i) { return r.x < i; }
+bool operator<(int i, R const& r) { return i < r.x; }
+
+// 1, 0.
+// S{3} S{1} S{4} S{1} S{5} : S{1} 1, S{2} 0.
+// R{3} R{1} R{4} R{1} R{5} : 1, 0. 
+void __test_count() {
+    tinystd::set<int> t{3, 1, 4, 1, 5};
+    std::cout << t.count(1) << ", " << t.count(2) << ".\n";
+ 
+    tinystd::set<S> s{3, 1, 4, 1, 5};
+    std::cout << ": " << s.count(1) << ", " << s.count(2) << ".\n";
+        // Two temporary objects S{1} and S{2} were created.
+        // Comparison function object is defaulted std::less<S>,
+        // which is not transparent (has no is_transparent member type).
+ 
+    tinystd::set<R, std::less<>> r{3, 1, 4, 1, 5};
+    std::cout << ": " << r.count(1) << ", " << r.count(2) << ".\n";
+        // C++14 heterogeneous lookup; temporary objects were not created.
+        // Comparator std::less<void> has predefined is_transparent.
+}
+
+
 

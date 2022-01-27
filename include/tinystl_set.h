@@ -83,10 +83,12 @@ public:
         { _M_tree.swap(__other._M_tree); }
     key_compare key_comp() const
         { return _M_tree.key_comp(); }
-    iterator upper_bound(const value_type &__val) const
-        { return _M_tree.upper_bound(__val); }
-    iterator lower_bound(const value_type &__val) const
-        { return _M_tree.lower_bound(__val); }
+    iterator upper_bound(const value_type &__key) const
+        { return _M_tree.upper_bound(__key); }
+    iterator lower_bound(const value_type &__key) const
+        { return _M_tree.lower_bound(__key); }
+    size_type count(const value_type &__key) const 
+        { return _M_tree.find(__key).second ? 0x1 : 0x0; }
     
 
     tinystd::pair<iterator, bool> insert(const key_type &__key) {
