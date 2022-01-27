@@ -46,6 +46,12 @@ struct identity {
         { return __data; }
 };
 
+template <typename _Pair>
+struct __select1st {
+    const typename _Pair::first_type &operator()(const _Pair &__pair) 
+        { return __pair.first; }
+};
+
 }
 
 #endif // __TINYSTL_FUNCTIONAL_H
