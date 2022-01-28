@@ -1,8 +1,14 @@
+#include "__tinystl_utils.h"
+#include "tinystl_algobase.h"
+#include <cstdlib>
 #include <vector>
 #include <iostream>
 #include <string>
 #include <iomanip>
 #include <map>
+#include <string_view>
+#include <algorithm>
+#include <cassert>
 
 #include <tinystl_map.h>
 #include <tinystl_pair.h>
@@ -18,6 +24,7 @@ void __test_size();
 void __test_erase();
 void __test_swap();
 void __test_find();
+void __test_map();
 
 int main() {
     srand(time(0x0));
@@ -32,6 +39,7 @@ int main() {
         { "test erase() ... ", __test_erase },
         { "test swap() ... ", __test_swap },
         { "test find() ... ", __test_find },
+        { "test map ", __test_map },
     };
 
     for (const std::pair<std::string, void (*)()> &__p : __test_cases) {
@@ -367,5 +375,56 @@ void __test_find() {
     //                            // 'std::pair<const FatKey, char>::second'
     //                            // in read-only object
     // }
+}
+
+tinystd::string to_string(int __x) {
+    return tinystd::string(std::to_string(__x).c_str());
+}
+
+template <class _T1, class _T2>
+inline bool operator==(const tinystd::pair<_T1, _T2>& __x, const std::pair<const _T1, _T2>& __y)
+{ 
+  return __x.first == __y.first && __x.second == __y.second; 
+}
+
+void __test_map() {
+    std::cout << "test1: " << std::endl;
+    {
+        tinystd::map<tinystd::string, int> tiny_map;
+        std::map<tinystd::string, int> std_map;
+        for (int i = 0; i < 1000; ++i) {
+            int random_shit = rand() % 1000;
+            tiny_map.insert({to_string(random_shit), random_shit});
+            std_map.insert({to_string(random_shit), random_shit});
+        }
+        assert(tiny_map.size() == std_map.size());
+        auto entry1 = tiny_map.begin();
+        auto entry2 = std_map.begin();
+        while (entry1 != tiny_map.end()) {
+            assert(*entry1++ == *entry2++);
+        }
+        std::cout << "...ok" << std::endl;
+    }
+    std::cout << "test2: test insert 0xffffff" << std::endl;
+    tinystd::map<int, int> tiny_map;
+    std::map<int, int> std_map;
+    {
+        __timer timer;
+        timer.__start();
+        for (int i = 0; i < 0xfffff; ++i) {
+            int r = rand(); 
+            tiny_map.insert({r, i});
+        }
+        timer.__end();
+        std::cout << "tiny insert 0xfffff time is: " << timer.__get_ms() << " ms" << std::endl;
+
+        timer.__start();
+        for (int i = 0; i < 0xfffff; ++i) {
+            int r = rand(); 
+            std_map.insert({r, i});
+        }
+        timer.__end();
+        std::cout << "std insert 0xfffff time is: " << timer.__get_ms() << " ms" << std::endl;
+    }
 }
 
