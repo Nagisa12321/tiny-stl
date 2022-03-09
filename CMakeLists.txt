@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 project(Tiny-STL)
 message(STATUS "Start Cmake...")
 
+set(CMAKE_CXX_COMPILER "x86_64-apple-darwin21-g++-11")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 # specify the C++ standard
