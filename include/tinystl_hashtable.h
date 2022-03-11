@@ -37,17 +37,21 @@ struct __hashtable_iterator {
     typedef tinystd::pair<const _Key, _Tp> *pointer;
     typedef tinystd::pair<const _Key, _Tp> &reference;
 
+    typedef typename __hashtable::sizr_type size_type;
+
     __node *_M_cur;
     __hashtable *_M_table;
-    typename __hashtable::size_type _M_index;
+    size_type _M_index;
 
-    __hashtable_iterator(__node *__n, __hashtable *__ht) 
+    __hashtable_iterator(__node *__n, __hashtable *__ht, size_type __index) 
         : _M_cur(__n)
-        , _M_table(__ht) {}
+        , _M_table(__ht) 
+        , _M_index(__index) {}
 
     __hashtable_iterator() 
         : _M_cur(nullptr) 
-        , _M_table(nullptr) {}
+        , _M_table(nullptr) 
+        , _M_index(0) {}
 
     reference operator*() const 
         { return _M_cur->_M_val; }
@@ -84,6 +88,8 @@ public:
     typedef _Key key_typed;
 
     typedef size_t size_type;
+    typedef __hashtable_iterator<const _Key, _Tp, _HashFunc, _Equal, _Alloc> iterator;
+    typedef __hashtable_iterator<const _Key, const _Tp, _HashFunc, _Equal, _Alloc> const_iterator;
 private:
     hasher _M_hash;
     key_equal _M_equals;
@@ -122,6 +128,21 @@ public:
 
     size_type bucket_count() const
         { return _M_buckets.size(); }
+    iterator begin() const 
+        { return iterator(_M_buckets[0], this, 0); } 
+    iterator end() const 
+        { return iterator(); }
+    const_iterator cbegin() const 
+        { return const_iterator(_M_buckets[0], this, 0); }
+    const_iterator cend() const 
+        { return const_iterator(); }
+    tinystd::pair<iterator, bool> insert(const value_type &__x) {
+        
+    }
+    template <typename _InputIt>
+    tinystd::pair<iterator, bool> insert(_InputIt __first, _InputIt __last) {
+        
+    }
 
 private:
     __node *_M_new_node(const value_type &__obj) {
@@ -135,7 +156,7 @@ private:
     }
 
     void _M_delete_node(__node *__n) {
-        tinystd::destory(__n->_M_val);
+        tinystd::destory(&__n->_M_val);
         __node_allocator::deallocate(__n);
     }
 
